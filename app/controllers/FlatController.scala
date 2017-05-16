@@ -16,4 +16,9 @@ class FlatController @Inject() (flatRepo: FlatRepo) extends Controller {
     Ok(Json.toJson(flatRepo.getFlatById(flatId)))
   }
 
+  def dateUpdates() = Action {
+    flatRepo.convertDates()
+    Ok("cool")
+  }
+
 }

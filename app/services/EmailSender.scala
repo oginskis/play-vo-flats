@@ -1,6 +1,7 @@
 package services
 
 import java.text.SimpleDateFormat
+import java.util.Date
 import javax.inject.{Inject, Singleton}
 import javax.mail._
 import javax.mail.internet.{InternetAddress, MimeBodyPart, MimeMessage, MimeMultipart}
@@ -51,8 +52,8 @@ class EmailSender @Inject() (configuration: Configuration, flatRepo: FlatRepo){
       var historicFlatStr = flatRepo.findHistoricAdds(new Flat(flat.address,flat.rooms,flat.size,flat.floor))
         .filterNot(incomingFlat=>(incomingFlat.link == flat.link && incomingFlat.price == flat.price))
         .sortBy(flat=>flat.firstSeenAt)
-        .map(flat=>flat.price.get+" EUR - Active between "+new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(flat.firstSeenAt.get)+
-          " and "+new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(flat.lastSeenAt.get))
+        .map(flat=>flat.price.get+" EUR - Active between "+new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.firstSeenAt.get*1000))+
+          " and "+new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.lastSeenAt.get*1000)))
         .mkString("<br />")
       if (historicFlatStr.isEmpty){
         historicFlatStr = "Nothing has been found"

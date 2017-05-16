@@ -5,7 +5,7 @@ import java.util
 import java.util.Date
 import javax.inject.{Inject, Singleton}
 
-import com.mongodb.{MongoClient, MongoClientURI}
+import com.mongodb.{Block, MongoClient, MongoClientURI}
 import model.Flat
 import org.bson.Document
 import org.bson.types.ObjectId
@@ -40,14 +40,6 @@ class FlatRepo @Inject() (configuration: play.api.Configuration) {
     val documents = flatsColl.find(new Document(params))
     if (documents.iterator().hasNext()){
       val doc = documents.iterator().next()
-      var firstSeenAt : Option[Date] = None
-      if (doc.get("firstSeenAt") == null){
-        firstSeenAt = Option(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse("01-01-2017 00:00:00"))
-      }
-      else {
-        firstSeenAt = Option(new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
-          .parse(doc.get("firstSeenAt").toString))
-      }
       Some(new Flat(
         Option(doc.get("address").toString),
         Option(doc.get("rooms").toString),
@@ -55,8 +47,8 @@ class FlatRepo @Inject() (configuration: play.api.Configuration) {
         Option(doc.get("floor").toString),
         Option(doc.get("price").toString.toInt),
         Option(doc.get("link").toString),
-        firstSeenAt,
-        Option(new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(doc.get("lastSeenAt").toString))
+        Option(doc.get("firstSeenAtEpoch").toString.toLong),
+        Option(doc.get("lastSeenAtEpoch").toString.toLong)
       ))
     } else {
       None
@@ -72,12 +64,12 @@ class FlatRepo @Inject() (configuration: play.api.Configuration) {
       params.put("price",flat.price.get.toString)
       params.put("rooms",flat.rooms.get)
       params.put("size",flat.size.get.toString)
-      params.put("lastSeenAt",new Date())
+      params.put("lastSeenAtEpoch",(new Date().getTime/1000).toString)
       new org.bson.Document(params)
     }
     def createDocument(flat: Flat): org.bson.Document = {
       val params = updateDocument(flat)
-      params.put("firstSeenAt",new Date())
+      params.put("firstSeenAtEpoch",(new Date().getTime/1000).toString)
       params
     }
     if (flatsColl.findOneAndUpdate(findFilter(flat)
@@ -99,14 +91,6 @@ class FlatRepo @Inject() (configuration: play.api.Configuration) {
     val flats = ListBuffer[Flat]()
     while (cursor.hasNext){
       val doc = cursor.next()
-      var firstSeenAt : Option[Date] = None
-      if (doc.get("firstSeenAt") == null){
-        firstSeenAt = Option(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse("01-01-2017 00:00:00"))
-      }
-      else {
-        firstSeenAt = Option(new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
-          .parse(doc.get("firstSeenAt").toString))
-      }
       flats += new Flat(
         Option(doc.get("address").toString),
         Option(doc.get("rooms").toString),
@@ -114,13 +98,51 @@ class FlatRepo @Inject() (configuration: play.api.Configuration) {
         Option(doc.get("floor").toString),
         Option(doc.get("price").toString.toInt),
         Option(doc.get("link").toString),
-        firstSeenAt,
-        Option(new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(doc.get("lastSeenAt").toString))
+        Option(doc.get("firstSeenAtEpoch").toString.toLong),
+        Option(doc.get("lastSeenAtEpoch").toString.toLong)
       )
     }
     cursor.close()
     Logger.debug(s"Found $flats.size flats")
     flats.toList
+  }
+
+
+
+  def convertDates() = {
+
+    val blockLastSeen : Block[Document] = new Block[Document]() {
+      @Override
+      def apply(document:Document) {
+        val lastSeenAt = document.get("lastSeenAt")
+        val date = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(lastSeenAt.toString)
+        document.put("lastSeenAtEpoch",date.getTime / 1000)
+        val params = new util.HashMap[String,Object]()
+        params.put("_id",new ObjectId(document.get("_id").toString))
+        flatsColl.replaceOne(new org.bson.Document(params),document)
+      }
+    };
+
+    val blockFirstSeen : Block[Document] = new Block[Document]() {
+      @Override
+      def apply(document:Document) {
+        val firstSeenAt = document.get("firstSeenAt")
+        var dateLong = 1483228800000l
+        if (firstSeenAt != null){
+          val date = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(firstSeenAt.toString)
+          dateLong = date.getTime
+        }
+        document.put("firstSeenAtEpoch",dateLong / 1000)
+        val params = new util.HashMap[String,Object]()
+        params.put("_id",new ObjectId(document.get("_id").toString))
+        flatsColl.replaceOne(new org.bson.Document(params),document)
+      }
+    };
+
+    val docs = flatsColl.find().batchSize(5000).noCursorTimeout(true)
+    docs.forEach(blockFirstSeen)
+
+
   }
 
   private def findFilter(flat: Flat): org.bson.Document = {

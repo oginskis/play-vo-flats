@@ -2,8 +2,6 @@ package controllers
 
 import javax.inject._
 
-import model.Flat
-import play.api.libs.json.Json
 import play.api.mvc._
 
 /**
@@ -20,13 +18,7 @@ class HomeController @Inject() extends Controller {
    * a path of `/`.
    */
   def index = Action {
-    Ok(Json.toJson(List(new Flat(
-      Option("address"),
-      Option("aa"),
-      Option(5),
-      Option("33"),
-      Option(2345),
-      Option("343")))))
+    Ok("ss.lv flat price search API")
   }
 
 }

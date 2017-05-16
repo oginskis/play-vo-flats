@@ -16,8 +16,8 @@ case class Flat(
             val floor: Option[String],
             val price: Option[Int],
             val link: Option[String],
-            val firstSeenAt: Option[Date],
-            val lastSeenAt: Option[Date]
+            val firstSeenAt: Option[Long],
+            val lastSeenAt: Option[Long]
           ) {
 
   def this(address: Option[String],
@@ -74,8 +74,8 @@ object Flat extends Enumeration{
       "floor" -> flat.floor,
       "price" -> flat.price,
       "link" -> ("https://www.ss.lv"+flat.link.get),
-      "firstSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(flat.firstSeenAt.get)),
-      "lastSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(flat.lastSeenAt.get))
+      "firstSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.firstSeenAt.get * 1000))),
+      "lastSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.lastSeenAt.get * 1000)))
     )
   }
 
