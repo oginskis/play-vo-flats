@@ -19,7 +19,6 @@ class HomeController @Inject() extends Controller {
    * will be called when the application receives a `GET` request with
    * a path of `/`.
    */
-
   def index = Action {
     Ok(Json.toJson(List(new Flat(
       Option("address"),

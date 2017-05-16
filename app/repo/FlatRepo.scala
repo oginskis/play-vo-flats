@@ -1,12 +1,14 @@
 package repo
 
 import java.text.SimpleDateFormat
+import java.util
 import java.util.Date
 import javax.inject.{Inject, Singleton}
 
 import com.mongodb.{MongoClient, MongoClientURI}
 import model.Flat
 import org.bson.Document
+import org.bson.types.ObjectId
 import play.api.Logger
 
 import scala.collection.mutable.ListBuffer
@@ -30,6 +32,36 @@ class FlatRepo @Inject() (configuration: play.api.Configuration) {
     +":"+configuration.underlying.getInt(MONGODB_PORT)+"/?ssl="+configuration.underlying.getBoolean(MONGODB_SSL)
     +"&maxIdleTimeMS=6000&minPoolSize=5"))
   val db = mongo.getDatabase(configuration.underlying.getString(MONGODB_DB))
+  val flatsColl = db.getCollection(COLL_NAME)
+
+  def getFlatById(flatId: String): Option[Flat] = {
+    val params = new util.HashMap[String,Object]()
+    params.put("_id",new ObjectId(flatId))
+    val documents = flatsColl.find(new Document(params))
+    if (documents.iterator().hasNext()){
+      val doc = documents.iterator().next()
+      var firstSeenAt : Option[Date] = None
+      if (doc.get("firstSeenAt") == null){
+        firstSeenAt = Option(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse("01-01-2017 00:00:00"))
+      }
+      else {
+        firstSeenAt = Option(new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
+          .parse(doc.get("firstSeenAt").toString))
+      }
+      Some(new Flat(
+        Option(doc.get("address").toString),
+        Option(doc.get("rooms").toString),
+        Option(doc.get("size").toString.toInt),
+        Option(doc.get("floor").toString),
+        Option(doc.get("price").toString.toInt),
+        Option(doc.get("link").toString),
+        firstSeenAt,
+        Option(new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(doc.get("lastSeenAt").toString))
+      ))
+    } else {
+      None
+    }
+  }
 
   def addOrUpdateFlat(flat: Flat): Flat.Value = {
     def updateDocument(flat: Flat): org.bson.Document = {
@@ -48,9 +80,9 @@ class FlatRepo @Inject() (configuration: play.api.Configuration) {
       params.put("firstSeenAt",new Date())
       params
     }
-    if (db.getCollection(COLL_NAME).findOneAndUpdate(findFilter(flat)
+    if (flatsColl.findOneAndUpdate(findFilter(flat)
       ,new Document("$set",updateDocument(flat))) == null){
-      db.getCollection(COLL_NAME).insertOne(createDocument(flat))
+      flatsColl.insertOne(createDocument(flat))
       Logger.debug(s"Adding new flat $flat")
       Flat.Added
     }
@@ -62,7 +94,7 @@ class FlatRepo @Inject() (configuration: play.api.Configuration) {
 
   def findHistoricAdds(flat: Flat): List[Flat] = {
     Logger.debug(s"Looking for flats matching: $flat")
-    val documents = db.getCollection(COLL_NAME).find(findFilter(flat))
+    val documents = flatsColl.find(findFilter(flat))
     val cursor = documents.iterator()
     val flats = ListBuffer[Flat]()
     while (cursor.hasNext){
@@ -91,7 +123,7 @@ class FlatRepo @Inject() (configuration: play.api.Configuration) {
     flats.toList
   }
 
-  def findFilter(flat: Flat): org.bson.Document = {
+  private def findFilter(flat: Flat): org.bson.Document = {
     val params = new java.util.HashMap[String,Object]()
     params.put("address",flat.address.get)
     params.put("floor",flat.floor.get)

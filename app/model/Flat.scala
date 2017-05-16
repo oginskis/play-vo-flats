@@ -1,8 +1,9 @@
 package model
 
+import java.text.SimpleDateFormat
 import java.util.Date
 
-import play.api.libs.json.Json
+import play.api.libs.json._
 
 
 /**
@@ -64,6 +65,19 @@ case class Flat(
 object Flat extends Enumeration{
 
   val Added,Updated = Value
-  implicit val flatFormat = Json.format[Flat]
+
+  implicit val flatWrites = new Writes[Flat] {
+    def writes(flat: Flat) = Json.obj(
+      "address" -> flat.address,
+      "rooms" -> flat.rooms,
+      "size" -> flat.size,
+      "floor" -> flat.floor,
+      "price" -> flat.price,
+      "link" -> ("https://www.ss.lv"+flat.link.get),
+      "firstSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(flat.firstSeenAt.get)),
+      "lastSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(flat.lastSeenAt.get))
+    )
+  }
+
 
 }
