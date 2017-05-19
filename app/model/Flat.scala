@@ -56,8 +56,8 @@ case class Flat(
         "floor: " + floor.get + ", " +
         "price: " + price.get + ", " +
         "link: https://www.ss.lv" + link.get + ", " +
-        "firstSeenAt: " + firstSeenAt.get + ", " +
-        "lastSeenAt: " + lastSeenAt.get
+        "firstSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(firstSeenAt.get * 1000)) + ", " +
+        "lastSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(lastSeenAt.get))
     }
   }
 }

@@ -1,11 +1,10 @@
 package repo
 
-import java.text.SimpleDateFormat
 import java.util
 import java.util.Date
 import javax.inject.{Inject, Singleton}
 
-import com.mongodb.{Block, MongoClient, MongoClientURI}
+import com.mongodb.{MongoClient, MongoClientURI}
 import model.Flat
 import org.bson.Document
 import org.bson.types.ObjectId
@@ -20,10 +19,10 @@ import scala.collection.mutable.ListBuffer
 class FlatRepo @Inject() (configuration: play.api.Configuration) {
 
   val MONGODB_USER = "mongodb.user"
-  val MONGODB_PASSWORD = "mongodb.password"
   val MONGODB_DB = "mongodb.db"
-  val MONGODB_HOST = "mongodb.host"
   val MONGODB_PORT = "mongodb.port"
+  val MONGODB_PASSWORD = "mongodb.password"
+  val MONGODB_HOST = "mongodb.host"
   val MONGODB_SSL = "mongodb.ssl"
   val COLL_NAME= "flats"
 
@@ -107,50 +106,12 @@ class FlatRepo @Inject() (configuration: play.api.Configuration) {
     flats.toList
   }
 
-
-
-  def convertDates() = {
-
-    val blockLastSeen : Block[Document] = new Block[Document]() {
-      @Override
-      def apply(document:Document) {
-        val lastSeenAt = document.get("lastSeenAt")
-        val date = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(lastSeenAt.toString)
-        document.put("lastSeenAtEpoch",date.getTime / 1000)
-        val params = new util.HashMap[String,Object]()
-        params.put("_id",new ObjectId(document.get("_id").toString))
-        flatsColl.replaceOne(new org.bson.Document(params),document)
-      }
-    };
-
-    val blockFirstSeen : Block[Document] = new Block[Document]() {
-      @Override
-      def apply(document:Document) {
-        val firstSeenAt = document.get("firstSeenAt")
-        var dateLong = 1483228800000l
-        if (firstSeenAt != null){
-          val date = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(firstSeenAt.toString)
-          dateLong = date.getTime
-        }
-        document.put("firstSeenAtEpoch",dateLong / 1000)
-        val params = new util.HashMap[String,Object]()
-        params.put("_id",new ObjectId(document.get("_id").toString))
-        flatsColl.replaceOne(new org.bson.Document(params),document)
-      }
-    };
-
-    val docs = flatsColl.find().batchSize(5000).noCursorTimeout(true)
-    docs.forEach(blockFirstSeen)
-
-
-  }
-
   private def findFilter(flat: Flat): org.bson.Document = {
     val params = new java.util.HashMap[String,Object]()
-    params.put("address",flat.address.get)
     params.put("floor",flat.floor.get)
-    params.put("rooms",flat.rooms.get)
     params.put("size",flat.size.get.toString)
+    params.put("rooms",flat.rooms.get)
+    params.put("address",flat.address.get)
     if (flat.price != None) params.put("price",flat.price.get.toString)
     if (flat.link != None) params.put("link",flat.link.get)
     new org.bson.Document(params)
