@@ -21,11 +21,14 @@ class Scheduler @Inject() (appLifecycle: ApplicationLifecycle, actorSystem: Acto
                            configuration: Configuration, emailSender: EmailSender,
                            flatExtractor: FlatExtractor,flatRepo: FlatRepo) {
 
-  val FLAT_CHECK_SCHEDULE = "ss.lv.flatCheckSchedule"
   val notification = actorSystem.actorOf(Props(new NotificationActor(emailSender)), name = "notification")
   val persist = actorSystem.actorOf(Props(new PersistActor(notification,flatRepo)), name = "persist")
   val extracting = actorSystem.actorOf(Props(new ExtractingActor(persist,flatExtractor)), name = "extracting")
-  actorSystem.scheduler.schedule(0 seconds, configuration.underlying.getInt(FLAT_CHECK_SCHEDULE) seconds,
+  actorSystem.scheduler.schedule(0 seconds, configuration.underlying.getInt(Scheduler.FLAT_CHECK_SCHEDULE) seconds,
     extracting, ExtractingActor.Extract)
 
+}
+
+object Scheduler {
+  val FLAT_CHECK_SCHEDULE = "ss.lv.flatCheckSchedule"
 }

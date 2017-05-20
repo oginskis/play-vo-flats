@@ -18,20 +18,15 @@ import scala.collection.mutable.ListBuffer
 @Singleton
 class FlatRepo @Inject() (configuration: play.api.Configuration) {
 
-  val MONGODB_USER = "mongodb.user"
-  val MONGODB_DB = "mongodb.db"
-  val MONGODB_PORT = "mongodb.port"
-  val MONGODB_PASSWORD = "mongodb.password"
-  val MONGODB_HOST = "mongodb.host"
-  val MONGODB_SSL = "mongodb.ssl"
-  val COLL_NAME= "flats"
-
-  val mongo = new MongoClient(new MongoClientURI("mongodb://"+configuration.underlying.getString(MONGODB_USER)+":"
-    +configuration.underlying.getString(MONGODB_PASSWORD)+"@"+configuration.underlying.getString(MONGODB_HOST)
-    +":"+configuration.underlying.getInt(MONGODB_PORT)+"/?ssl="+configuration.underlying.getBoolean(MONGODB_SSL)
-    +"&maxIdleTimeMS=6000&minPoolSize=5"))
-  val db = mongo.getDatabase(configuration.underlying.getString(MONGODB_DB))
-  val flatsColl = db.getCollection(COLL_NAME)
+  val flatsColl = new MongoClient(new MongoClientURI("mongodb://"+
+    configuration.underlying.getString(FlatRepo.MONGODB_USER)+":"+
+    configuration.underlying.getString(FlatRepo.MONGODB_PASSWORD)+"@"+
+    configuration.underlying.getString(FlatRepo.MONGODB_HOST) +":"+
+    configuration.underlying.getInt(FlatRepo.MONGODB_PORT)+"/?ssl="+
+    configuration.underlying.getBoolean(FlatRepo.MONGODB_SSL)+
+    configuration.underlying.getString(FlatRepo.MONGODB_ADDITIONAL_PROPS)))
+    .getDatabase(configuration.underlying.getString(FlatRepo.MONGODB_DB))
+    .getCollection(FlatRepo.COLL_NAME)
 
   def getFlatById(flatId: String): Option[Flat] = {
     val params = new util.HashMap[String,Object]()
@@ -116,7 +111,16 @@ class FlatRepo @Inject() (configuration: play.api.Configuration) {
     if (flat.link != None) params.put("link",flat.link.get)
     new org.bson.Document(params)
   }
+}
 
-
+object FlatRepo {
+  val MONGODB_USER = "mongodb.user"
+  val MONGODB_DB = "mongodb.db"
+  val MONGODB_PORT = "mongodb.port"
+  val MONGODB_PASSWORD = "mongodb.password"
+  val MONGODB_HOST = "mongodb.host"
+  val MONGODB_SSL = "mongodb.ssl"
+  val COLL_NAME= "flats"
+  val MONGODB_ADDITIONAL_PROPS = "mongodb.additionalProps"
 }
 

@@ -66,7 +66,6 @@ object FlatSearchResult {
       "flatId" -> flatSearchResult.flatId
     )
   }
-
 }
 
 

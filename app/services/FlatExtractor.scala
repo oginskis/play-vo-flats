@@ -13,7 +13,6 @@ import play.api.{Logger, Configuration}
   */
 @Singleton
 class FlatExtractor @Inject() (configuration: Configuration){
-  val SS_LV_BASE ="ss.lv.base.url"
 
   class ExtendedJsoupBrowser extends JsoupBrowser {
     override protected[this] def defaultRequestSettings(conn: Connection): Connection = {
@@ -28,7 +27,7 @@ class FlatExtractor @Inject() (configuration: Configuration){
     def extractFlats(page: Int) : List[Flat] = {
       try {
         Logger.debug(s"Extracting flats from /riga/centre/sell/page$page.html")
-        val doc = browser.get(configuration.underlying.getString(SS_LV_BASE)+"/riga/centre/sell/page"
+        val doc = browser.get(configuration.underlying.getString(FlatExtractor.SS_LV_BASE)+"/riga/centre/sell/page"
           + page + ".html")
         val rawList: Iterable[Element] = doc.body.select("[id^=\"tr_\"]")
         rawList.init.toList.map(
@@ -52,4 +51,8 @@ class FlatExtractor @Inject() (configuration: Configuration){
 
     extractFlats(1)
   }
+}
+
+object FlatExtractor {
+  val SS_LV_BASE ="ss.lv.base.url"
 }

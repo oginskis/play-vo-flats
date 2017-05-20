@@ -36,48 +36,36 @@ case class Flat(
     this(address,rooms,size,floor,price,link,None,None)
   }
 
+  val EMPTY_PROP = "Empty"
+
   override def toString: String = {
-    if (price == None && link == None && lastSeenAt == None && firstSeenAt == None) {
-      "address: " + address.get + ", " +
-        "rooms: " + rooms.get + ", " +
-        "size: " + size.get + ", " +
-        "floor: " + floor.get
-    } else if (lastSeenAt == None && firstSeenAt == None){
-      "address: " + address.get + ", " +
-        "rooms: " + rooms.get + ", " +
-        "size: " + size.get + ", " +
-        "floor: " + floor.get + ", " +
-        "price: " + price.get + ", " +
-        "link: https://www.ss.lv" + link.get
-    } else {
-      "address: " + address.get + ", " +
-        "rooms: " + rooms.get + ", " +
-        "size: " + size.get + ", " +
-        "floor: " + floor.get + ", " +
-        "price: " + price.get + ", " +
-        "link: https://www.ss.lv" + link.get + ", " +
-        "firstSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(firstSeenAt.get * 1000)) + ", " +
-        "lastSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(lastSeenAt.get))
+      "address: " + address.getOrElse(EMPTY_PROP) + ", " +
+      "rooms: " + rooms.getOrElse(EMPTY_PROP) + ", " +
+      "size: " + size.getOrElse(EMPTY_PROP) + ", " +
+      "floor: " + floor.getOrElse(EMPTY_PROP) + ", " +
+      "price: " + price.getOrElse(EMPTY_PROP) + ", " +
+      "link: https://www.ss.lv" + link.get + ", " +
+      "firstSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(firstSeenAt.getOrElse(0l)
+        * 1000)) + ", " +
+      "lastSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(lastSeenAt.getOrElse(0l)
+        * 1000))
     }
-  }
 }
 
-object Flat extends Enumeration{
-
-  val Added,Updated = Value
-
-  implicit val flatWrites = new Writes[Flat] {
-    def writes(flat: Flat) = Json.obj(
-      "address" -> flat.address,
-      "rooms" -> flat.rooms,
-      "size" -> flat.size,
-      "floor" -> flat.floor,
-      "price" -> flat.price,
-      "link" -> ("https://www.ss.lv"+flat.link.get),
-      "firstSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.firstSeenAt.get * 1000))),
-      "lastSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.lastSeenAt.get * 1000)))
-    )
-  }
-
-
+  object Flat extends Enumeration{
+    val Added,Updated = Value
+    implicit val flatWrites = new Writes[Flat] {
+      def writes(flat: Flat) = Json.obj(
+        "address" -> flat.address,
+        "rooms" -> flat.rooms,
+        "size" -> flat.size,
+        "floor" -> flat.floor,
+        "price" -> flat.price,
+        "link" -> ("https://www.ss.lv"+flat.link.get),
+        "firstSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.firstSeenAt.getOrElse(0l)
+          * 1000))),
+        "lastSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.lastSeenAt.getOrElse(0l)
+          * 1000)))
+      )
+    }
 }

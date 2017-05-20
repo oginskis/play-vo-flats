@@ -15,6 +15,4 @@ class FlatController @Inject() (flatRepo: FlatRepo) extends Controller {
   def show (flatId: String) = Action {
     Ok(Json.toJson(flatRepo.getFlatById(flatId)))
   }
-  
-
 }

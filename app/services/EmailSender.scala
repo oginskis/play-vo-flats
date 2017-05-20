@@ -17,32 +17,25 @@ import repo.FlatRepo
 @Singleton
 class EmailSender @Inject() (configuration: Configuration, flatRepo: FlatRepo){
 
-  val SMTP_HOST = "smtp.host"
-  val SMTP_PORT = "smtp.port"
-  val SMTP_USERNAME = "smtp.username"
-  val SMTP_PASSWORD = "smtp.password"
-  val SENT_TO_LIST = "smtp.sendto"
-  val SENT_FROM = "smtp.sentfrom"
   val props = new java.util.Properties()
-  props.put("mail.smtp.starttls.enable", "true")
-  props.put("mail.smtp.auth", "true")
-  props.put("mail.smtp.host", configuration.underlying.getString(SMTP_HOST))
-  props.put("mail.smtp.port", configuration.underlying.getString(SMTP_PORT))
-
+  props.put(EmailSender.SMTP_PROP_START_TLS, "true")
+  props.put(EmailSender.SMTP_PROP_SMTP_AUTH, "true")
+  props.put(EmailSender.SMTP_PROP_SMTP_HOST, configuration.underlying.getString(EmailSender.SMTP_HOST))
+  props.put(EmailSender.SMTP_PROP_SMTP_PORT, configuration.underlying.getString(EmailSender.SMTP_PORT))
   val session = Session.getInstance(props,
     new javax.mail.Authenticator() {
       override protected def getPasswordAuthentication(): javax.mail.PasswordAuthentication = {
-        return new PasswordAuthentication(configuration.underlying.getString(SMTP_USERNAME),
-          configuration.underlying.getString(SMTP_PASSWORD))
+        return new PasswordAuthentication(configuration.underlying.getString(EmailSender.SMTP_USERNAME),
+          configuration.underlying.getString(EmailSender.SMTP_PASSWORD))
       }
     });
 
   def sendEmail(flat: Flat) = {
     try {
       val message = new MimeMessage(session)
-      message.setFrom(new InternetAddress(configuration.underlying.getString(SENT_FROM)))
+      message.setFrom(new InternetAddress(configuration.underlying.getString(EmailSender.SENT_FROM)))
       message.setRecipients(Message.RecipientType.TO,
-        configuration.underlying.getString(SENT_TO_LIST).split(",")
+        configuration.underlying.getString(EmailSender.SENT_TO_LIST).split(",")
           .map(email=> {
             val address: Address = new InternetAddress(email)
             address
@@ -52,7 +45,8 @@ class EmailSender @Inject() (configuration: Configuration, flatRepo: FlatRepo){
       var historicFlatStr = flatRepo.findHistoricAdds(new Flat(flat.address,flat.rooms,flat.size,flat.floor))
         .filterNot(incomingFlat=>(incomingFlat.link == flat.link && incomingFlat.price == flat.price))
         .sortBy(flat=>flat.firstSeenAt)
-        .map(flat=>flat.price.get+" EUR - Active between "+new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.firstSeenAt.get*1000))+
+        .map(flat=>flat.price.get+" EUR - Active between "+new SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+          .format(new Date(flat.firstSeenAt.get*1000))+
           " and "+new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.lastSeenAt.get*1000)))
         .mkString("<br />")
       if (historicFlatStr.isEmpty){
@@ -83,4 +77,18 @@ class EmailSender @Inject() (configuration: Configuration, flatRepo: FlatRepo){
         throw new RuntimeException(ex);
     }
   }
+}
+
+object EmailSender {
+  val SMTP_HOST = "smtp.host"
+  val SMTP_PORT = "smtp.port"
+  val SMTP_USERNAME = "smtp.username"
+  val SMTP_PASSWORD = "smtp.password"
+  val SENT_TO_LIST = "smtp.sendto"
+  val SENT_FROM = "smtp.sentfrom"
+
+  val SMTP_PROP_START_TLS = "mail.smtp.starttls.enable"
+  val SMTP_PROP_SMTP_AUTH = "mail.smtp.auth"
+  val SMTP_PROP_SMTP_HOST = "mail.smtp.host"
+  val SMTP_PROP_SMTP_PORT = "mail.smtp.port"
 }
