@@ -31,11 +31,12 @@ case class FlatSearchResult(
         .getOrElse(0l) * 1000)) + ", " +
       "lastSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(lastSeenAt
         .getOrElse(0l) * 1000)) +  ", " +
-      "flatId: " + flatId.get
+      "flatId: " + flatId.getOrElse(EMPTY_PROP)
   }
 }
 
 object FlatSearchResult {
+
   implicit val flatSearchResult = new Reads[FlatSearchResult] {
     override def reads(json: JsValue): JsResult[FlatSearchResult] = {
       val flatSearchResult = FlatSearchResult(
@@ -51,7 +52,6 @@ object FlatSearchResult {
       JsSuccess(flatSearchResult)
     }
   }
-
   implicit val flatSearchResultWrites = new Writes[FlatSearchResult] {
     def writes(flatSearchResult: FlatSearchResult) = Json.obj(
       "address" -> flatSearchResult.address,

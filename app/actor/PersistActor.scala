@@ -9,6 +9,7 @@ import repo.FlatRepo
   * Created by oginskis on 12/03/2017.
   */
 class PersistActor(notificationActor: ActorRef, flatRepo: FlatRepo) extends Actor with ActorLogging {
+
   override def receive: Receive = {
     case flat:Flat => {
       val flatStatus = flatRepo.addOrUpdateFlat(flat)

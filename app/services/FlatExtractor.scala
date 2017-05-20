@@ -48,7 +48,6 @@ class FlatExtractor @Inject() (configuration: Configuration){
         }
       }
     }
-
     extractFlats(1)
   }
 }

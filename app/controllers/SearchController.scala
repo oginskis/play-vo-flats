@@ -14,5 +14,4 @@ class SearchController @Inject () (searchRepo: FlatSearchRepo) extends Controlle
   def search(searchKey: String) = Action {
     Ok(Json.toJson(searchRepo.searchFlats(searchKey)))
   }
-
 }
