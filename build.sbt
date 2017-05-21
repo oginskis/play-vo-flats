@@ -19,7 +19,8 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.12",
   "org.scalaj" % "scalaj-http_2.11" % "2.3.0",
   "org.scala-lang.modules" %% "scala-xml" % "1.0.2",
-  "net.ruippeixotog" %% "scala-scraper" % "1.2.0"
+  "net.ruippeixotog" %% "scala-scraper" % "2.0.0-RC2",
+  "net.databinder.dispatch" %% "dispatch-core" % "0.11.2"
 )
 
 fork in run := false

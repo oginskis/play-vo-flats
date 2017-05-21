@@ -1,55 +1,49 @@
 package services
 
-import javax.inject.{Inject, Singleton}
-
+import com.google.inject.{Inject, Singleton}
 import model.Flat
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
-import net.ruippeixotog.scalascraper.model.Element
-import org.jsoup.Connection
-import play.api.{Logger, Configuration}
+import net.ruippeixotog.scalascraper.browser.JsoupBrowser.JsoupElement
+import play.api.Configuration
+import play.api.libs.ws.{WSClient, WSResponse}
+
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 
 /**
-  * Created by oginskis on 12/03/2017.
+  * Created by oginskis on 21/05/2017.
   */
 @Singleton
-class DefaultFlatExtractor @Inject() (configuration: Configuration) extends FlatExtractor {
+class DefaultFlatExtractor @Inject()(wsClient: WSClient, configuration: Configuration) extends FlatExtractor {
 
-  class ExtendedJsoupBrowser extends JsoupBrowser {
-    override protected[this] def defaultRequestSettings(conn: Connection): Connection = {
-      super.defaultRequestSettings(conn)
-      conn.followRedirects(false)
-    }
-  }
-
-  val browser = new ExtendedJsoupBrowser()
-
-  override def extractFlats() : List[Flat] = {
-    def extractFlats(page: Int) : List[Flat] = {
-      try {
-        Logger.debug(s"Extracting flats from /riga/centre/sell/page$page.html")
-        val doc = browser.get(configuration.underlying.getString(DefaultFlatExtractor.SS_LV_BASE)+"/riga/centre/sell/page"
-          + page + ".html")
-        val rawList: Iterable[Element] = doc.body.select("[id^=\"tr_\"]")
-        rawList.init.toList.map(
-          entry => {
-            val attr: List[Element] = entry.select(".msga2-o").toList
-            val link: String = entry.select(".msg2 .d1 .am").head.attr("href")
-            new Flat(Option(attr(0).text.replace("\\", "/")),
-              Option(attr(1).text.trim.replace("\\", "/")),
-              Option(attr(2).text.trim.toInt),
-              Option(attr(3).text.replace("\\", "/")),
-              Option(attr(6).text.replace(",","").replace(" €","").trim.toInt),
-              Option(link))
-          }) ::: extractFlats(page + 1)
+  override def extractFlats(): List[Flat] = {
+      def extractFlats(page: Int) : List[Flat] = {
+          val request = wsClient.url(configuration.underlying.getString(DefaultFlatExtractor.SS_LV_BASE)+
+            "/riga/centre/sell/page"
+            + page + ".html")
+            .withRequestTimeout(5.second)
+            .withFollowRedirects(false)
+          val future: Future[WSResponse] = request.get()
+          val response = Await.result(future,10.second)
+          val document = new JsoupBrowser().parseString(response.body)
+          val rawFlatList = document.body.select("[id^=\"tr_\"]")
+          if (rawFlatList.isEmpty){
+            return List[Flat]()
+          }
+          rawFlatList.init.toList.map(
+            entry => {
+              val attr: List[JsoupElement] = entry.select(".msga2-o").toList
+              val link: String = entry.select(".msg2 .d1 .am").head.attr("href")
+              new Flat(Option(attr(0).text.replace("\\", "/")),
+                Option(attr(1).text.trim.replace("\\", "/")),
+                Option(attr(2).text.trim.toInt),
+                Option(attr(3).text.replace("\\", "/")),
+                Option(attr(6).text.replace(",","").replace(" €","").trim.toInt),
+                Option(link))
+            }) ::: extractFlats(page + 1)
       }
-      catch {
-        case unknown: Throwable => {
-          List[Flat]()
-        }
-      }
+      extractFlats(1)
     }
-    extractFlats(1)
-  }
 }
 
 object DefaultFlatExtractor {

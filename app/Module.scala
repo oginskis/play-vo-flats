@@ -1,5 +1,5 @@
 import com.google.inject.AbstractModule
-import services.{DefaultFlatExtractor, FlatExtractor, Scheduler}
+import services.{FlatExtractor, Scheduler, DefaultFlatExtractor}
 
 /**
  * This class is a Guice module that tells Guice how to bind several
