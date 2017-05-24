@@ -11,10 +11,10 @@ import repo.FlatRepo
 class PersistActor(notificationActor: ActorRef, flatRepo: FlatRepo) extends Actor with ActorLogging {
 
   override def receive: Receive = {
-    case flat:Flat => {
+    case flat: Flat => {
       val flatStatus = flatRepo.addOrUpdateFlat(flat)
-      def matchesFilter(flat:Flat): Boolean = {
-        if (flat.price.get<90000 && flat.size.get>=40) true
+      def matchesFilter(flat: Flat): Boolean = {
+        if (flat.price.get < 90000 && flat.size.get >= 40) true
         else false
       }
       if (Flat.Added == flatStatus && matchesFilter(flat)) {

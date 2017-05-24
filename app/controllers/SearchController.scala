@@ -9,7 +9,7 @@ import repo.FlatSearchRepo
   * Created by oginskis on 18/05/2017.
   */
 @Singleton
-class SearchController @Inject () (searchRepo: FlatSearchRepo) extends Controller {
+class SearchController @Inject()(searchRepo: FlatSearchRepo) extends Controller {
 
   def search(searchKey: String) = Action {
     Ok(Json.toJson(searchRepo.searchFlats(searchKey)))

@@ -10,9 +10,9 @@ import repo.FlatRepo
   * Created by oginskis on 16/05/2017.
   */
 @Singleton
-class FlatController @Inject() (flatRepo: FlatRepo) extends Controller {
+class FlatController @Inject()(flatRepo: FlatRepo) extends Controller {
 
-  def show (flatId: String) = Action {
+  def show(flatId: String) = Action {
     Ok(Json.toJson(flatRepo.getFlatById(flatId)))
   }
 }

@@ -9,28 +9,28 @@ import play.api.libs.json._
   * Created by oginskis on 18/05/2017.
   */
 case class FlatSearchResult(
-    val address: Option[String],
-    val rooms: Option[String],
-    val size: Option[String],
-    val floor: Option[String],
-    val price: Option[String],
-    val firstSeenAt: Option[Long],
-    val lastSeenAt: Option[Long],
-    val flatId: Option[String]
-  ){
+                             val address: Option[String],
+                             val rooms: Option[String],
+                             val size: Option[String],
+                             val floor: Option[String],
+                             val price: Option[String],
+                             val firstSeenAt: Option[Long],
+                             val lastSeenAt: Option[Long],
+                             val flatId: Option[String]
+                           ) {
 
   val EMPTY_PROP = "Empty"
 
   override def toString(): String = {
-      "address: " + address.getOrElse(EMPTY_PROP) + ", " +
+    "address: " + address.getOrElse(EMPTY_PROP) + ", " +
       "rooms: " + rooms.getOrElse(EMPTY_PROP) + ", " +
       "size: " + address.getOrElse(EMPTY_PROP) + ", " +
       "floors: " + floor.getOrElse(EMPTY_PROP) + ", " +
       "price: " + price.getOrElse(EMPTY_PROP) + ", " +
       "firstSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(firstSeenAt
-        .getOrElse(0l) * 1000)) + ", " +
+      .getOrElse(0l) * 1000)) + ", " +
       "lastSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(lastSeenAt
-        .getOrElse(0l) * 1000)) +  ", " +
+      .getOrElse(0l) * 1000)) + ", " +
       "flatId: " + flatId.getOrElse(EMPTY_PROP)
   }
 }

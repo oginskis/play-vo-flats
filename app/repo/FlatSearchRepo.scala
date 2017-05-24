@@ -15,20 +15,20 @@ import scala.concurrent.{Await, Future}
   * Created by oginskis on 18/05/2017.
   */
 @Singleton
-class FlatSearchRepo @Inject() (ws: WSClient, configuration: Configuration) {
+class FlatSearchRepo @Inject()(ws: WSClient, configuration: Configuration) {
 
-    def searchFlats(searchString: String): List[FlatSearchResult] = {
-      val request = ws.url(configuration.getString(FlatSearchRepo.AZURE_SEARCH_BASE_URL).get+searchString+"*&" +
-        "&$filter=lastSeenAtEpoch ge "+((new Date().getTime/1000)-600)+"&$top=10")
-        .withHeaders("Accept" -> "application/json",
-          "api-key"->configuration.getString(FlatSearchRepo.AZURE_SEARCH_API_KEY).get)
-          .withRequestTimeout(5.second)
-      val future: Future[List[FlatSearchResult]] = request.get().map {
-        response =>
-          (response.json \ "value" ).as[List[FlatSearchResult]]
-      }
-      Await.result(future,10.second)
+  def searchFlats(searchString: String): List[FlatSearchResult] = {
+    val request = ws.url(configuration.getString(FlatSearchRepo.AZURE_SEARCH_BASE_URL).get + searchString + "*&" +
+      "&$filter=lastSeenAtEpoch ge " + ((new Date().getTime / 1000) - 600) + "&$top=10")
+      .withHeaders("Accept" -> "application/json",
+        "api-key" -> configuration.getString(FlatSearchRepo.AZURE_SEARCH_API_KEY).get)
+      .withRequestTimeout(5.second)
+    val future: Future[List[FlatSearchResult]] = request.get().map {
+      response =>
+        (response.json \ "value").as[List[FlatSearchResult]]
     }
+    Await.result(future, 10.second)
+  }
 }
 
 object FlatSearchRepo {

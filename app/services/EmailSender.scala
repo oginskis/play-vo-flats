@@ -15,7 +15,7 @@ import repo.FlatRepo
   * Created by oginskis on 01/01/2017.
   */
 @Singleton
-class EmailSender @Inject() (configuration: Configuration, flatRepo: FlatRepo){
+class EmailSender @Inject()(configuration: Configuration, flatRepo: FlatRepo) {
 
   val props = new java.util.Properties()
   props.put(EmailSender.SMTP_PROP_START_TLS, "true")
@@ -36,20 +36,18 @@ class EmailSender @Inject() (configuration: Configuration, flatRepo: FlatRepo){
       message.setFrom(new InternetAddress(configuration.underlying.getString(EmailSender.SENT_FROM)))
       message.setRecipients(Message.RecipientType.TO,
         configuration.underlying.getString(EmailSender.SENT_TO_LIST).split(",")
-          .map(email=> {
+          .map(email => {
             val address: Address = new InternetAddress(email)
             address
           }
           ).array
       )
-      var historicFlatStr = flatRepo.findHistoricAdds(new Flat(flat.address,flat.rooms,flat.size,flat.floor))
-        .filterNot(incomingFlat=>(incomingFlat.link == flat.link && incomingFlat.price == flat.price))
-        .sortBy(flat=>flat.firstSeenAt)
-        .map(flat=>flat.price.get+" EUR - Active between "+new SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
-          .format(new Date(flat.firstSeenAt.get*1000))+
-          " and "+new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.lastSeenAt.get*1000)))
+      var historicFlatStr = flatRepo.findFlatPriceHistoryItemsFor(flat)
+        .map(flat => flat.price.get + " EUR - Active between " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+          .format(new Date(flat.firstSeenAt.get * 1000)) +
+          " and " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.lastSeenAt.get * 1000)))
         .mkString("<br />")
-      if (historicFlatStr.isEmpty){
+      if (historicFlatStr.isEmpty) {
         historicFlatStr = "Nothing has been found"
       }
       val textPart = new MimeBodyPart()
@@ -66,14 +64,14 @@ class EmailSender @Inject() (configuration: Configuration, flatRepo: FlatRepo){
         "number of rooms and size):</b> <br />"
         + historicFlatStr
         + "<br />"
-        +  "<br />--Viktors</body></html>", "text/html; charset=UTF-8")
-      message.setSubject(flat.address.get+ ", "+flat.price.get+" EUR")
+        + "<br />--Viktors</body></html>", "text/html; charset=UTF-8")
+      message.setSubject(flat.address.get + ", " + flat.price.get + " EUR")
       val mp = new MimeMultipart()
       mp.addBodyPart(textPart)
       message.setContent(mp)
       Transport.send(message)
     } catch {
-      case ex:Exception =>
+      case ex: Exception =>
         throw new RuntimeException(ex);
     }
   }
