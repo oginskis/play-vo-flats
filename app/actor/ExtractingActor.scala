@@ -10,15 +10,12 @@ import services.FlatExtractor
 class ExtractingActor(persistActor: ActorRef, flatExtractor: FlatExtractor) extends Actor with ActorLogging {
 
   override def receive: Receive = {
-    case ExtractingActor.Extract => {
+    case district: String => {
       Logger.info("Checking flats")
-      flatExtractor.extractFlats.foreach(flat => {
+      flatExtractor.extractFlats(district).foreach(flat => {
         persistActor ! flat
       })
     }
   }
 }
 
-object ExtractingActor {
-  val Extract = "extract"
-}

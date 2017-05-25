@@ -19,11 +19,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class DefaultFlatExtractor @Inject()(wsClient: WSClient, configuration: Configuration)
   extends FlatExtractor {
 
-  override def extractFlats(): List[Flat] = {
+  override def extractFlats(district: String): List[Flat] = {
     def extractFlats(page: Int): List[Flat] = {
       val request = wsClient.url(configuration.underlying.getString(DefaultFlatExtractor.SS_LV_BASE) +
-        "/riga/centre/sell/page"
-        + page + ".html")
+        district + "/page" + page + ".html")
         .withRequestTimeout(5.second)
         .withFollowRedirects(false)
       val future: Future[String] = request.get().map(
