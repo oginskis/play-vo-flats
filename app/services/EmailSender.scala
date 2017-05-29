@@ -6,8 +6,7 @@ import javax.inject.{Inject, Singleton}
 import javax.mail._
 import javax.mail.internet.{InternetAddress, MimeBodyPart, MimeMessage, MimeMultipart}
 
-import model.Flat
-
+import model.b2c.Flat
 import play.api.Configuration
 import repo.FlatRepo
 
@@ -54,6 +53,7 @@ class EmailSender @Inject()(configuration: Configuration, flatRepo: FlatRepo) {
       textPart.setContent("<html><head></head><body>New flat posted or updated:"
         + "<br />"
         + "<br /><b>Address:</b> " + flat.address.get
+        + "<br /><b>District:</b> " + flat.district.get
         + "<br /><b>Floor:</b> " + flat.floor.get
         + "<br /><b>Rooms:</b> " + flat.rooms.get
         + "<br /><b>Size:</b> " + flat.size.get
@@ -65,7 +65,7 @@ class EmailSender @Inject()(configuration: Configuration, flatRepo: FlatRepo) {
         + historicFlatStr
         + "<br />"
         + "<br />--Viktors</body></html>", "text/html; charset=UTF-8")
-      message.setSubject(flat.address.get + ", " + flat.price.get + " EUR")
+      message.setSubject(flat.address.get + ", "+flat.district+", " + flat.price.get + " EUR")
       val mp = new MimeMultipart()
       mp.addBodyPart(textPart)
       message.setContent(mp)

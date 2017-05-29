@@ -1,7 +1,7 @@
 package actor
 
 import akka.actor.{ActorLogging, Actor}
-import model.Flat
+import model.b2c.Flat
 import services.EmailSender
 
 /**

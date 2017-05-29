@@ -5,7 +5,7 @@ import java.util.Date
 import javax.inject.{Inject, Singleton}
 
 import com.mongodb.{MongoClient, MongoClientURI}
-import model.{FlatPriceHistoryItem, Flat}
+import model.b2c.{Flat, FlatPriceHistoryItem}
 import org.bson.Document
 import org.bson.types.ObjectId
 import play.api.Logger
@@ -43,13 +43,19 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
         Option(doc.get("link").toString),
         Option(doc.get("firstSeenAtEpoch").toString.toLong),
         Option(doc.get("lastSeenAtEpoch").toString.toLong),
+        Option(doc.get("city").toString),
+        Option(doc.get("district").toString),
+        Option(doc.get("action").toString),
         Option(findFlatPriceHistoryItemsFor(new Flat(
           Option(doc.get("address").toString),
           Option(doc.get("rooms").toString),
           Option(doc.get("size").toString.toInt),
           Option(doc.get("floor").toString),
           Option(doc.get("price").toString.toInt),
-          Option(doc.get("link").toString)
+          Option(doc.get("link").toString),
+          Option(doc.get("city").toString),
+          Option(doc.get("district").toString),
+          Option(doc.get("action").toString)
         )))))
     } else {
       None
@@ -65,6 +71,9 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
       params.put("price", flat.price.get.toString)
       params.put("rooms", flat.rooms.get)
       params.put("size", flat.size.get.toString)
+      params.put("city", flat.city.get)
+      params.put("district", flat.district.get)
+      params.put("action", flat.action.get)
       params.put("lastSeenAtEpoch", (new Date().getTime / 1000).toString)
       new org.bson.Document(params)
     }
@@ -87,11 +96,17 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
 
   def findFlatPriceHistoryItemsFor(flat: Flat): List[FlatPriceHistoryItem] = {
     val documents = flatsColl.find(findFilter(
-      new Flat(flat.address,flat.rooms,flat.size,flat.floor)
+      new Flat(flat.address,
+        flat.rooms,
+        flat.size,
+        flat.floor,
+        flat.city,
+        flat.district,
+        flat.action)
     ))
     val flatPriceHistoryItems = ListBuffer[FlatPriceHistoryItem]()
     val cursor = documents.iterator
-    while (cursor.hasNext){
+    while (cursor.hasNext) {
       val document = cursor.next
       if (flat.link.get != document.get("link").toString ||
         flat.price.get != document.get("price").toString.toInt)
@@ -114,10 +129,14 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
     params.put("size", flat.size.get.toString)
     params.put("rooms", flat.rooms.get)
     params.put("address", flat.address.get)
+    params.put("city", flat.city.get)
+    params.put("district", flat.district.get)
+    params.put("action", flat.action.get)
     if (flat.price != None) params.put("price", flat.price.get.toString)
     if (flat.link != None) params.put("link", flat.link.get)
     new org.bson.Document(params)
   }
+
 }
 
 object FlatRepo {

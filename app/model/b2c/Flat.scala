@@ -1,8 +1,7 @@
-package model
+package model.b2c
 
 import java.text.SimpleDateFormat
 import java.util.Date
-
 import play.api.libs.json._
 
 
@@ -18,33 +17,32 @@ case class Flat(
                  val link: Option[String],
                  val firstSeenAt: Option[Long],
                  val lastSeenAt: Option[Long],
+                 val city: Option[String],
+                 val district: Option[String],
+                 val action: Option[String],
                  val flatPriceHistoryItems: Option[List[FlatPriceHistoryItem]]
                ) {
+
   def this(address: Option[String],
            rooms: Option[String],
            size: Option[Int],
            floor: Option[String],
            price: Option[Int],
            link: Option[String],
-           firstSeenAt: Option[Long],
-           lastSeenAt: Option[Long]) = {
-    this(address, rooms, size, floor, price, link, firstSeenAt, lastSeenAt, None)
-  }
-
-  def this(address: Option[String],
-           rooms: Option[String],
-           size: Option[Int],
-           floor: Option[String]) = {
-    this(address, rooms, size, floor, None, None, None, None, None)
+           city: Option[String],
+           district: Option[String],
+           action: Option[String]) = {
+    this(address, rooms, size, floor, price, link, None, None, city, district, action, None)
   }
 
   def this(address: Option[String],
            rooms: Option[String],
            size: Option[Int],
            floor: Option[String],
-           price: Option[Int],
-           link: Option[String]) = {
-    this(address, rooms, size, floor, price, link, None, None, None)
+           city: Option[String],
+           district: Option[String],
+           action: Option[String]) = {
+    this(address, rooms, size, floor, None, None, None, None, city, district, action, None)
   }
 
   override def toString: String = {
@@ -54,10 +52,13 @@ case class Flat(
       "floor: " + floor.getOrElse(Flat.EMPTY_PROP) + ", " +
       "price: " + price.getOrElse(Flat.EMPTY_PROP) + ", " +
       "link: https://www.ss.lv" + link.getOrElse(Flat.EMPTY_PROP) + ", " +
+      "city: " + city.getOrElse(Flat.EMPTY_PROP) + ", "+
+      "district: "+ district.getOrElse(Flat.EMPTY_PROP) + ", "+
+      "action: "+ action.getOrElse(Flat.EMPTY_PROP) + ", "+
       "firstSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(firstSeenAt.getOrElse(0l)
       * 1000)) + ", " +
       "lastSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(lastSeenAt.getOrElse(0l)
-      * 1000))
+      * 1000)) + ", "
   }
 }
 
@@ -72,6 +73,9 @@ object Flat extends Enumeration {
       "floor" -> flat.floor,
       "price" -> flat.price,
       "link" -> ("https://www.ss.lv" + flat.link.get),
+      "city" -> flat.city,
+      "district" -> flat.district,
+      "action" -> flat.action,
       "firstSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.firstSeenAt.getOrElse(0l)
         * 1000))),
       "lastSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.lastSeenAt.getOrElse(0l)

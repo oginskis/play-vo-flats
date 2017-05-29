@@ -1,4 +1,4 @@
-package model
+package model.b2c
 
 import java.text.SimpleDateFormat
 import java.util.Date

@@ -1,18 +1,29 @@
 package actor
 
+
+import model.b2b.FlatRequestQuery
+
+import scala.collection.JavaConverters._
 import akka.actor.{Actor, ActorLogging, ActorRef}
+import play.api.Configuration
 
 /**
   * Created by oginskis on 25/05/2017.
   */
-class ProcessingActor(extractingActor: ActorRef) extends Actor with ActorLogging {
+class ProcessingActor(extractingActor: ActorRef, configuration: Configuration) extends Actor with ActorLogging {
   override def receive: Receive = {
     case ProcessingActor.Process => {
-      extractingActor ! "/riga/centre/sell"
-      extractingActor ! "/riga/agenskalns/sell"
-      extractingActor ! "/riga/teika/sell"
+      val flatSearchRequestConfig = configuration.underlying.getObjectList("flat.search.request.config").asScala
+      flatSearchRequestConfig.foreach(configItem =>
+        extractingActor ! new FlatRequestQuery(Option(configItem.get("city").unwrapped.toString),
+          Option(configItem.get("district").unwrapped.toString),
+          Option(configItem.get("action").unwrapped.toString)
+        )
+      )
     }
   }
+
+
 }
 
 object ProcessingActor {

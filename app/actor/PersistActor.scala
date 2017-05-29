@@ -1,7 +1,7 @@
 package actor
 
 import akka.actor.{ActorLogging, Actor, ActorRef}
-import model.Flat
+import model.b2c.Flat
 import play.api.Logger
 import repo.FlatRepo
 

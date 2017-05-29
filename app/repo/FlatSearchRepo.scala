@@ -3,7 +3,7 @@ package repo
 import java.util.Date
 
 import com.google.inject.{Inject, Singleton}
-import model.FlatSearchResult
+import model.b2c.FlatSearchResult
 import play.api.Configuration
 import play.api.libs.ws.WSClient
 
