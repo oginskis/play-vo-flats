@@ -1,29 +1,29 @@
-package services
+package services.functions
 
-import com.google.inject.{Inject, Singleton}
 import model.b2b.FlatRequestQuery
 import model.b2c.Flat
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser.JsoupElement
-import play.api.{Logger, Configuration}
 import play.api.libs.ws.WSClient
+import play.api.{Configuration, Logger}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-/**
-  * Created by oginskis on 21/05/2017.
-  */
-@Singleton
-class DefaultFlatExtractor @Inject()(wsClient: WSClient, configuration: Configuration)
-  extends FlatExtractor {
+import scala.concurrent.ExecutionContext.Implicits.global
 
-  override def extractFlats(flatRequestQuery: FlatRequestQuery): List[Flat] = {
+/**
+  * Created by oginskis on 05/06/2017.
+  */
+object ContentExtractingFunctions {
+
+  val SS_LV_BASE = "ss.lv.base.url"
+
+  def sslv(flatRequestQuery: FlatRequestQuery, wsClient: WSClient, configuration: Configuration): List[Flat] = {
     def extractFlats(page: Int): List[Flat] = {
-      val url = (configuration.underlying.getString(DefaultFlatExtractor.SS_LV_BASE)
-      + "/" + flatRequestQuery.city.get + "/" + flatRequestQuery.district.get + "/" + flatRequestQuery.action.get
-      + "/page" + page + ".html")
+      val url = (configuration.underlying.getString(ContentExtractingFunctions.SS_LV_BASE)
+        + "/" + flatRequestQuery.city.get + "/" + flatRequestQuery.district.get + "/" + flatRequestQuery.action.get
+        + "/page" + page + ".html")
       Logger.info(s"Processing $url")
       val request = wsClient.url(url)
         .withRequestTimeout(5.second)
@@ -40,11 +40,11 @@ class DefaultFlatExtractor @Inject()(wsClient: WSClient, configuration: Configur
         .filter(entry => {
           val attr: List[JsoupElement] = entry.select(".msga2-o").toList
           attr(0).text.length > 3 &&
-          attr(0).text != "-" &&
-          attr(6).text.contains("€") &&
-          !attr(6).text.contains("mai") &&
-          !attr(6).text.contains("mēn")&&
-          attr(6).text.length > 3
+            attr(0).text != "-" &&
+            attr(6).text.contains("€") &&
+            !attr(6).text.contains("mai") &&
+            !attr(6).text.contains("mēn")&&
+            attr(6).text.length > 3
         }
         )
         .map(entry => {
@@ -63,8 +63,5 @@ class DefaultFlatExtractor @Inject()(wsClient: WSClient, configuration: Configur
     }
     extractFlats(1)
   }
-}
 
-object DefaultFlatExtractor {
-  val SS_LV_BASE = "ss.lv.base.url"
 }

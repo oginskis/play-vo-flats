@@ -1,5 +1,5 @@
 import com.google.inject.AbstractModule
-import services.{FlatExtractor, Scheduler, DefaultFlatExtractor}
+import services.Scheduler
 
 /**
   * This class is a Guice module that tells Guice how to bind several
@@ -15,7 +15,6 @@ class Module extends AbstractModule {
 
   override def configure() = {
     bind(classOf[Scheduler]).asEagerSingleton()
-    bind(classOf[FlatExtractor]).to(classOf[DefaultFlatExtractor]);
   }
 
 }

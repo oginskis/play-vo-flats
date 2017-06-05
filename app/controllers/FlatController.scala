@@ -16,8 +16,4 @@ class FlatController @Inject()(flatRepo: FlatRepo) extends Controller {
     Ok(Json.toJson(flatRepo.getFlatById(flatId)))
   }
 
-  def temp() = Action {
-    flatRepo.addExtraFields()
-    Ok("cool")
-  }
 }

@@ -6,6 +6,7 @@ import actor.{ExtractingActor, NotificationActor, PersistActor, ProcessingActor}
 import akka.actor.{ActorSystem, Props}
 import play.api.Configuration
 import play.api.inject.ApplicationLifecycle
+import play.api.libs.ws.WSClient
 import repo.FlatRepo
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -16,11 +17,12 @@ import scala.concurrent.duration._
 @Singleton
 class Scheduler @Inject()(appLifecycle: ApplicationLifecycle, actorSystem: ActorSystem,
                           configuration: Configuration, emailSender: EmailSender,
-                          flatExtractor: FlatExtractor, flatRepo: FlatRepo) {
+                          wSClient: WSClient, flatRepo: FlatRepo) {
 
   val notification = actorSystem.actorOf(Props(new NotificationActor(emailSender)), name = "notification")
   val persist = actorSystem.actorOf(Props(new PersistActor(notification, flatRepo)), name = "persist")
-  val extracting = actorSystem.actorOf(Props(new ExtractingActor(persist, flatExtractor)), name = "extracting")
+  val extracting = actorSystem.actorOf(Props(new ExtractingActor(persist,wSClient,configuration)),
+    name = "extracting")
   val processing = actorSystem.actorOf(Props(new ProcessingActor(extracting,configuration)), name = "processing")
   actorSystem.scheduler.schedule(0 seconds, configuration.underlying.getInt(Scheduler.FLAT_CHECK_SCHEDULE) seconds,
     processing, ProcessingActor.Process)
