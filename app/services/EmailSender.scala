@@ -65,7 +65,7 @@ class EmailSender @Inject()(configuration: Configuration, flatRepo: FlatRepo) {
         + historicFlatStr
         + "<br />"
         + "<br />--Viktors</body></html>", "text/html; charset=UTF-8")
-      message.setSubject(flat.address.get + ", "+flat.district+", " + flat.price.get + " EUR")
+      message.setSubject(flat.address.get + ", "+flat.district.get+", " + flat.price.get + " EUR")
       val mp = new MimeMultipart()
       mp.addBodyPart(textPart)
       message.setContent(mp)
