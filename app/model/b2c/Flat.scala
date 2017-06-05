@@ -28,6 +28,15 @@ case class Flat(
            size: Option[Int],
            floor: Option[String],
            price: Option[Int],
+           link: Option[String]) = {
+    this(address, rooms, size, floor, price, link, None, None, None, None, None, None)
+  }
+
+  def this(address: Option[String],
+           rooms: Option[String],
+           size: Option[Int],
+           floor: Option[String],
+           price: Option[Int],
            link: Option[String],
            city: Option[String],
            district: Option[String],
@@ -83,4 +92,5 @@ object Flat extends Enumeration {
       "flatPriceHistoryItems" -> flat.flatPriceHistoryItems
     )
   }
+
 }
