@@ -46,6 +46,7 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
         Option(doc.get("city").toString),
         Option(doc.get("district").toString),
         Option(doc.get("action").toString),
+        Option(doc.get("expired").toString),
         Option(findFlatPriceHistoryItemsFor(new Flat(
           Option(doc.get("address").toString),
           Option(doc.get("rooms").toString),
@@ -80,6 +81,8 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
     def createDocument(flat: Flat): org.bson.Document = {
       val params = updateDocument(flat)
       params.put("firstSeenAtEpoch", (new Date().getTime / 1000).toString)
+      params.put("expired","false")
+      params.put("itemType","flat")
       params
     }
     if (flatsColl.findOneAndUpdate(findFilter(flat)
@@ -125,13 +128,13 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
 
   private def findFilter(flat: Flat): org.bson.Document = {
     val params = new java.util.HashMap[String, Object]()
-    params.put("floor", flat.floor.get)
-    params.put("size", flat.size.get.toString)
-    params.put("rooms", flat.rooms.get)
-    params.put("address", flat.address.get)
-    params.put("city", flat.city.get)
-    params.put("district", flat.district.get)
-    params.put("action", flat.action.get)
+    if (flat.floor != None) params.put("floor", flat.floor.get)
+    if (flat.size != None) params.put("size", flat.size.get.toString)
+    if (flat.rooms != None) params.put("rooms", flat.rooms.get)
+    if (flat.address != None) params.put("address", flat.address.get)
+    if (flat.city != None) params.put("city", flat.city.get)
+    if (flat.district != None) params.put("district", flat.district.get)
+    if (flat.action != None) params.put("action", flat.action.get)
     if (flat.price != None) params.put("price", flat.price.get.toString)
     if (flat.link != None) params.put("link", flat.link.get)
     new org.bson.Document(params)

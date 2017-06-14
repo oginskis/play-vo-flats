@@ -20,6 +20,7 @@ case class Flat(
                  val city: Option[String],
                  val district: Option[String],
                  val action: Option[String],
+                 val expired: Option[String],
                  val flatPriceHistoryItems: Option[List[FlatPriceHistoryItem]]
                ) {
 
@@ -29,7 +30,7 @@ case class Flat(
            floor: Option[String],
            price: Option[Int],
            link: Option[String]) = {
-    this(address, rooms, size, floor, price, link, None, None, None, None, None, None)
+    this(address, rooms, size, floor, price, link, None, None, None, None, None, None, None)
   }
 
   def this(address: Option[String],
@@ -41,7 +42,7 @@ case class Flat(
            city: Option[String],
            district: Option[String],
            action: Option[String]) = {
-    this(address, rooms, size, floor, price, link, None, None, city, district, action, None)
+    this(address, rooms, size, floor, price, link, None, None, city, district, action, None, None)
   }
 
   def this(address: Option[String],
@@ -51,11 +52,11 @@ case class Flat(
            city: Option[String],
            district: Option[String],
            action: Option[String]) = {
-    this(address, rooms, size, floor, None, None, None, None, city, district, action, None)
+    this(address, rooms, size, floor, None, None, None, None, city, district, action, None, None)
   }
 
   override def toString: String = {
-    "address: " + address.getOrElse(Flat.EMPTY_PROP) + ", " +
+      "address: " + address.getOrElse(Flat.EMPTY_PROP) + ", " +
       "rooms: " + rooms.getOrElse(Flat.EMPTY_PROP) + ", " +
       "size: " + size.getOrElse(Flat.EMPTY_PROP) + ", " +
       "floor: " + floor.getOrElse(Flat.EMPTY_PROP) + ", " +
@@ -67,7 +68,8 @@ case class Flat(
       "firstSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(firstSeenAt.getOrElse(0l)
       * 1000)) + ", " +
       "lastSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(lastSeenAt.getOrElse(0l)
-      * 1000)) + ", "
+      * 1000)) + ", " +
+      "expired: "+expired.getOrElse(Flat.EMPTY_PROP)
   }
 }
 
@@ -89,6 +91,7 @@ object Flat extends Enumeration {
         * 1000))),
       "lastSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.lastSeenAt.getOrElse(0l)
         * 1000))),
+      "expired" -> flat.expired,
       "flatPriceHistoryItems" -> flat.flatPriceHistoryItems
     )
   }

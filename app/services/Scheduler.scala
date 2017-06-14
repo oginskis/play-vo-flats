@@ -9,7 +9,7 @@ import play.api.Configuration
 import play.api.inject.ApplicationLifecycle
 import play.api.libs.ws.WSClient
 import repo.FlatRepo
-import scala.concurrent.ExecutionContext.Implicits.global
+
 import scala.concurrent.duration._
 
 /**
