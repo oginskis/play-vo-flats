@@ -1,16 +1,19 @@
 package actor
 
 
+import com.mongodb.MongoCommandException
 import model.b2b.FlatRequestQuery
+import repo.FlatRepo
 
 import scala.collection.JavaConverters._
 import akka.actor.{Actor, ActorLogging, ActorRef}
-import play.api.Configuration
+import play.api.{Logger, Configuration}
 
 /**
   * Created by oginskis on 25/05/2017.
   */
-class ProcessingActor(extractingActor: ActorRef, configuration: Configuration) extends Actor with ActorLogging {
+class ProcessingActor(extractingActor: ActorRef, configuration: Configuration,
+                      flatRepo:FlatRepo) extends Actor with ActorLogging {
   override def receive: Receive = {
     case ProcessingActor.Process => {
       val flatSearchRequestConfig = configuration.underlying.getObjectList("flat.search.request.config").asScala
@@ -21,11 +24,23 @@ class ProcessingActor(extractingActor: ActorRef, configuration: Configuration) e
         )
       )
     }
+    case ProcessingActor.Expire => {
+      try {
+        val expireOlderThan = configuration.underlying.getInt("flat.expire.olderThan")
+        flatRepo.expireFlats(expireOlderThan)
+      }
+      catch {
+        case e: MongoCommandException => {
+          Logger.info("Error during flat expiration on ss.lv, retrying..")
+          self ! ProcessingActor.Expire
+        }
+      }
+    }
   }
-
 
 }
 
 object ProcessingActor {
-  val Process = "process"
+  val Process = "processFlats"
+  val Expire = "expireFlats"
 }

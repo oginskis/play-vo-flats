@@ -4,13 +4,12 @@ import model.b2b.FlatRequestQuery
 import model.b2c.Flat
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser.JsoupElement
+import play.api.{Logger, Configuration}
 import play.api.libs.ws.WSClient
-import play.api.{Configuration, Logger}
-
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 
 /**
   * Created by oginskis on 05/06/2017.
@@ -69,7 +68,6 @@ object ContentExtractingFunctions {
           flatRequestQuery.district,
           flatRequestQuery.action)) ::: extract(page + 1)
     }
-
     extract(1)
   }
 

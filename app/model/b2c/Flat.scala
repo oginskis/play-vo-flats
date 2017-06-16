@@ -55,6 +55,10 @@ case class Flat(
     this(address, rooms, size, floor, None, None, None, None, city, district, action, None, None)
   }
 
+  def this(expired: Option[String]) ={
+    this(None,None,None,None,None,None,None,None,None,None,None,expired,None)
+  }
+
   override def toString: String = {
       "address: " + address.getOrElse(Flat.EMPTY_PROP) + ", " +
       "rooms: " + rooms.getOrElse(Flat.EMPTY_PROP) + ", " +

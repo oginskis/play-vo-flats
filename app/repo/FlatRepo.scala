@@ -4,7 +4,8 @@ import java.util
 import java.util.Date
 import javax.inject.{Inject, Singleton}
 
-import com.mongodb.{MongoClient, MongoClientURI}
+import com.mongodb.client.model.UpdateManyModel
+import com.mongodb.{MongoClient, MongoClientURI, QueryBuilder}
 import model.b2c.{Flat, FlatPriceHistoryItem}
 import org.bson.Document
 import org.bson.types.ObjectId
@@ -27,6 +28,28 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
     configuration.underlying.getString(FlatRepo.MONGODB_ADDITIONAL_PROPS)))
     .getDatabase(configuration.underlying.getString(FlatRepo.MONGODB_DB))
     .getCollection(FlatRepo.COLL_NAME)
+
+  def expireFlats(olderThanMillis:Int) = {
+    def updateDocument(): Document = {
+      val params = new util.HashMap[String, Object]()
+      params.put("expired","true")
+      new Document(params)
+    }
+    val query = QueryBuilder.start().and(
+      QueryBuilder.start().put("expired").is("false").get(),
+      QueryBuilder.start().put("lastSeenAtEpoch").lessThan(java.lang.Long
+        .valueOf((new Date().getTime/1000) - olderThanMillis)).get()
+    ).get()
+    val updates = util.Arrays.asList(
+      new UpdateManyModel[Document](
+        Document.parse(query.toString),
+        new Document("$set",updateDocument())
+        )
+      );
+    val bulkWriteResult = flatsColl.bulkWrite(updates);
+    val modified = bulkWriteResult.getModifiedCount
+    Logger.info(s"Expired $modified flats, which are not on ss.lv anymore")
+  }
 
   def getFlatById(flatId: String): Option[Flat] = {
     val params = new util.HashMap[String, Object]()
@@ -75,24 +98,24 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
       params.put("city", flat.city.get)
       params.put("district", flat.district.get)
       params.put("action", flat.action.get)
-      params.put("lastSeenAtEpoch", (new Date().getTime / 1000).toString)
+      params.put("lastSeenAtEpoch", java.lang.Long.valueOf((new Date().getTime / 1000)))
       new org.bson.Document(params)
+    }
+    def setReadOnlyFields(params: Document): AnyRef = {
+      params.put("firstSeenAtEpoch",java.lang.Long.valueOf((new Date().getTime / 1000)))
+      params.put("expired", "false")
+      params.put("itemType", "flat")
     }
     def createDocument(flat: Flat): org.bson.Document = {
       val params = updateDocument(flat)
-      params.put("firstSeenAtEpoch", (new Date().getTime / 1000).toString)
-      params.put("expired","false")
-      params.put("itemType","flat")
+      setReadOnlyFields(params)
       params
     }
-    if (flatsColl.findOneAndUpdate(findFilter(flat)
-      , new Document("$set", updateDocument(flat))) == null) {
+    if (flatsColl.findOneAndUpdate(findFilter(flat), new Document("$set", updateDocument(flat))) == null) {
       flatsColl.insertOne(createDocument(flat))
-      Logger.debug(s"Adding new flat $flat")
       Flat.Added
     }
     else {
-      Logger.debug(s"Updating existing flat $flat")
       Flat.Updated
     }
   }
@@ -137,9 +160,9 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
     if (flat.action != None) params.put("action", flat.action.get)
     if (flat.price != None) params.put("price", flat.price.get.toString)
     if (flat.link != None) params.put("link", flat.link.get)
+    if (flat.expired != None) params.put("expired", flat.expired.get)
     new org.bson.Document(params)
   }
-
 }
 
 object FlatRepo {
