@@ -10,6 +10,7 @@ import play.api.libs.ws.WSClient
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
+import scala.util.Try
 
 /**
   * Created by oginskis on 05/06/2017.
@@ -24,10 +25,12 @@ object ContentExtractingFunctions {
       def mappingFunc(entry: JsoupElement): Flat = {
         val attr: List[JsoupElement] = entry.select(".msga2-o").toList
         val link: String = entry.select(".msg2 .d1 .am").head.attr("href")
+        val rawFloor = attr(3).text.replace("\\", "/")
         new Flat(Option(attr(0).text.replace("\\", "/")),
-          Option(attr(1).text.trim.replace("\\", "/")),
+          Option(Try(attr(1).text.trim.replace("\\", "/").toInt).getOrElse(-1)),
           Option(attr(2).text.trim.toInt),
-          Option(attr(3).text.replace("\\", "/")),
+          Option(rawFloor.substring(0,rawFloor.lastIndexOf("/")).toDouble.toInt),
+          Option(rawFloor.substring(rawFloor.lastIndexOf("/")+1).toInt),
           Option(attr(6).text.replace(",", "").replace(" €", "").trim.toInt),
           Option(link))
       }
@@ -62,6 +65,7 @@ object ContentExtractingFunctions {
           flat.rooms,
           flat.size,
           flat.floor,
+          flat.maxFloors,
           flat.price,
           flat.link,
           flatRequestQuery.city,

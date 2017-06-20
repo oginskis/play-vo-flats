@@ -3,8 +3,8 @@ package actor
 import akka.actor.{Actor, ActorLogging, ActorRef}
 import model.b2b.FlatRequestQuery
 import model.b2c.Flat
-import play.api.{Logger, Configuration}
 import play.api.libs.ws.WSClient
+import play.api.{Configuration, Logger}
 import services.functions.ContentExtractingFunctions._
 
 /**

@@ -9,10 +9,12 @@ import play.api.libs.json._
   * Created by oginskis on 30/12/2016.
   */
 case class Flat(
+                 val status: Flat.Value,
                  val address: Option[String],
-                 val rooms: Option[String],
+                 val rooms: Option[Int],
                  val size: Option[Int],
-                 val floor: Option[String],
+                 val floor: Option[Int],
+                 val maxFloors: Option[Int],
                  val price: Option[Int],
                  val link: Option[String],
                  val firstSeenAt: Option[Long],
@@ -25,38 +27,41 @@ case class Flat(
                ) {
 
   def this(address: Option[String],
-           rooms: Option[String],
+           rooms: Option[Int],
            size: Option[Int],
-           floor: Option[String],
+           floor: Option[Int],
+           maxFloors: Option[Int],
            price: Option[Int],
            link: Option[String]) = {
-    this(address, rooms, size, floor, price, link, None, None, None, None, None, None, None)
+    this(Flat.NA, address, rooms, size, floor, maxFloors, price, link, None, None, None, None, None, None, None)
   }
 
   def this(address: Option[String],
-           rooms: Option[String],
+           rooms: Option[Int],
            size: Option[Int],
-           floor: Option[String],
+           floor: Option[Int],
+           maxFloors: Option[Int],
            price: Option[Int],
            link: Option[String],
            city: Option[String],
            district: Option[String],
            action: Option[String]) = {
-    this(address, rooms, size, floor, price, link, None, None, city, district, action, None, None)
+    this(Flat.NA, address, rooms, size, floor, maxFloors, price, link, None, None, city, district, action, None, None)
   }
 
   def this(address: Option[String],
-           rooms: Option[String],
+           rooms: Option[Int],
            size: Option[Int],
-           floor: Option[String],
+           floor: Option[Int],
+           maxFloors: Option[Int],
            city: Option[String],
            district: Option[String],
            action: Option[String]) = {
-    this(address, rooms, size, floor, None, None, None, None, city, district, action, None, None)
+    this(Flat.NA, address, rooms, size, floor, maxFloors, None, None, None, None, city, district, action, None, None)
   }
 
   def this(expired: Option[String]) ={
-    this(None,None,None,None,None,None,None,None,None,None,None,expired,None)
+    this(Flat.NA,None,None,None,None,None,None,None,None,None,None,None,None,expired,None)
   }
 
   override def toString: String = {
@@ -64,6 +69,7 @@ case class Flat(
       "rooms: " + rooms.getOrElse(Flat.EMPTY_PROP) + ", " +
       "size: " + size.getOrElse(Flat.EMPTY_PROP) + ", " +
       "floor: " + floor.getOrElse(Flat.EMPTY_PROP) + ", " +
+      "maxFloors: " + maxFloors.getOrElse(Flat.EMPTY_PROP) + ", "+
       "price: " + price.getOrElse(Flat.EMPTY_PROP) + ", " +
       "link: https://www.ss.lv" + link.getOrElse(Flat.EMPTY_PROP) + ", " +
       "city: " + city.getOrElse(Flat.EMPTY_PROP) + ", "+
@@ -78,7 +84,7 @@ case class Flat(
 }
 
 object Flat extends Enumeration {
-  val Added, Updated = Value
+  val New, SeenBefore,NA = Value
   val EMPTY_PROP = "Empty"
   implicit val flatWrites = new Writes[Flat] {
     def writes(flat: Flat) = Json.obj(
@@ -86,6 +92,7 @@ object Flat extends Enumeration {
       "rooms" -> flat.rooms,
       "size" -> flat.size,
       "floor" -> flat.floor,
+      "maxFloors" -> flat.maxFloors,
       "price" -> flat.price,
       "link" -> ("https://www.ss.lv" + flat.link.get),
       "city" -> flat.city,

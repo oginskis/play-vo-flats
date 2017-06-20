@@ -24,15 +24,15 @@ class Scheduler @Inject()(appLifecycle: ApplicationLifecycle, actorSystem: Actor
   val persist = actorSystem.actorOf(Props(new PersistActor(notification, flatRepo)), name = "persist")
   val extracting = actorSystem.actorOf(Props(new ExtractingActor(persist,wSClient,configuration)), name = "extracting")
   val processing = actorSystem.actorOf(Props(new ProcessingActor(extracting,configuration,flatRepo)), name = "processing")
-  actorSystem.scheduler.schedule(0 seconds, configuration.underlying.getInt(Scheduler.FLAT_CHECK_SCHEDULE) seconds,
+  actorSystem.scheduler.schedule(0 seconds, configuration.underlying.getInt(Scheduler.FlatCheckSchedule) seconds,
     processing, ProcessingActor.Process)
-  actorSystem.scheduler.schedule(0 seconds, configuration.underlying.getInt(Scheduler.EXPIRATION_KICK_OFF_SCHEDULE)
+  actorSystem.scheduler.schedule(0 seconds, configuration.underlying.getInt(Scheduler.ExpirationKickOffSchedule)
     seconds,
     processing, ProcessingActor.Expire)
 
 }
 
 object Scheduler {
-  val FLAT_CHECK_SCHEDULE = "ss.lv.flatCheckSchedule"
-  val EXPIRATION_KICK_OFF_SCHEDULE = "flat.expire.kickOffSchedule"
+  val FlatCheckSchedule = "ss.lv.flatCheckSchedule"
+  val ExpirationKickOffSchedule = "flat.expire.kickOffSchedule"
 }

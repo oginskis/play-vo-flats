@@ -23,5 +23,16 @@ sum(1,2,3)
 val x = sum(_:Int,2,3)
 x(1)
 
+val rawFloors = "1.0/14"
+
+val floor = java.lang.Double
+  .valueOf(rawFloors.substring(0,rawFloors.lastIndexOf("/"))).intValue
+val maxFloors = java.lang.Integer
+  .valueOf(rawFloors.substring(rawFloors.lastIndexOf("/")+1))
+
+
+val floorScala = rawFloors.substring(0,rawFloors.lastIndexOf("/")).toDouble.toInt
+val maxFloorsScala = rawFloors.substring(rawFloors.lastIndexOf("/")+1).toInt
+
 
 

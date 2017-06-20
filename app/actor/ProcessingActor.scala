@@ -16,7 +16,7 @@ class ProcessingActor(extractingActor: ActorRef, configuration: Configuration,
                       flatRepo:FlatRepo) extends Actor with ActorLogging {
   override def receive: Receive = {
     case ProcessingActor.Process => {
-      val flatSearchRequestConfig = configuration.underlying.getObjectList("flat.search.request.config").asScala
+      val flatSearchRequestConfig = configuration.underlying.getObjectList(ProcessingActor.SearchRequestList).asScala
       flatSearchRequestConfig.foreach(configItem =>
         extractingActor ! new FlatRequestQuery(Option(configItem.get("city").unwrapped.toString),
           Option(configItem.get("district").unwrapped.toString),
@@ -26,7 +26,7 @@ class ProcessingActor(extractingActor: ActorRef, configuration: Configuration,
     }
     case ProcessingActor.Expire => {
       try {
-        val expireOlderThan = configuration.underlying.getInt("flat.expire.olderThan")
+        val expireOlderThan = configuration.underlying.getInt(ProcessingActor.ExpireOlderThan)
         flatRepo.expireFlats(expireOlderThan)
       }
       catch {
@@ -43,4 +43,6 @@ class ProcessingActor(extractingActor: ActorRef, configuration: Configuration,
 object ProcessingActor {
   val Process = "processFlats"
   val Expire = "expireFlats"
+  val SearchRequestList = "flat.search.request.config"
+  val ExpireOlderThan = "flat.expire.olderThan"
 }

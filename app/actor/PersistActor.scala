@@ -14,16 +14,16 @@ class PersistActor(notificationActor: ActorRef, flatRepo: FlatRepo) extends Acto
   override def receive: Receive = {
     case flat: Flat => {
       try {
-        val flatStatus = flatRepo.addOrUpdateFlat(flat)
+        val persistedFlat = flatRepo.addOrUpdateFlat(flat)
         def matchesFilter(flat: Flat): Boolean = {
           if (flat.price.get < 90000
             && flat.size.get >= 40
           ) true
           else false
         }
-        if (Flat.Added == flatStatus && matchesFilter(flat)) {
-          Logger.info(s"New flat has been found $flat Sending out emails...")
-          notificationActor ! flat
+        if (Flat.New == persistedFlat.status && matchesFilter(persistedFlat)) {
+          Logger.info(s"New flat has been found $persistedFlat Sending out emails...")
+          notificationActor ! persistedFlat
         }
       }
       catch {
@@ -35,4 +35,5 @@ class PersistActor(notificationActor: ActorRef, flatRepo: FlatRepo) extends Acto
       }
     }
   }
+
 }

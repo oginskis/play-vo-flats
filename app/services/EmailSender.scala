@@ -8,13 +8,12 @@ import javax.mail.internet.{InternetAddress, MimeBodyPart, MimeMessage, MimeMult
 
 import model.b2c.Flat
 import play.api.Configuration
-import repo.FlatRepo
 
 /**
   * Created by oginskis on 01/01/2017.
   */
 @Singleton
-class EmailSender @Inject()(configuration: Configuration, flatRepo: FlatRepo) {
+class EmailSender @Inject()(configuration: Configuration) {
 
   val props = new java.util.Properties()
   props.put(EmailSender.SMTP_PROP_START_TLS, "true")
@@ -41,8 +40,9 @@ class EmailSender @Inject()(configuration: Configuration, flatRepo: FlatRepo) {
           }
           ).array
       )
-      var historicFlatStr = flatRepo.findFlatPriceHistoryItemsFor(flat)
-        .map(flat => flat.price.get + " EUR - Active between " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+
+   var historicFlatStr = flat.flatPriceHistoryItems.get
+        .map(item => item.price.get + " EUR - Active between " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
           .format(new Date(flat.firstSeenAt.get * 1000)) +
           " and " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.lastSeenAt.get * 1000)))
         .mkString("<br />")
@@ -54,8 +54,8 @@ class EmailSender @Inject()(configuration: Configuration, flatRepo: FlatRepo) {
         + "<br />"
         + "<br /><b>Address:</b> " + flat.address.get
         + "<br /><b>District:</b> " + flat.district.get
-        + "<br /><b>Floor:</b> " + flat.floor.get
-        + "<br /><b>Rooms:</b> " + flat.rooms.get
+        + "<br /><b>Floor:</b> " + flat.floor.get +"/"+ flat.maxFloors.get
+        + "<br /><b>Rooms:</b> " + (if (flat.rooms.get == -1) "Citi" else flat.rooms.get)
         + "<br /><b>Size:</b> " + flat.size.get
         + "<br /><b>Price:</b> " + flat.price.get + " EUR"
         + "<br /><b>Link:</b> http://www.ss.lv" + flat.link.get
