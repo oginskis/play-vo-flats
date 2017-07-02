@@ -26,7 +26,7 @@ class Scheduler @Inject()(appLifecycle: ApplicationLifecycle, actorSystem: Actor
   val processing = actorSystem.actorOf(Props(new ProcessingActor(extracting,configuration,flatRepo)), name = "processing")
   actorSystem.scheduler.schedule(0 seconds, configuration.underlying.getInt(Scheduler.FlatCheckSchedule) seconds,
     processing, ProcessingActor.Process)
-  actorSystem.scheduler.schedule(0 seconds, configuration.underlying.getInt(Scheduler.ExpirationKickOffSchedule)
+  actorSystem.scheduler.schedule(0 seconds, configuration.underlying.getInt(Scheduler.EXPIRATION_KICK_OFF_SCHEDULE)
     seconds,
     processing, ProcessingActor.Expire)
 
@@ -34,5 +34,5 @@ class Scheduler @Inject()(appLifecycle: ApplicationLifecycle, actorSystem: Actor
 
 object Scheduler {
   val FlatCheckSchedule = "ss.lv.flatCheckSchedule"
-  val ExpirationKickOffSchedule = "flat.expire.kickOffSchedule"
+  val EXPIRATION_KICK_OFF_SCHEDULE = "flat.expire.kickOffSchedule"
 }

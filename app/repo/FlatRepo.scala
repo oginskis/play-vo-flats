@@ -6,12 +6,14 @@ import javax.inject.{Inject, Singleton}
 
 import com.mongodb.client.model.UpdateManyModel
 import com.mongodb.{Block, MongoClient, MongoClientURI, QueryBuilder}
-import model.b2c.{Flat, FlatPriceHistoryItem}
+import model.b2c.{Flat, FlatPriceHistoryItem, SellerContactDetails}
 import org.bson.Document
 import org.bson.types.ObjectId
 import play.api.Logger
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
+import scala.util.Try
 
 /**
   * Created by oginskis on 30/12/2016.
@@ -44,22 +46,8 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
         @Override
         def apply(document: Document) {
           val params = new util.HashMap[String,Object]()
-          try {
-            val rooms = java.lang.Integer.valueOf(document.get("rooms").toString)
-            document.put("numberOfRooms",java.lang.Integer.valueOf(rooms))
-            document.put("size",java.lang.Integer.valueOf(document.get("size").toString))
-            document.put("price",java.lang.Integer.valueOf(document.get("price").toString))
-            val rawFloor = document.get("floor").toString
-            val floor = rawFloor.substring(0,rawFloor.lastIndexOf("/")).toDouble.toInt
-            val maxFloors = rawFloor.substring(rawFloor.lastIndexOf("/")+1).toInt
-            document.put("flatFloor",floor)
-            document.put("maxFloors",maxFloors)
-          }
-          catch {
-            case e: NumberFormatException => {
-              document.put("numberOfRooms",java.lang.Integer.valueOf(-1))
-            }
-          }
+          document.put("flatSearchString",document.get("address").toString+" "+document.get("flatFloor")+" "+
+            document.get("numberOfRooms")+" "+document.get("price")+" "+document.get("size"))
           params.put("_id",new ObjectId(document.get("_id").toString))
           flatsColl.replaceOne(new org.bson.Document(params),document)
         }
@@ -95,6 +83,25 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
     Logger.info(s"Expired $modified flats, which are not on ss.lv anymore")
   }
 
+  private def getContactDetails(document: Document): Option[SellerContactDetails] = {
+    if (document == null) return None
+    Option(new SellerContactDetails(
+      Option(Try(document.get("phoneNumbers").asInstanceOf[util.ArrayList[String]].asScala.toList)
+        .getOrElse(List[String]()))
+      ,
+      if (document.getString("webPage") != null) {
+        Option(document.getString("webPage"))
+      } else {
+        None
+      },
+      if (document.getString("company") != null) {
+        Option(document.getString("company"))
+      } else {
+        None
+      }
+    ))
+  }
+
   def getFlatById(flatId: String): Option[Flat] = {
     val params = new util.HashMap[String, Object]()
     params.put("_id", new ObjectId(flatId))
@@ -127,7 +134,9 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
           Option(doc.get("city").toString),
           Option(doc.get("district").toString),
           Option(doc.get("action").toString)
-        )))))
+        ))),
+        getContactDetails(doc.get("sellerContactDetails").asInstanceOf[Document])
+      ))
     } else {
       None
     }
@@ -135,10 +144,25 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
 
   def addOrUpdateFlat(flat: Flat): Flat = {
     val currentTimestamp = java.lang.Long.valueOf((new Date().getTime / 1000))
+    def createSellerContactDetailsDocument(contactInformation:SellerContactDetails): org.bson.Document = {
+      val params = new java.util.HashMap[String, Object]()
+      if (contactInformation.company != None) params.put("company",contactInformation.company.get)
+      if (contactInformation.webPage != None) params.put("webPage",contactInformation.webPage.get)
+      if (contactInformation.phoneNumbers != None && contactInformation.phoneNumbers.get.size > 0){
+        val phoneNumbers = new java.util.ArrayList[String]()
+        contactInformation.phoneNumbers.get.foreach(phoneNumber => {
+          phoneNumbers.add(phoneNumber)
+        }
+        )
+        params.put("phoneNumbers",phoneNumbers)
+      }
+      new Document(params)
+    }
     def updateDocument(flat: Flat): org.bson.Document = {
       val params = new java.util.HashMap[String, Object]()
       params.put("expired", "false")
       params.put("lastSeenAtEpoch", currentTimestamp)
+      params.put("sellerContactDetails", createSellerContactDetailsDocument(flat.contactDetails.get))
       new Document(params)
     }
     def createDocument(flat: Flat): org.bson.Document = {
@@ -158,8 +182,12 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
       params.put("itemType", "flat")
       params.put("expired", "false")
       params.put("lastSeenAtEpoch",currentTimestamp)
+      params.put("flatSearchString",flat.address.get +" "+ flat.floor.get +" "+ flat.rooms.get +" "+ flat.price.get +
+        " "+flat.size.get)
+      params.put("sellerContactDetails",createSellerContactDetailsDocument(flat.contactDetails.get))
       new Document(params)
     }
+
     val updatedDocument = flatsColl.findOneAndUpdate(exactFindFilter(flat), new Document("$set", updateDocument(flat)))
     if (updatedDocument==null){
       flatsColl.insertOne(createDocument(flat))
@@ -189,7 +217,8 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
           flat.city,
           flat.district,
           flat.action
-        )))
+        ))),
+        flat.contactDetails
       )
     } else {
       new Flat(
@@ -207,7 +236,8 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
         Option(updatedDocument.get("district").toString),
         Option(updatedDocument.get("action").toString),
         Option("false"),
-        None
+        None,
+        getContactDetails(updatedDocument.get("sellerContactDetails").asInstanceOf[Document])
       )
     }
   }
@@ -233,7 +263,8 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
           Option(document.get("link").toString),
           Option(document.get("price").toString.toInt),
           Option(document.get("firstSeenAtEpoch").toString.toLong),
-          Option(document.get("lastSeenAtEpoch").toString.toLong)
+          Option(document.get("lastSeenAtEpoch").toString.toLong),
+          getContactDetails(document.get("sellerContactDetails").asInstanceOf[Document])
         )
     }
     flatPriceHistoryItems.toList

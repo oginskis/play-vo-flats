@@ -43,8 +43,8 @@ class EmailSender @Inject()(configuration: Configuration) {
 
    var historicFlatStr = flat.flatPriceHistoryItems.get
         .map(item => item.price.get + " EUR - Active between " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
-          .format(new Date(flat.firstSeenAt.get * 1000)) +
-          " and " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.lastSeenAt.get * 1000)))
+          .format(new Date(item.firstSeenAt.get * 1000)) +
+          " and " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(item.lastSeenAt.get * 1000)))
         .mkString("<br />")
       if (historicFlatStr.isEmpty) {
         historicFlatStr = "Nothing has been found"
@@ -53,6 +53,7 @@ class EmailSender @Inject()(configuration: Configuration) {
       textPart.setContent("<html><head></head><body>New flat posted or updated:"
         + "<br />"
         + "<br /><b>Address:</b> " + flat.address.get
+        + "<br /><b>City:</b> " + flat.city.get
         + "<br /><b>District:</b> " + flat.district.get
         + "<br /><b>Floor:</b> " + flat.floor.get +"/"+ flat.maxFloors.get
         + "<br /><b>Rooms:</b> " + (if (flat.rooms.get == -1) "Citi" else flat.rooms.get)
@@ -65,7 +66,7 @@ class EmailSender @Inject()(configuration: Configuration) {
         + historicFlatStr
         + "<br />"
         + "<br />--Viktors</body></html>", "text/html; charset=UTF-8")
-      message.setSubject(flat.address.get + ", "+flat.district.get+", " + flat.price.get + " EUR")
+      message.setSubject(flat.address.get+ ", "+flat.district.get+", "+flat.city.get+", " +flat.price.get+ " EUR")
       val mp = new MimeMultipart()
       mp.addBodyPart(textPart)
       message.setContent(mp)

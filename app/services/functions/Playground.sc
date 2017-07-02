@@ -1,3 +1,5 @@
+
+
 def line(a: Int, b: Int, x: Int): Int = a * x + b
 
 def curriedLine(a: Int)(b: Int)(x: Int): Int = a * x + b

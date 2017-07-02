@@ -5,7 +5,7 @@ import javax.inject._
 import play.api.mvc._
 
 @Singleton
-class HomeController @Inject() extends Controller {
+class HomeController @Inject()(cc:ControllerComponents) extends AbstractController(cc) {
 
   def index = Action {
     Ok("ss.lv flat price search API")

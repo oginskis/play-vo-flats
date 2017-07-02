@@ -10,10 +10,10 @@ import play.api.libs.json._
   */
 case class FlatSearchResult(
                              val address: Option[String],
-                             val rooms: Option[String],
-                             val size: Option[String],
-                             val floor: Option[String],
-                             val price: Option[String],
+                             val rooms: Option[Int],
+                             val size: Option[Int],
+                             val floor: Option[Int],
+                             val price: Option[Int],
                              val firstSeenAt: Option[Long],
                              val lastSeenAt: Option[Long],
                              val flatId: Option[String]
@@ -41,10 +41,10 @@ object FlatSearchResult {
     override def reads(json: JsValue): JsResult[FlatSearchResult] = {
       val flatSearchResult = FlatSearchResult(
         (json \ "address").asOpt[String],
-        (json \ "rooms").asOpt[String],
-        (json \ "size").asOpt[String],
-        (json \ "floor").asOpt[String],
-        (json \ "price").asOpt[String],
+        (json \ "numberOfRooms").asOpt[Int],
+        (json \ "size").asOpt[Int],
+        (json \ "flatFloor").asOpt[Int],
+        (json \ "price").asOpt[Int],
         (json \ "firstSeenAtEpoch").asOpt[Long],
         (json \ "lastSeenAtEpoch").asOpt[Long],
         (json \ "id").asOpt[String]
@@ -55,9 +55,9 @@ object FlatSearchResult {
   implicit val flatSearchResultWrites = new Writes[FlatSearchResult] {
     def writes(flatSearchResult: FlatSearchResult) = Json.obj(
       "address" -> flatSearchResult.address,
-      "rooms" -> flatSearchResult.rooms,
+      "numberOfRooms" -> flatSearchResult.rooms,
       "size" -> flatSearchResult.size,
-      "floor" -> flatSearchResult.floor,
+      "flatFloor" -> flatSearchResult.floor,
       "price" -> flatSearchResult.price,
       "firstSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
         .format(new Date(flatSearchResult.firstSeenAt.get * 1000))),
