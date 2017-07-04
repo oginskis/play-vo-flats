@@ -1,8 +1,7 @@
-package services
+package actors.helpers
 
 import java.text.SimpleDateFormat
 import java.util.Date
-import javax.inject.{Inject, Singleton}
 import javax.mail._
 import javax.mail.internet.{InternetAddress, MimeBodyPart, MimeMessage, MimeMultipart}
 
@@ -12,8 +11,7 @@ import play.api.Configuration
 /**
   * Created by oginskis on 01/01/2017.
   */
-@Singleton
-class EmailSender @Inject()(configuration: Configuration) {
+class EmailSender (configuration: Configuration) {
 
   val props = new java.util.Properties()
   props.put(EmailSender.SMTP_PROP_START_TLS, "true")
@@ -42,9 +40,20 @@ class EmailSender @Inject()(configuration: Configuration) {
       )
 
    var historicFlatStr = flat.flatPriceHistoryItems.get
-        .map(item => item.price.get + " EUR - Active between " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
-          .format(new Date(item.firstSeenAt.get * 1000)) +
-          " and " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(item.lastSeenAt.get * 1000)))
+        .map(
+          item => {
+            var historyString =
+            item.price.get + " EUR - Active between " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+              .format(new Date(item.firstSeenAt.get * 1000)) +
+              " and " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(item.lastSeenAt.get * 1000))
+            if (item.contactDetails != None) {
+              historyString = historyString +" "+(item.contactDetails.get.phoneNumbers.getOrElse(List()).mkString
+              + (if (item.contactDetails.get.company != None) " " + item.contactDetails.get.company.get else "")
+              + (if (item.contactDetails.get.webPage != None) " " + item.contactDetails.get.webPage.get else ""))
+            }
+            historyString
+          }
+        )
         .mkString("<br />")
       if (historicFlatStr.isEmpty) {
         historicFlatStr = "Nothing has been found"
@@ -60,6 +69,10 @@ class EmailSender @Inject()(configuration: Configuration) {
         + "<br /><b>Size:</b> " + flat.size.get
         + "<br /><b>Price:</b> " + flat.price.get + " EUR"
         + "<br /><b>Link:</b> http://www.ss.lv" + flat.link.get
+        + "<br /><b>Who published:</b> "
+        + "<br />Phone(s) number(s): " + flat.contactDetails.get.phoneNumbers.getOrElse(List()).mkString(", ")
+        + (if (flat.contactDetails.get.company != None) "<br />Company: " + flat.contactDetails.get.company.get else "")
+        + (if (flat.contactDetails.get.webPage != None) "<br />WWW: " + flat.contactDetails.get.webPage.get else "")
         + "<br />"
         + "<br /><b>Historic prices (for flats with the same address, floor, " +
         "number of rooms and size):</b> <br />"

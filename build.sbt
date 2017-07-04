@@ -1,7 +1,7 @@
 
 name := """play-vo-flats"""
 
-version := "9.1"
+version := "10.0"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
@@ -19,7 +19,8 @@ libraryDependencies ++= Seq(
   "javax.mail" % "mail" % "1.4",
   "junit" % "junit" % "4.12",
   "org.scalaj" % "scalaj-http_2.11" % "2.3.0",
-  "net.ruippeixotog" %% "scala-scraper" % "2.0.0-RC2"
+  "net.ruippeixotog" %% "scala-scraper" % "2.0.0-RC2",
+  "com.typesafe.akka" % "akka-testkit_2.12" % "2.5.3" % Test
 )
 
 fork in run := false

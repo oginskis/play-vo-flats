@@ -1,4 +1,4 @@
-package services.functions
+package actors.functions
 
 import model.b2b.FlatRequestQuery
 import model.b2c.{Flat, SellerContactDetails}

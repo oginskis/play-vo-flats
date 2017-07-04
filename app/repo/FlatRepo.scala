@@ -163,6 +163,7 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
       params.put("expired", "false")
       params.put("lastSeenAtEpoch", currentTimestamp)
       params.put("sellerContactDetails", createSellerContactDetailsDocument(flat.contactDetails.get))
+      params.put("sellerSearchString",flat.contactDetails.get.company.getOrElse(""))
       new Document(params)
     }
     def createDocument(flat: Flat): org.bson.Document = {
@@ -184,6 +185,7 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
       params.put("lastSeenAtEpoch",currentTimestamp)
       params.put("flatSearchString",flat.address.get +" "+ flat.floor.get +" "+ flat.rooms.get +" "+ flat.price.get +
         " "+flat.size.get)
+      params.put("sellerSearchString",flat.contactDetails.get.company.getOrElse(""))
       params.put("sellerContactDetails",createSellerContactDetailsDocument(flat.contactDetails.get))
       new Document(params)
     }

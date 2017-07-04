@@ -1,19 +1,29 @@
-package actor
+package actors
 
 
+import akka.actor.{Actor, ActorLogging, Props}
+import akka.routing.RoundRobinPool
+import com.google.inject.Inject
 import com.mongodb.MongoCommandException
 import model.b2b.FlatRequestQuery
+import play.api.libs.ws.WSClient
+import play.api.{Configuration, Logger}
 import repo.FlatRepo
 
 import scala.collection.JavaConverters._
-import akka.actor.{Actor, ActorLogging, ActorRef}
-import play.api.{Logger, Configuration}
 
 /**
   * Created by oginskis on 25/05/2017.
   */
-class ProcessingActor(extractingActor: ActorRef, configuration: Configuration,
-                      flatRepo:FlatRepo) extends Actor with ActorLogging {
+class ProcessingActor @Inject()(flatRepo:FlatRepo,
+                                wsClient:WSClient,
+                                configuration: Configuration) extends Actor with ActorLogging {
+
+  val extractingActor = {
+    context.actorOf(RoundRobinPool(configuration.get[Int](ProcessingActor.extractingParallelActors))
+      .props(Props(classOf[ExtractingActor],flatRepo,wsClient,configuration)), name = "extractingActor")
+  }
+
   override def receive: Receive = {
     case ProcessingActor.Process => {
       val flatSearchRequestConfig = configuration.underlying.getObjectList(ProcessingActor.SearchRequestList).asScala
@@ -31,7 +41,7 @@ class ProcessingActor(extractingActor: ActorRef, configuration: Configuration,
       }
       catch {
         case e: MongoCommandException => {
-          Logger.info("Error during flat expiration on ss.lv, retrying..")
+          Logger.info(s"Error during flat expiration on ss.lv: ${e.getErrorMessage}, retrying..")
           self ! ProcessingActor.Expire
         }
       }
@@ -45,4 +55,5 @@ object ProcessingActor {
   val Expire = "expireFlats"
   val SearchRequestList = "flat.search.request.config"
   val ExpireOlderThan = "flat.expire.olderThan"
+  val extractingParallelActors = "actor.system.parallel.actors.extracting"
 }
