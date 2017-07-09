@@ -1,5 +1,6 @@
 package actors
 
+import actors.functions.ContentExtractingFunctions._
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.routing.RoundRobinPool
 import model.b2b.FlatRequestQuery
@@ -7,7 +8,6 @@ import model.b2c.Flat
 import play.api.libs.ws.WSClient
 import play.api.{Configuration, Logger}
 import repo.FlatRepo
-import actors.functions.ContentExtractingFunctions._
 
 /**
   * Created by oginskis on 12/03/2017.

@@ -10,7 +10,8 @@ import repo.FlatRepo
 /**
   * Created by oginskis on 12/03/2017.
   */
-class PersistActor (flatRepo: FlatRepo, configuration: Configuration) extends Actor with ActorLogging {
+class PersistActor (flatRepo: FlatRepo,
+                    configuration: Configuration) extends Actor with ActorLogging {
 
   val notificationActor = {
     context.actorOf(RoundRobinPool(configuration.get[Int](PersistActor.notificationParallelActors))

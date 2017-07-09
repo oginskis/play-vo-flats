@@ -1,9 +1,7 @@
 package actors.helpers
 
-import java.text.SimpleDateFormat
-import java.util.Date
 import javax.mail._
-import javax.mail.internet.{InternetAddress, MimeBodyPart, MimeMessage, MimeMultipart}
+import javax.mail.internet.{InternetAddress, MimeMessage}
 
 import model.b2c.Flat
 import play.api.Configuration
@@ -27,67 +25,19 @@ class EmailSender (configuration: Configuration) {
     });
 
   def sendEmail(flat: Flat) = {
-    try {
-      val message = new MimeMessage(session)
-      message.setFrom(new InternetAddress(configuration.underlying.getString(EmailSender.SENT_FROM)))
-      message.setRecipients(Message.RecipientType.TO,
-        configuration.underlying.getString(EmailSender.SENT_TO_LIST).split(",")
-          .map(email => {
-            val address: Address = new InternetAddress(email)
-            address
-          }
-          ).array
-      )
-
-   var historicFlatStr = flat.flatPriceHistoryItems.get
-        .map(
-          item => {
-            var historyString =
-            item.price.get + " EUR - Active between " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
-              .format(new Date(item.firstSeenAt.get * 1000)) +
-              " and " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(item.lastSeenAt.get * 1000))
-            if (item.contactDetails != None) {
-              historyString = historyString +" "+(item.contactDetails.get.phoneNumbers.getOrElse(List()).mkString
-              + (if (item.contactDetails.get.company != None) " " + item.contactDetails.get.company.get else "")
-              + (if (item.contactDetails.get.webPage != None) " " + item.contactDetails.get.webPage.get else ""))
-            }
-            historyString
-          }
-        )
-        .mkString("<br />")
-      if (historicFlatStr.isEmpty) {
-        historicFlatStr = "Nothing has been found"
-      }
-      val textPart = new MimeBodyPart()
-      textPart.setContent("<html><head></head><body>New flat posted or updated:"
-        + "<br />"
-        + "<br /><b>Address:</b> " + flat.address.get
-        + "<br /><b>City:</b> " + flat.city.get
-        + "<br /><b>District:</b> " + flat.district.get
-        + "<br /><b>Floor:</b> " + flat.floor.get +"/"+ flat.maxFloors.get
-        + "<br /><b>Rooms:</b> " + (if (flat.rooms.get == -1) "Citi" else flat.rooms.get)
-        + "<br /><b>Size:</b> " + flat.size.get
-        + "<br /><b>Price:</b> " + flat.price.get + " EUR"
-        + "<br /><b>Link:</b> http://www.ss.lv" + flat.link.get
-        + "<br /><b>Who published:</b> "
-        + "<br />Phone(s) number(s): " + flat.contactDetails.get.phoneNumbers.getOrElse(List()).mkString(", ")
-        + (if (flat.contactDetails.get.company != None) "<br />Company: " + flat.contactDetails.get.company.get else "")
-        + (if (flat.contactDetails.get.webPage != None) "<br />WWW: " + flat.contactDetails.get.webPage.get else "")
-        + "<br />"
-        + "<br /><b>Historic prices (for flats with the same address, floor, " +
-        "number of rooms and size):</b> <br />"
-        + historicFlatStr
-        + "<br />"
-        + "<br />--Viktors</body></html>", "text/html; charset=UTF-8")
-      message.setSubject(flat.address.get+ ", "+flat.district.get+", "+flat.city.get+", " +flat.price.get+ " EUR")
-      val mp = new MimeMultipart()
-      mp.addBodyPart(textPart)
-      message.setContent(mp)
-      Transport.send(message)
-    } catch {
-      case ex: Exception =>
-        throw new RuntimeException(ex);
-    }
+    val message = new MimeMessage(session)
+    message.setText(views.html.Application.notification.render(flat).body,"utf-8", "html")
+    message.setFrom(new InternetAddress(configuration.get[String](EmailSender.SENT_FROM)))
+    message.setSubject(flat.address.get+ ", "+flat.district.get+", "+flat.city.get+", " +flat.price.get+ " EUR")
+    message.setRecipients(Message.RecipientType.TO,
+      configuration.underlying.getString(EmailSender.SENT_TO_LIST).split(",")
+        .map(email => {
+          val address: Address = new InternetAddress(email)
+          address
+        }
+        ).array
+    )
+    Transport.send(message)
   }
 }
 

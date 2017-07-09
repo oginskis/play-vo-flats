@@ -1,7 +1,7 @@
 
 name := """play-vo-flats"""
 
-version := "10.0"
+version := "10.1"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
@@ -20,7 +20,9 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.12",
   "org.scalaj" % "scalaj-http_2.11" % "2.3.0",
   "net.ruippeixotog" %% "scala-scraper" % "2.0.0-RC2",
-  "com.typesafe.akka" % "akka-testkit_2.12" % "2.5.3" % Test
+  "com.typesafe.akka" % "akka-testkit_2.12" % "2.5.3" % Test,
+  "com.typesafe.play" %% "play-mailer" % "6.0.0",
+  "com.typesafe.play" %% "play-mailer-guice" % "6.0.0"
 )
 
 fork in run := false
@@ -37,6 +39,11 @@ fullClasspath in assembly += Attributed.blank(PlayKeys.playPackageAssets.value)
 mergeStrategy in assembly := {
   case "META-INF/io.netty.versions.properties" => MergeStrategy.concat
   case "META-INF/services/com.fasterxml.jackson.databind.Module" => MergeStrategy.first
+  case x if x.startsWith("META-INF/javamail") => MergeStrategy.last
+  case "META-INF/mailcap" => MergeStrategy.last
+  case x if x.startsWith("com/sun/mail/") => MergeStrategy.last
+  case x if x.startsWith("javax/mail/" +
+    "") => MergeStrategy.last
   case x if x.startsWith("org/apache/commons/logging") => MergeStrategy.first
   case x if x.startsWith("play/api/libs/ws/package") => MergeStrategy.first
   case x if x.contains("play/reference-overrides.conf") => MergeStrategy.concat

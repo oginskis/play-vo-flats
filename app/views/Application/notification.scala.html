@@ -1,6 +1,419 @@
 @(flat: model.b2c.Flat)
 
-<h1>@flat.address.get</h1>
-
-<ul>
-</ul>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    @if(flat.flatPriceHistoryItems != None && !flat.flatPriceHistoryItems.get.isEmpty) {
+        <title>New flat: @flat.address.get, @flat.price.get</title>
+    } else {
+        <title>New price: @flat.address.get, @flat.price.get</title>
+    }
+</head>
+<body style="margin:0; padding:0;">
+<center>
+    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width:600px;" bgcolor="#FFFFFF">
+        <tr>
+            <td align="center" valign="top" style="font-size:0;">
+                <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;font-size:26px;font-family: Arial, sans-serif;color: darkblue;padding: 20px 0 20px 0">
+                    @if(flat.flatPriceHistoryItems != None && !flat.flatPriceHistoryItems.get.isEmpty) {
+                    <strong>New flat has been added</strong>
+                    } else {
+                    <strong>New price has been published</strong>
+                    }
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td align="center" valign="top" width="100%">
+                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;" bgcolor="#FFFFFF">
+                    <tr>
+                        <td align="left" valign="top" style="font-size:0;background-color: whitesmoke">
+                            <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                            <strong>Address</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                            @flat.address.get
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" valign="top" style="font-size:0;">
+                            <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                            <strong>City, district</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                            @{flat.city.get + ", " +flat.district.get}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" valign="top" style="font-size:0;background-color: whitesmoke">
+                            <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                            <strong>Size</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                            @flat.size.get  m2
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" valign="top" style="font-size:0;">
+                            <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                            <strong>Number of floors</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                            @{flat.floor.get + "/"+ flat.maxFloors.get}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" valign="top" style="font-size:0;background-color: whitesmoke">
+                            <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                            <strong>Number of rooms</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                            @if(flat.rooms.get > -1) {
+                                                @flat.rooms
+                                            } else {
+                                                Other
+                                            }
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" valign="top" style="font-size:0;">
+                            <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                            <strong>Price</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                            @flat.price EUR
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" valign="top" style="font-size:0;background-color: whitesmoke">
+                            <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                            <strong>Link</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                            <a href="@flat.link.get" target="_blank">@flat.link.get</a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    @if(flat.contactDetails != None) {
+                        <tr>
+                            <td align="left" valign="top" style="font-size:0;">
+                                <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                    <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                        <tr>
+                                            <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                                <strong>Who published?</strong>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        @if(flat.contactDetails.get.phoneNumbers != None && !flat.contactDetails.get.phoneNumbers.get.isEmpty) {
+                            <tr>
+                                <td align="left" valign="top" style="font-size:0;">
+                                    <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                        <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                            <tr>
+                                                <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;padding: 0 0 0 5px;">
+                                                    <i>Phone number(s)</i>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                        <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                            <tr>
+                                                <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;padding: 0 0 0 5px;">
+                                                    @flat.contactDetails.get.phoneNumbers.get.mkString(", ")
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        @if(flat.contactDetails.get.company != None) {
+                        <tr>
+                            <td align="left" valign="top" style="font-size:0;">
+                                <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                        <tr>
+                                            <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;padding: 0 0 0 5px;">
+                                                <i>Company</i>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                        <tr>
+                                            <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;padding: 0 0 0 5px;">
+                                                @flat.contactDetails.get.company.get
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                        @if(flat.contactDetails.get.webPage != None) {
+                        <tr>
+                            <td align="left" valign="top" style="font-size:0;">
+                                <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                        <tr>
+                                            <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;padding: 0 0 0 5px;">
+                                                <i>WWW</i>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                        <tr>
+                                            <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;padding: 0 0 0 5px;">
+                                                <a href="@flat.contactDetails.get.webPage.get" target="_blank">@{flat.contactDetails.get.company.get.take(20) + "..."}</a></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    }
+                </table>
+            </td>
+        </tr>
+        @if(flat.flatPriceHistoryItems != None && !flat.flatPriceHistoryItems.get.isEmpty) {
+            <tr>
+                <td align="center">
+                    <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;font-size:18px;font-family: Arial, sans-serif;color: darkblue;padding: 30px 0 0px 0">
+                        <strong>Historic prices for this flat</strong>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    <div style="display:inline-block; max-width:600px; vertical-align:top; width:100%;">
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:100px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;background-color: whitesmoke;">
+                                    <strong>Price</strong>
+                                </td>
+                            </tr>
+                        </table>
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:150px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;;background-color: whitesmoke;">
+                                    <strong>Active from</strong>
+                                </td>
+                            </tr>
+                        </table>
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:150px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;;background-color: whitesmoke;">
+                                    <strong>Active to</strong>
+                                </td>
+                            </tr>
+                        </table>
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;;background-color: whitesmoke;">
+                                    <strong>Who published?</strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+            @for(item <- flat.flatPriceHistoryItems.get) {
+                <tr>
+                    <td align="center">
+                        <div style="display:inline-block; max-width:600px; vertical-align:top; width:100%;">
+                            <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:100px;" class="deviceWidth">
+                                <tr>
+                                    <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;">
+                                        @item.price EUR
+                                    </td>
+                                </tr>
+                            </table>
+                            <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:150px;" class="deviceWidth">
+                                <tr>
+                                    <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;">
+                                        @{(new java.text.SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new java.util.Date(item.firstSeenAt.get * 1000)))}
+                                    </td>
+                                </tr>
+                            </table>
+                            <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:150px;" class="deviceWidth">
+                                <tr>
+                                    <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;">
+                                        @{(new java.text.SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new java.util.Date(item.lastSeenAt.get * 1000)))}
+                                    </td>
+                                </tr>
+                            </table>
+                            <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                <tr>
+                                    <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;">
+                                        @if(item.contactDetails.get.phoneNumbers != None && !item.contactDetails.get.phoneNumbers.get.isEmpty) {
+                                            <i>@item.contactDetails.get.phoneNumbers.get.mkString(", ")</i>
+                                        } else {
+                                            <i>N/A</i>
+                                        }
+                                        @if(item.contactDetails.get.company != None) {
+                                            <br />
+                                            <i>item.contactDetails.get.company.get</i>
+                                        }
+                                        @if(item.contactDetails.get.webPage != None) {
+                                            <br />
+                                            <i><a href="@item.contactDetails.get.webPage.get" target="_blank">@{item.contactDetails.get.company.get.take(20) + "..."}</a></i>
+                                        }
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+        <tr>
+            <td>
+                <hr style="border: 1px solid black">
+            </td>
+        </tr>
+        <tr>
+            <td align="left" valign="top">
+            <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;">
+                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:500px;" class="deviceWidth">
+                        <tr>
+                            <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;color: darkgray;
+                                                             padding: 0 0 0 5px;">
+                                www.adscraper.lv
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td align="left" valign="top">
+            <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;">
+                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:500px;" class="deviceWidth">
+                        <tr>
+                            <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;color: darkgray;
+                                                             padding: 0 0 0 5px;">
+                                <a href="#" target="_blank">Unsubscribe from the current filter</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td align="left" valign="top">
+                <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;">
+                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:500px;" class="deviceWidth">
+                        <tr>
+                            <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;color: darkgray;
+                                                             padding: 0 0 0 5px;">
+                                <a href="#" target="_blank">Do not receive any e-mails from the Adscraper anymore :(</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </table>
+</center>
+</body>
+</html>
