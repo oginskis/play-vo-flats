@@ -1,7 +1,7 @@
 
 name := """play-vo-flats"""
 
-version := "10.1"
+version := "10.5"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
