@@ -18,7 +18,7 @@ class LocalizationHelper {
   val configEn = ConfigFactory.parseFile(fileEn)
 
   val fileLv = new File("tmplv")
-  FileUtils.copyInputStreamToFile(Play.application().resourceAsStream("messages.en.conf"), fileLv)
+  FileUtils.copyInputStreamToFile(Play.application().resourceAsStream("messages.lv.conf"), fileLv)
   val configLv = ConfigFactory.parseFile(fileLv)
 
 
