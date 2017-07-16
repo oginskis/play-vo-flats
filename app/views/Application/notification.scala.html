@@ -1,14 +1,13 @@
-@(flat: model.b2c.Flat)
-
-<html lang="en">
+@(flat: model.b2c.Flat, config: com.typesafe.config.Config)
+<html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     @if(flat.flatPriceHistoryItems != None && !flat.flatPriceHistoryItems.get.isEmpty) {
-        <title>New flat: @flat.address.get, @flat.price.get</title>
+        <title>@config.getString("email.newFlatShort") @flat.address.get, @flat.price.get</title>
     } else {
-        <title>New price: @flat.address.get, @flat.price.get</title>
+        <title>@config.getString("email.updatedFlatShort") @flat.address.get, @flat.price.get</title>
     }
 </head>
 <body style="margin:0; padding:0;">
@@ -16,11 +15,11 @@
     <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width:600px;" bgcolor="#FFFFFF">
         <tr>
             <td align="center" valign="top" style="font-size:0;">
-                <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;font-size:24px;font-family: Arial, sans-serif;color: darkblue;padding: 20px 0 20px 0">
+                <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;font-size:24px;font-family: Roboto,Tahoma, sans-serif;color: darkblue;padding: 20px 0 20px 0">
                     @if(flat.flatPriceHistoryItems == None || flat.flatPriceHistoryItems.get.isEmpty) {
-                    <strong>New flat has been added</strong>
+                    <strong>@config.getString("email.newFlat")</strong>
                     } else {
-                    <strong>Flat has been updated</strong>
+                    <strong>@config.getString("email.updatedFlat")</strong>
                     }
                 </div>
             </td>
@@ -33,8 +32,8 @@
                             <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
                                     <tr>
-                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
-                                            <strong>Address</strong>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <strong>@config.getString("email.address")</strong>
                                         </td>
                                     </tr>
                                 </table>
@@ -42,8 +41,9 @@
                             <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
                                     <tr>
-                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
-                                            @flat.address.get
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;
+                                            color: #555;">
+                                            <strong>@flat.address.get</strong>
                                         </td>
                                     </tr>
                                 </table>
@@ -55,8 +55,8 @@
                             <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
                                     <tr>
-                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
-                                            <strong>City, district</strong>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <strong>@config.getString("email.city"), @config.getString("email.district")</strong>
                                         </td>
                                     </tr>
                                 </table>
@@ -64,7 +64,7 @@
                             <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
                                     <tr>
-                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
                                             @{flat.city.get + ", " +flat.district.get}
                                         </td>
                                     </tr>
@@ -77,8 +77,8 @@
                             <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
                                     <tr>
-                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
-                                            <strong>Size</strong>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <strong>@config.getString("email.size")</strong>
                                         </td>
                                     </tr>
                                 </table>
@@ -86,8 +86,8 @@
                             <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
                                     <tr>
-                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
-                                            @flat.size.get  m2
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            @flat.size.get  @config.getString("email.m2")
                                         </td>
                                     </tr>
                                 </table>
@@ -99,8 +99,8 @@
                             <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
                                     <tr>
-                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
-                                            <strong>Number of floors</strong>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <strong>@config.getString("email.floor")</strong>
                                         </td>
                                     </tr>
                                 </table>
@@ -108,7 +108,7 @@
                             <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
                                     <tr>
-                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
                                             @{flat.floor.get + "/"+ flat.maxFloors.get}
                                         </td>
                                     </tr>
@@ -121,8 +121,8 @@
                             <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
                                     <tr>
-                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
-                                            <strong>Number of rooms</strong>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <strong>@config.getString("email.numberOfRooms")</strong>
                                         </td>
                                     </tr>
                                 </table>
@@ -130,7 +130,7 @@
                             <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
                                     <tr>
-                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
                                             @if(flat.rooms.get > -1) {
                                                 @flat.rooms
                                             } else {
@@ -147,8 +147,8 @@
                             <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
                                     <tr>
-                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
-                                            <strong>Price</strong>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <strong>@config.getString("email.price")</strong>
                                         </td>
                                     </tr>
                                 </table>
@@ -156,8 +156,9 @@
                             <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
                                     <tr>
-                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
-                                            @flat.price EUR
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;
+                                        color: #555;">
+                                            <strong>@flat.price @config.getString("email.currency")</strong>
                                         </td>
                                     </tr>
                                 </table>
@@ -169,8 +170,8 @@
                             <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
                                     <tr>
-                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
-                                            <strong>Link</strong>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <strong>@config.getString("email.link")</strong>
                                         </td>
                                     </tr>
                                 </table>
@@ -178,8 +179,8 @@
                             <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
                                     <tr>
-                                        <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
-                                            <a href="https://www.ss.lv@flat.link.get" target="_blank">https://www.ss.lv@flat.link.get</a>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <a style="color: #555;" href="https://www.ss.lv@flat.link.get" target="_blank">https://www.ss.lv@flat.link.get</a>
                                         </td>
                                     </tr>
                                 </table>
@@ -192,8 +193,8 @@
                                 <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
                                     <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
                                         <tr>
-                                            <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;">
-                                                <strong>Who published?</strong>
+                                            <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                                <strong>@config.getString("email.whoPublished")</strong>
                                             </td>
                                         </tr>
                                     </table>
@@ -206,8 +207,8 @@
                                     <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
                                         <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
                                             <tr>
-                                                <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;padding: 0 0 0 5px;">
-                                                    <i>Phone number(s)</i>
+                                                <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;padding: 0 0 0 5px;">
+                                                    <i>@config.getString("email.contacts.phone")</i>
                                                 </td>
                                             </tr>
                                         </table>
@@ -215,7 +216,7 @@
                                     <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
                                         <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
                                             <tr>
-                                                <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;padding: 0 0 0 5px;">
+                                                <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;padding: 0 0 0 5px;">
                                                     @flat.contactDetails.get.phoneNumbers.get.mkString(", ")
                                                 </td>
                                             </tr>
@@ -230,8 +231,8 @@
                                 <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
                                     <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
                                         <tr>
-                                            <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;padding: 0 0 0 5px;">
-                                                <i>Company</i>
+                                            <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;padding: 0 0 0 5px;">
+                                                <i>@config.getString("email.contacts.company")</i>
                                             </td>
                                         </tr>
                                     </table>
@@ -239,7 +240,7 @@
                                 <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
                                     <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
                                         <tr>
-                                            <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;padding: 0 0 0 5px;">
+                                            <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;padding: 0 0 0 5px;">
                                                 @flat.contactDetails.get.company.get
                                             </td>
                                         </tr>
@@ -254,8 +255,8 @@
                                 <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
                                     <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
                                         <tr>
-                                            <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;padding: 0 0 0 5px;">
-                                                <i>WWW</i>
+                                            <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;padding: 0 0 0 5px;">
+                                                <i>@config.getString("email.contacts.www")</i>
                                             </td>
                                         </tr>
                                     </table>
@@ -263,8 +264,8 @@
                                 <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
                                     <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
                                         <tr>
-                                            <td align="left" valign="top" style="font-size:14px;font-family: Arial, sans-serif;padding: 0 0 0 5px;">
-                                                <a href="@flat.contactDetails.get.webPage.get" target="_blank">@{flat.contactDetails.get.webPage.get.take(20) + "..."}</a></td>
+                                            <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;padding: 0 0 0 5px;">
+                                                <a style="color: #555;" href="@flat.contactDetails.get.webPage.get" target="_blank">@{flat.contactDetails.get.webPage.get.take(20) + "..."}</a></td>
                                         </tr>
                                     </table>
                                 </div>
@@ -278,97 +279,66 @@
         @if(flat.flatPriceHistoryItems != None && !flat.flatPriceHistoryItems.get.isEmpty) {
             <tr>
                 <td align="center">
-                    <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;font-size:18px;font-family: Arial, sans-serif;color: darkblue;padding: 30px 0 0px 0">
-                        <strong>Historic prices for this flat</strong>
+                    <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;font-size:18px;font-family: Roboto,Tahoma, sans-serif;color: darkblue;padding: 30px 0 0px 0">
+                        <strong>@config.getString("email.historic")</strong>
                     </div>
                 </td>
             </tr>
             <tr>
-                <td align="center">
-                    <div style="display:inline-block; max-width:600px; vertical-align:top; width:100%;">
-                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:100px;" class="deviceWidth">
-                            <tr>
-                                <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;background-color: whitesmoke;">
-                                    <strong>Price</strong>
-                                </td>
-                            </tr>
-                        </table>
-                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:150px;" class="deviceWidth">
-                            <tr>
-                                <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;;background-color: whitesmoke;">
-                                    <strong>Active from</strong>
-                                </td>
-                            </tr>
-                        </table>
-                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:150px;" class="deviceWidth">
-                            <tr>
-                                <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;;background-color: whitesmoke;">
-                                    <strong>Active to</strong>
-                                </td>
-                            </tr>
-                        </table>
-                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
-                            <tr>
-                                <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;;background-color: whitesmoke;">
-                                    <strong>Who published?</strong>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                <td align="center" valign="top" width="100%">
+                    <table width="100%" border="0" cellpadding="5" cellspacing="0" style="min-width:360px;" bgcolor="#FFFFFF">
+                        <tr>
+                            <td style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;background-color: whitesmoke;
+                                       min-width: 80px;">
+                                <strong>@config.getString("email.price")</strong>
+                            </td>
+                            <td style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;background-color: whitesmoke;
+                                       min-width: 160px;">
+                                <strong>@config.getString("email.activeBetween")</strong>
+                            </td>
+                            <td style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;background-color: whitesmoke;
+                                       min-width: 120px;">
+                                <strong>@config.getString("email.whoPublished")</strong>
+                            </td>
+                        </tr>
+            @for(item <- flat.flatPriceHistoryItems.get) {
+                        <tr>
+                            <td valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;
+                                   min-width: 80px;">
+                                @item.price EUR
+                            </td>
+                            <td valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;
+                                   min-width: 160px;">
+                                <span style="word-break: keep-all">@{(new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date(item.firstSeenAt.get * 1000)))}
+                                    <i>@config.getString("email.and")</i>
+                                @{(new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date(item.lastSeenAt.get * 1000)))}</span>
+                                 <br />
+                            </td>
+                            <td valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;
+                                   min-width: 120px;">
+                                @if(item.contactDetails != None) {
+                                    @if(item.contactDetails.get.phoneNumbers != None && !item.contactDetails.get.phoneNumbers.get.isEmpty) {
+                                        <i>@item.contactDetails.get.phoneNumbers.get.mkString(", ")</i>
+                                    } else {
+                                        <i>N/A</i>
+                                    }
+                                    @if(item.contactDetails.get.company != None) {
+                                        <br />
+                                        <i>@item.contactDetails.get.company.get</i>
+                                    }
+                                    @if(item.contactDetails.get.webPage != None) {
+                                        <br />
+                                        <i><a style="color: #555;" href="@item.contactDetails.get.webPage.get" target="_blank">@{item.contactDetails.get.webPage.get.take(30) + "..."}</a></i>
+                                    }
+                                } else {
+                                    <i>N/A</i>
+                                }
+                            </td>
+                        </tr>
+            }
+                    </table>
                 </td>
             </tr>
-            @for(item <- flat.flatPriceHistoryItems.get) {
-                <tr>
-                    <td align="center">
-                        <div style="display:inline-block; max-width:600px; vertical-align:top; width:100%;">
-                            <table align="left" border="0" cellpadding="5" cellspacing="0" width="100%" style="max-width:100px;" class="deviceWidth">
-                                <tr>
-                                    <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;">
-                                        @item.price EUR
-                                    </td>
-                                </tr>
-                            </table>
-                            <table align="left" border="0" cellpadding="5" cellspacing="0" width="100%" style="max-width:150px;" class="deviceWidth">
-                                <tr>
-                                    <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;">
-                                        @{(new java.text.SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new java.util.Date(item.firstSeenAt.get * 1000)))}
-                                    </td>
-                                </tr>
-                            </table>
-                            <table align="left" border="0" cellpadding="5" cellspacing="0" width="100%" style="max-width:150px;" class="deviceWidth">
-                                <tr>
-                                    <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;">
-                                        @{(new java.text.SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new java.util.Date(item.lastSeenAt.get * 1000)))}
-                                    </td>
-                                </tr>
-                            </table>
-                            <table align="left" border="0" cellpadding="" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
-                                <tr>
-                                    <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;">
-                                        @if(item.contactDetails != None) {
-                                            @if(item.contactDetails.get.phoneNumbers != None && !item.contactDetails.get.phoneNumbers.get.isEmpty) {
-                                                <i>@item.contactDetails.get.phoneNumbers.get.mkString(", ")</i>
-                                            } else {
-                                                <i>N/A</i>
-                                            }
-                                            @if(item.contactDetails.get.company != None) {
-                                                <br />
-                                                <i>@item.contactDetails.get.company.get</i>
-                                            }
-                                            @if(item.contactDetails.get.webPage != None) {
-                                                <br />
-                                                <i><a href="@item.contactDetails.get.webPage.get" target="_blank">@{item.contactDetails.get.webPage.get.take(20) + "..."}</a></i>
-                                            }
-                                        } else {
-                                            <i>N/A</i>
-                                        }
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                    </td>
-                </tr>
-            }
         }
         <tr>
             <td>
@@ -380,9 +350,9 @@
             <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;">
                     <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:500px;" class="deviceWidth">
                         <tr>
-                            <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;color: darkgray;
+                            <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;color: darkgray;
                                                              padding: 0 0 0 5px;">
-                                www.adscraper.lv
+                                <a style="color: #555;" href="#" target="_blank">@config.getString("email.serviceName")</a>
                             </td>
                         </tr>
                     </table>
@@ -394,9 +364,9 @@
             <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;">
                     <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:500px;" class="deviceWidth">
                         <tr>
-                            <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;color: darkgray;
+                            <td align="left" valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;color: darkgray;
                                                              padding: 0 0 0 5px;">
-                                <a href="#" target="_blank">Unsubscribe from the current filter</a>
+                                <a style="color: #555;" href="#" target="_blank">@config.getString("email.unsubscribe")</a>
                             </td>
                         </tr>
                     </table>
@@ -408,9 +378,9 @@
                 <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;">
                     <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:500px;" class="deviceWidth">
                         <tr>
-                            <td align="left" valign="top" style="font-size:12px;font-family: Arial, sans-serif;color: darkgray;
+                            <td align="left" valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;color: darkgray;
                                                              padding: 0 0 0 5px;">
-                                <a href="#" target="_blank">Do not receive any e-mails from the Adscraper anymore :(</a>
+                                <a style="color: #555;" href="#" target="_blank">@config.getString("email.unsubscribeAll")</a>
                             </td>
                         </tr>
                     </table>

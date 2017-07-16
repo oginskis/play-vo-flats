@@ -269,10 +269,7 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
           getContactDetails(document.get("sellerContactDetails").asInstanceOf[Document])
         )
     }
-    flatPriceHistoryItems.toList
-      .sortBy(_.lastSeenAt)(Ordering[Option[Long]])
-      .sortBy(_.link)
-      .reverse
+    flatPriceHistoryItems.toList.sortBy(_.lastSeenAt).reverse
   }
 
   private def exactFindFilter(flat: Flat): org.bson.Document = {

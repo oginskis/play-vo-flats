@@ -11,6 +11,8 @@ import play.api.Configuration
   */
 class EmailSender (configuration: Configuration) {
 
+  val localizationHelper = new LocalizationHelper
+
   val props = new java.util.Properties()
   props.put(EmailSender.SmtpPropStartTls, "true")
   props.put(EmailSender.SmtpPropSmtpAuth, "true")
@@ -26,7 +28,9 @@ class EmailSender (configuration: Configuration) {
 
   def sendEmail(flat: Flat) = {
     val message = new MimeMessage(session)
-    message.setText(views.html.Application.notification.render(flat).body,"utf-8", "html")
+    message.setText(views.html.Application.notification
+      .render(flat,localizationHelper.getMessages(Language.EN))
+      .body,"utf-8", "html")
     message.setFrom(new InternetAddress(configuration.get[String](EmailSender.SentFrom)))
     message.setSubject(flat.address.get+ ", "+flat.district.get+", "+flat.city.get+", " +flat.price.get+ " EUR")
     message.setRecipients(Message.RecipientType.TO,
