@@ -3,6 +3,8 @@ package actors.helpers
 import java.io.File
 
 import com.typesafe.config.{Config, ConfigFactory}
+import org.apache.commons.io.FileUtils
+import play.Play
 
 import scala.util.Try
 
@@ -11,8 +13,14 @@ import scala.util.Try
   */
 class LocalizationHelper {
 
-  val configEn = ConfigFactory.parseFile(new File("conf/messages.en.conf"))
-  val configLv = ConfigFactory.parseFile(new File("conf/messages.lv.conf"))
+  val fileEn = new File("tmpen")
+  FileUtils.copyInputStreamToFile(Play.application().resourceAsStream("messages.en.conf"), fileEn)
+  val configEn = ConfigFactory.parseFile(fileEn)
+
+  val fileLv = new File("tmplv")
+  FileUtils.copyInputStreamToFile(Play.application().resourceAsStream("messages.en.conf"), fileLv)
+  val configLv = ConfigFactory.parseFile(fileLv)
+
 
   def getMessage(key:String, lang: Language.Value): Option[String] = {
     lang match {
