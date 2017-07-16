@@ -19,19 +19,19 @@ case class FlatSearchResult(
                              val flatId: Option[String]
                            ) {
 
-  val EMPTY_PROP = "Empty"
+  val EmptyProp = "Empty"
 
   override def toString(): String = {
-    "address: " + address.getOrElse(EMPTY_PROP) + ", " +
-      "rooms: " + rooms.getOrElse(EMPTY_PROP) + ", " +
-      "size: " + address.getOrElse(EMPTY_PROP) + ", " +
-      "floors: " + floor.getOrElse(EMPTY_PROP) + ", " +
-      "price: " + price.getOrElse(EMPTY_PROP) + ", " +
+    "address: " + address.getOrElse(EmptyProp) + ", " +
+      "rooms: " + rooms.getOrElse(EmptyProp) + ", " +
+      "size: " + address.getOrElse(EmptyProp) + ", " +
+      "floors: " + floor.getOrElse(EmptyProp) + ", " +
+      "price: " + price.getOrElse(EmptyProp) + ", " +
       "firstSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(firstSeenAt
       .getOrElse(0l) * 1000)) + ", " +
       "lastSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(lastSeenAt
       .getOrElse(0l) * 1000)) + ", " +
-      "flatId: " + flatId.getOrElse(EMPTY_PROP)
+      "flatId: " + flatId.getOrElse(EmptyProp)
   }
 }
 

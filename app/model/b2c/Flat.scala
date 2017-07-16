@@ -83,28 +83,28 @@ case class Flat(
   }
 
   override def toString: String = {
-      "address: " + address.getOrElse(Flat.EMPTY_PROP) + ", " +
-      "rooms: " + rooms.getOrElse(Flat.EMPTY_PROP) + ", " +
-      "size: " + size.getOrElse(Flat.EMPTY_PROP) + ", " +
-      "floor: " + floor.getOrElse(Flat.EMPTY_PROP) + ", " +
-      "maxFloors: " + maxFloors.getOrElse(Flat.EMPTY_PROP) + ", "+
-      "price: " + price.getOrElse(Flat.EMPTY_PROP) + ", " +
-      "link: https://www.ss.lv" + link.getOrElse(Flat.EMPTY_PROP) + ", " +
-      "city: " + city.getOrElse(Flat.EMPTY_PROP) + ", "+
-      "district: "+ district.getOrElse(Flat.EMPTY_PROP) + ", "+
-      "action: "+ action.getOrElse(Flat.EMPTY_PROP) + ", "+
+      "address: " + address.getOrElse(Flat.EmptyProp) + ", " +
+      "rooms: " + rooms.getOrElse(Flat.EmptyProp) + ", " +
+      "size: " + size.getOrElse(Flat.EmptyProp) + ", " +
+      "floor: " + floor.getOrElse(Flat.EmptyProp) + ", " +
+      "maxFloors: " + maxFloors.getOrElse(Flat.EmptyProp) + ", "+
+      "price: " + price.getOrElse(Flat.EmptyProp) + ", " +
+      "link: https://www.ss.lv" + link.getOrElse(Flat.EmptyProp) + ", " +
+      "city: " + city.getOrElse(Flat.EmptyProp) + ", "+
+      "district: "+ district.getOrElse(Flat.EmptyProp) + ", "+
+      "action: "+ action.getOrElse(Flat.EmptyProp) + ", "+
       "firstSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(firstSeenAt.getOrElse(0l)
       * 1000)) + ", " +
       "lastSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(lastSeenAt.getOrElse(0l)
       * 1000)) + ", " +
-      "expired: "+expired.getOrElse(Flat.EMPTY_PROP) + ", " +
-      "contactDetails: " + contactDetails.getOrElse(Flat.EMPTY_PROP)
+      "expired: "+expired.getOrElse(Flat.EmptyProp) + ", " +
+      "contactDetails: " + contactDetails.getOrElse(Flat.EmptyProp)
   }
 }
 
 object Flat extends Enumeration {
   val New,SeenBefore,NA = Value
-  val EMPTY_PROP = "Empty"
+  val EmptyProp = "Empty"
   implicit val flatWrites = new Writes[Flat] {
     def writes(flat: Flat) = {
       if (flat.contactDetails == None) {

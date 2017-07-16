@@ -22,13 +22,13 @@ import scala.util.Try
 class FlatRepo @Inject()(configuration: play.api.Configuration) {
 
   val flatsColl = new MongoClient(new MongoClientURI("mongodb://" +
-    configuration.underlying.getString(FlatRepo.MongoDbUser) + ":" +
-    configuration.underlying.getString(FlatRepo.MongoDbPassword) + "@" +
-    configuration.underlying.getString(FlatRepo.MongoDbHost) + ":" +
-    configuration.underlying.getInt(FlatRepo.MongoDbPort) + "/?ssl=" +
-    configuration.underlying.getBoolean(FlatRepo.MongoDbSsl) +
-    configuration.underlying.getString(FlatRepo.MongoDbAdditionalProps)))
-    .getDatabase(configuration.underlying.getString(FlatRepo.MongoDbDb))
+    configuration.get[String](FlatRepo.MongoDbUser) + ":" +
+    configuration.get[String](FlatRepo.MongoDbPassword) + "@" +
+    configuration.get[String](FlatRepo.MongoDbHost) + ":" +
+    configuration.get[Int](FlatRepo.MongoDbPort) + "/?ssl=" +
+    configuration.get[Boolean](FlatRepo.MongoDbSsl) +
+    configuration.get[String](FlatRepo.MongoDbAdditionalProps)))
+    .getDatabase(configuration.get[String](FlatRepo.MongoDbDb))
     .getCollection(FlatRepo.CollName)
 
   def processFlats(batchSize: Int) = {

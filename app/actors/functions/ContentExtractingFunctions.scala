@@ -38,7 +38,7 @@ object ContentExtractingFunctions {
         val urlLink = Try(wwwElement.select("a").head
           .attr("href")).getOrElse(return None)
         val future: Future[String] = wsClient
-          .url(configuration.underlying.getString(SsLvBaseUrl)+urlLink)
+          .url(configuration.get[String](SsLvBaseUrl)+urlLink)
           .withRequestTimeout(10.seconds).get().map(
           response => response.body
         )
@@ -84,7 +84,7 @@ object ContentExtractingFunctions {
           Option(rawFloor.substring(rawFloor.lastIndexOf("/")+1).toInt),
           Option(attr(6).text.replace(",", "").replace(" €", "").trim.toInt),
           Option(link),
-          extractSellerContactDetails(configuration.underlying.getString(ContentExtractingFunctions.SsLvBaseUrl)+link))
+          extractSellerContactDetails(configuration.get[String](ContentExtractingFunctions.SsLvBaseUrl)+link))
       }
       def filteringFunc(entry: JsoupElement): Boolean = {
         val attr: List[JsoupElement] = entry.select(".msga2-o").toList
@@ -95,7 +95,7 @@ object ContentExtractingFunctions {
           !attr(6).text.contains("mēn")&&
           attr(6).text.length > 3
       }
-      val url = (configuration.underlying.getString(SsLvBaseUrl)+configuration.underlying.getString(PathToFlats)
+      val url = (configuration.get[String](SsLvBaseUrl)+configuration.get[String](PathToFlats)
         + "/" + flatRequestQuery.city.get + "/" + flatRequestQuery.district.get + "/" + flatRequestQuery.action.get
         + "/page" + page + ".html")
       Logger.info(s"Processing $url")

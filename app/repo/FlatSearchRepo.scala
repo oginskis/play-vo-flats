@@ -18,11 +18,11 @@ import scala.concurrent.{Await, Future}
 class FlatSearchRepo @Inject()(ws: WSClient, configuration: Configuration) {
 
   def searchFlats(searchString: String): List[FlatSearchResult] = {
-    val request = ws.url(configuration.getString(FlatSearchRepo.AzureSearchBaseUrl).get + searchString + "*&" +
+    val request = ws.url(configuration.get[String](FlatSearchRepo.AzureSearchBaseUrl) + searchString + "*&" +
       "&$filter=lastSeenAtEpoch ge " +
       ((new Date().getTime / 1000) - configuration.underlying.getInt(FlatSearchRepo.AzureSearchNotOlderThan)) + "&$top=10")
-      .withHeaders("Accept" -> "application/json",
-        "api-key" -> configuration.getString(FlatSearchRepo.AzureSearchApiKey).get)
+      .withHttpHeaders("Accept" -> "application/json",
+        "api-key" -> configuration.get[String](FlatSearchRepo.AzureSearchApiKey))
       .withRequestTimeout(5.second)
     val future: Future[List[FlatSearchResult]] = request.get().map {
       response =>

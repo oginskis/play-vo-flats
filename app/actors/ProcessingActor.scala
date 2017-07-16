@@ -36,7 +36,7 @@ class ProcessingActor @Inject()(flatRepo:FlatRepo,
     }
     case ProcessingActor.Expire => {
       try {
-        val expireOlderThan = configuration.underlying.getInt(ProcessingActor.ExpireOlderThan)
+        val expireOlderThan = configuration.get[Int](ProcessingActor.ExpireOlderThan)
         flatRepo.expireFlats(expireOlderThan)
       }
       catch {
