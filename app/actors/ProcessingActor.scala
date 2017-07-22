@@ -3,7 +3,6 @@ package actors
 
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.routing.RoundRobinPool
-import com.google.inject.Inject
 import com.mongodb.MongoCommandException
 import model.b2b.FlatRequestQuery
 import play.api.libs.ws.WSClient
@@ -15,7 +14,7 @@ import scala.collection.JavaConverters._
 /**
   * Created by oginskis on 25/05/2017.
   */
-class ProcessingActor @Inject()(flatRepo:FlatRepo,
+class ProcessingActor (flatRepo:FlatRepo,
                                 wsClient:WSClient,
                                 configuration: Configuration) extends Actor with ActorLogging {
 
@@ -28,10 +27,10 @@ class ProcessingActor @Inject()(flatRepo:FlatRepo,
     case ProcessingActor.Process => {
       val flatSearchRequestConfig = configuration.underlying.getObjectList(ProcessingActor.SearchRequestList).asScala
       flatSearchRequestConfig.foreach(configItem =>
-        extractingActor ! new FlatRequestQuery(Option(configItem.get("city").unwrapped.toString),
+        extractingActor ! (new FlatRequestQuery(Option(configItem.get("city").unwrapped.toString),
           Option(configItem.get("district").unwrapped.toString),
           Option(configItem.get("action").unwrapped.toString)
-        )
+        ),1)
       )
     }
     case ProcessingActor.Expire => {

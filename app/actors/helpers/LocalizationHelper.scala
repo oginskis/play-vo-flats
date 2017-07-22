@@ -4,7 +4,6 @@ import java.io.File
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.commons.io.FileUtils
-import play.Play
 
 import scala.util.Try
 
@@ -14,11 +13,11 @@ import scala.util.Try
 class LocalizationHelper {
 
   val fileEn = new File("tmpen")
-  FileUtils.copyInputStreamToFile(Play.application().resourceAsStream("messages.en.conf"), fileEn)
+  FileUtils.copyInputStreamToFile(getClass.getClassLoader.getResourceAsStream("messages.en.conf"), fileEn)
   val configEn = ConfigFactory.parseFile(fileEn)
 
   val fileLv = new File("tmplv")
-  FileUtils.copyInputStreamToFile(Play.application().resourceAsStream("messages.lv.conf"), fileLv)
+  FileUtils.copyInputStreamToFile(getClass.getClassLoader.getResourceAsStream("messages.lv.conf"), fileLv)
   val configLv = ConfigFactory.parseFile(fileLv)
 
 

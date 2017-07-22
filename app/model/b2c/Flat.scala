@@ -39,6 +39,17 @@ case class Flat(
     this(status, address, rooms, size, floor, maxFloors, price, link, None, None, None, None, None, None, None, contactDetails)
   }
 
+  def this(status: Flat.Value,
+           address: Option[String],
+           rooms: Option[Int],
+           size: Option[Int],
+           floor: Option[Int],
+           maxFloors: Option[Int],
+           price: Option[Int],
+           link: Option[String]) = {
+    this(status, address, rooms, size, floor, maxFloors, price, link, None, None, None, None, None, None, None, None)
+  }
+
   def this(address: Option[String],
            rooms: Option[Int],
            size: Option[Int],

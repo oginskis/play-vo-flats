@@ -37,7 +37,7 @@ class PersistActor (flatRepo: FlatRepo,
       catch {
         case e: MongoCommandException => {
           val message = e.getErrorMessage
-          Logger.info(s"$flat flat insert/update has failed with $message, will retry")
+          Logger.error(s"$flat flat insert/update has failed with $message, will retry")
           self ! flat
         }
       }

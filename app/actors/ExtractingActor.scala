@@ -1,13 +1,16 @@
 package actors
 
-import actors.functions.ContentExtractingFunctions._
+import actors.functions.ContentExtractingFunctions
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.routing.RoundRobinPool
 import model.b2b.FlatRequestQuery
-import model.b2c.Flat
+import model.b2c.{Flat}
 import play.api.libs.ws.WSClient
 import play.api.{Configuration, Logger}
 import repo.FlatRepo
+
+import actors.functions.ContentExtractingFunctions._
+
 
 /**
   * Created by oginskis on 12/03/2017.
@@ -19,24 +22,52 @@ class ExtractingActor (flatRepo:FlatRepo,
 
   val persistActor = {
     context.actorOf(RoundRobinPool(configuration.get[Int](ExtractingActor.persistingParallelActors))
-      .props(Props(classOf[PersistActor],flatRepo,configuration)), name = "persistActor")
+      .props(Props(classOf[PersistActor], flatRepo, configuration)), name = "persistActor")
   }
 
   override def receive: Receive = {
-    case flatQuery: FlatRequestQuery => {
-      Logger.info(s"Checking flats for: $flatQuery")
-      val extractedItems = extract(sslv,flatQuery,wsClient,configuration)
-      val numberOfItems = extractedItems.size
-      Logger.info(s"Number of extracted items for $flatQuery is $numberOfItems")
-      extractedItems.foreach(flat => {
-        persistActor ! flat
-      })
+    case (flatQuery: FlatRequestQuery, page: Int) => {
+      Logger.info(s"Checking flats for: $flatQuery, page $page")
+      try {
+        val flats = extractFlatsFromPage(flatQuery, page, wsClient, configuration)
+        if (!flats.isEmpty) {
+          flats.foreach(flat => {
+            self ! flat
+          })
+          self ! (flatQuery, page+1)
+        }
+      }
+      catch {
+        case e: Exception => {
+          Logger.error(s"Error getting flats for $flatQuery and page $page: ${e.getMessage}. Will retry...")
+          self ! (flatQuery,page)
+        }
+      }
     }
-  }
-
-  private def extract(extractingFunction:(FlatRequestQuery,WSClient,Configuration) => List[Flat]
-              ,flatRequestQuery: FlatRequestQuery, wSClient: WSClient, configuration: Configuration) = {
-    extractingFunction(flatRequestQuery,wSClient,configuration)
+    case (flat: Flat) => {
+      try {
+        val extractedFlat = new Flat(flat.address,
+          flat.rooms,
+          flat.size,
+          flat.floor,
+          flat.maxFloors,
+          flat.price,
+          flat.link,
+          flat.city,
+          flat.district,
+          flat.action,
+          extractFlatContactDetails(
+            configuration.get[String](ContentExtractingFunctions.SsLvBaseUrl) + flat.link.get,
+            wsClient,configuration))
+        persistActor ! extractedFlat
+      }
+      catch {
+        case e: Exception => {
+          Logger.error(s"Error getting contact details for $flat: ${e.getMessage}. Will retry...")
+          self ! flat
+        }
+      }
+    }
   }
 }
 
