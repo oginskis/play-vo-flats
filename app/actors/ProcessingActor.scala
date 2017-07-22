@@ -40,7 +40,7 @@ class ProcessingActor (flatRepo:FlatRepo,
       }
       catch {
         case e: MongoCommandException => {
-          Logger.info(s"Error during flat expiration on ss.lv: ${e.getErrorMessage}, retrying..")
+          Logger.info(s"Error during flat expiration on ss.lv: ${e.getErrorMessage}, will retry...")
           self ! ProcessingActor.Expire
         }
       }

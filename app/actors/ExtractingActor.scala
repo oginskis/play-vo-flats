@@ -27,7 +27,7 @@ class ExtractingActor (flatRepo:FlatRepo,
 
   override def receive: Receive = {
     case (flatQuery: FlatRequestQuery, page: Int) => {
-      Logger.info(s"Checking flats for: $flatQuery, page $page")
+      Logger.info(s"Extracting Actor: Checking flats for: $flatQuery, page $page")
       try {
         val flats = extractFlatsFromPage(flatQuery, page, wsClient, configuration)
         if (!flats.isEmpty) {

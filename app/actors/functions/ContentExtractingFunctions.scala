@@ -100,7 +100,7 @@ object ContentExtractingFunctions {
     val url = (configuration.get[String](SsLvBaseUrl) + configuration.get[String](PathToFlats)
       + "/" + flatRequestQuery.city.get + "/" + flatRequestQuery.district.get + "/" + flatRequestQuery.action.get
       + "/page" + page + ".html")
-    Logger.info(s"Processing $url")
+    Logger.info(s"Extracting from $url")
     val request = wsClient.url(url)
       .withRequestTimeout(10.second)
       .withFollowRedirects(false)
@@ -109,6 +109,7 @@ object ContentExtractingFunctions {
     )
     val document = new JsoupBrowser().parseString(Await.result(future, 10.second))
     val entries = document.body.select("[id^=\"tr_\"]")
+    Logger.info(s"Number of flats on $url: ${entries.size}")
     if (entries.isEmpty) {
       List[Flat]()
     } else {
