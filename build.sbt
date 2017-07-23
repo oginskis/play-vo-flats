@@ -1,11 +1,19 @@
 
 name := """play-vo-flats"""
 
-version := "10.13"
+lazy val commonSettings = Seq(
+  version := "12.4",
+  scalaVersion := "2.12.2"
+)
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
+lazy val voFlatsApi = (project in file("voFlatsApi"))
+  .settings(commonSettings)
 
-scalaVersion := "2.12.2"
+lazy val root = (project in file("."))
+  .settings(commonSettings)
+  .enablePlugins(PlayScala)
+  .dependsOn(voFlatsApi)
+  .aggregate(voFlatsApi)
 
 resolvers += Resolver.url("Typesafe Ivy releases", url("https://repo.typesafe.com/typesafe/ivy-releases"))(Resolver.ivyStylePatterns)
 
@@ -20,15 +28,13 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.12",
   "org.scalaj" % "scalaj-http_2.11" % "2.3.0",
   "net.ruippeixotog" %% "scala-scraper" % "2.0.0-RC2",
-  "com.typesafe.akka" % "akka-testkit_2.12" % "2.5.3" % Test,
-  "com.typesafe.play" %% "play-mailer" % "6.0.0",
-  "com.typesafe.play" %% "play-mailer-guice" % "6.0.0"
+  "com.typesafe.akka" % "akka-testkit_2.12" % "2.5.3" % Test
 )
 
 fork in run := false
 
 
-import AssemblyKeys._
+import sbtassembly.Plugin.AssemblyKeys._
 
 assemblySettings
 
