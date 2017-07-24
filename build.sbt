@@ -1,19 +1,19 @@
 
-name := """play-vo-flats"""
+name := """vo-flats-controllers"""
 
 lazy val commonSettings = Seq(
   version := "12.5",
   scalaVersion := "2.12.2"
 )
 
-lazy val voFlatsApi = (project in file("voFlatsApi"))
-  .settings(commonSettings)
-
-lazy val root = (project in file("."))
+lazy val voFlatsControllers = (project in file("."))
   .settings(commonSettings)
   .enablePlugins(PlayScala)
   .dependsOn(voFlatsApi)
   .aggregate(voFlatsApi)
+
+lazy val voFlatsApi = (project in file("modules/voFlatsApi"))
+  .settings(commonSettings)
 
 resolvers += Resolver.url("Typesafe Ivy releases", url("https://repo.typesafe.com/typesafe/ivy-releases"))(Resolver.ivyStylePatterns)
 
