@@ -2,7 +2,7 @@
 name := """play-vo-flats"""
 
 lazy val commonSettings = Seq(
-  version := "12.4",
+  version := "12.5",
   scalaVersion := "2.12.2"
 )
 
