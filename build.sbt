@@ -1,14 +1,14 @@
 import sbt.Keys.{fork, libraryDependencies}
 import sbtassembly.Plugin.AssemblyKeys._
 
-name := """vo-flats-controllers"""
+name := """flats"""
 
 lazy val commonSettings = Seq(
   version := "12.9",
   scalaVersion := "2.12.2"
 )
 
-lazy val voFlatsControllers = (project in file("."))
+lazy val flats = (project in file("."))
   .settings(commonSettings: _*)
   .settings(
     resolvers += Resolver.url("Typesafe Ivy releases", url("https://repo.typesafe.com/typesafe/ivy-releases"))(Resolver.ivyStylePatterns),
