@@ -18,8 +18,8 @@ lazy val voFlatsControllers = (project in file("."))
       guice,
       ws,
       "org.scalatestplus.play" %% "scalatestplus-play" % "3.0.0" % Test,
-      "org.mongodb" % "mongo-java-driver" % "3.4.1",
       "javax.mail" % "mail" % "1.4",
+      "org.mongodb" % "mongo-java-driver" % "3.4.1",
       "junit" % "junit" % "4.12",
       "org.scalaj" % "scalaj-http_2.11" % "2.3.0",
       "net.ruippeixotog" %% "scala-scraper" % "2.0.0-RC2",
@@ -46,11 +46,21 @@ lazy val voFlatsControllers = (project in file("."))
     }
   )
   .enablePlugins(PlayScala)
-  .dependsOn(voFlatsApi)
-  .aggregate(voFlatsApi)
+  .dependsOn(find,search,api)
+  .aggregate(find,search,api)
 
-lazy val voFlatsApi = (project in file("modules/voFlatsApi"))
+lazy val api = (project in file("modules/api"))
   .settings(commonSettings)
 
+lazy val find = (project in file("modules/find"))
+  .settings(commonSettings)
+  .enablePlugins(PlayScala)
+  .dependsOn(api)
+  .aggregate(api)
 
+lazy val search = (project in file("modules/search"))
+  .settings(commonSettings)
+  .enablePlugins(PlayScala)
+  .dependsOn(api)
+  .aggregate(api)
 

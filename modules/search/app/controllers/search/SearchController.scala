@@ -1,6 +1,7 @@
-package controllers
+package controllers.search
 
-import com.google.inject.{Inject, Singleton}
+import javax.inject.{Inject, Singleton}
+
 import play.api.libs.json._
 import play.api.mvc.{AbstractController, ControllerComponents}
 import repo.FlatSearchRepo

@@ -1,8 +1,8 @@
 package repo
 
 import java.util.Date
+import javax.inject.{Inject,Singleton}
 
-import com.google.inject.{Inject, Singleton}
 import model.b2c.FlatSearchResult
 import play.api.Configuration
 import play.api.libs.ws.WSClient

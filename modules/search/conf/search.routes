@@ -1,0 +1,2 @@
+# Routes
+GET     /search/:key                controllers.search.SearchController.search(key: String)

@@ -1,0 +1,2 @@
+# Routes
+GET     /flat/:flatId               controllers.find.FlatController.show(flatId: String)
