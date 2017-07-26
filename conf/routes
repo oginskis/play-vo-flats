@@ -1,4 +1,4 @@
 # Routes
 GET     /                           controllers.HomeController.index
-->  /find find.Routes
-->  /search search.Routes
+->  / find.Routes
+->  / search.Routes
