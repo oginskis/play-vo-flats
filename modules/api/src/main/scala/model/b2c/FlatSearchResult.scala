@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import play.api.libs.json._
+import model.CommonProps._
 
 /**
   * Created by oginskis on 18/05/2017.
@@ -18,8 +19,6 @@ case class FlatSearchResult(
                              val lastSeenAt: Option[Long],
                              val flatId: Option[String]
                            ) {
-
-  val EmptyProp = "Empty"
 
   override def toString(): String = {
     "address: " + address.getOrElse(EmptyProp) + ", " +

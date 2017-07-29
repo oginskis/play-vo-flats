@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import play.api.libs.json.{Json, Writes}
+import model.CommonProps._
 
 /**
   * Created by oginskis on 21/05/2017.
@@ -17,19 +18,18 @@ case class FlatPriceHistoryItem(
                           ) {
 
   override def toString: String = {
-      "link: " + price.getOrElse(FlatPriceHistoryItem.EmptyProp) + ", " +
-      "price: " + price.getOrElse(FlatPriceHistoryItem.EmptyProp) + ", " +
+      "link: " + price.getOrElse(EmptyProp) + ", " +
+      "price: " + price.getOrElse(EmptyProp) + ", " +
       "firstSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(firstSeenAt.getOrElse(0l)
       * 1000)) + ", " +
       "lastSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(lastSeenAt.getOrElse(0l)
       * 1000)) + ", " +
-      "contactDetails: " + contactDetails.getOrElse(FlatPriceHistoryItem.EmptyProp)
+      "contactDetails: " + contactDetails.getOrElse(EmptyProp)
   }
 
 }
 
 object FlatPriceHistoryItem {
-  val EmptyProp = "Empty"
   implicit val flatWrites = new Writes[FlatPriceHistoryItem] {
     def writes(flatHistoryItem: FlatPriceHistoryItem) = {
       if (flatHistoryItem.contactDetails == None) {

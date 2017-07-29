@@ -4,8 +4,8 @@ import sbtassembly.Plugin.AssemblyKeys._
 name := """flats"""
 
 lazy val commonSettings = Seq(
-  version := "12.14",
-  scalaVersion := "2.12.2"
+  version := "12.21",
+  scalaVersion := "2.12.3"
 )
 
 lazy val commonAssemblySettings = Seq(
@@ -22,6 +22,9 @@ lazy val commonAssemblySettings = Seq(
     case x if x.startsWith("org/apache/commons/logging") => MergeStrategy.first
     case x if x.startsWith("play/api/libs/ws/package") => MergeStrategy.first
     case x if x.contains("play/reference-overrides.conf") => MergeStrategy.concat
+    case x if x.contains("application.conf") => MergeStrategy.concat
+    case x if x.contains("routes") => MergeStrategy.first
+    case x if x.contains("Routes") => MergeStrategy.first
     case x =>
       val oldStrategy = (mergeStrategy in assembly).value
       oldStrategy(x)
@@ -47,18 +50,23 @@ lazy val flats = (project in file("."))
     commonAssemblySettings
   )
   .enablePlugins(PlayScala)
-  .dependsOn(find,search,api)
-  .aggregate(find,search,api)
+  .dependsOn(find,search,subscription,api)
+  .aggregate(find,search,subscription,api)
 
 lazy val api = (project in file("modules/api"))
   .settings(commonSettings)
+
+lazy val common = (project in file("modules/common"))
+  .settings(commonSettings,
+    fork in run := false,assemblySettings,commonAssemblySettings)
+  .enablePlugins(PlayScala)
 
 lazy val find = (project in file("modules/find"))
   .settings(commonSettings,
     fork in run := false,assemblySettings,commonAssemblySettings)
   .enablePlugins(PlayScala)
-  .dependsOn(api)
-  .aggregate(api)
+  .dependsOn(api,common)
+  .aggregate(api,common)
 
 lazy val search = (project in file("modules/search"))
   .settings(commonSettings,
@@ -66,4 +74,12 @@ lazy val search = (project in file("modules/search"))
   .enablePlugins(PlayScala)
   .dependsOn(api)
   .aggregate(api)
+
+lazy val subscription = (project in file("modules/subscription"))
+  .settings(commonSettings,
+    fork in run := false,assemblySettings,commonAssemblySettings)
+  .enablePlugins(PlayScala)
+  .dependsOn(api,common)
+  .aggregate(api,common)
+
 

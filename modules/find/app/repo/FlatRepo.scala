@@ -4,8 +4,9 @@ import java.util
 import java.util.Date
 import javax.inject.{Inject, Singleton}
 
+import com.mongodb.QueryBuilder
 import com.mongodb.client.model.UpdateManyModel
-import com.mongodb.{Block, MongoClient, MongoClientURI, QueryBuilder}
+import configuration.MongoConnection
 import model.b2c.{Flat, FlatPriceHistoryItem, SellerContactDetails}
 import org.bson.Document
 import org.bson.types.ObjectId
@@ -19,47 +20,9 @@ import scala.util.Try
   * Created by oginskis on 30/12/2016.
   */
 @Singleton
-class FlatRepo @Inject()(configuration: play.api.Configuration) {
+class FlatRepo @Inject()(connection: MongoConnection, configuration: play.api.Configuration) {
 
-  val flatsColl = new MongoClient(new MongoClientURI("mongodb://" +
-    configuration.get[String](FlatRepo.MongoDbUser) + ":" +
-    configuration.get[String](FlatRepo.MongoDbPassword) + "@" +
-    configuration.get[String](FlatRepo.MongoDbHost) + ":" +
-    configuration.get[Int](FlatRepo.MongoDbPort) + "/?ssl=" +
-    configuration.get[Boolean](FlatRepo.MongoDbSsl) +
-    configuration.get[String](FlatRepo.MongoDbAdditionalProps)))
-    .getDatabase(configuration.get[String](FlatRepo.MongoDbDb))
-    .getCollection(FlatRepo.CollName)
-
-  def processFlats(batchSize: Int) = {
-    val count = flatsColl.count(Document
-      .parse(QueryBuilder.start().put("itemType").is("flat").get.toString))
-    Logger.info(s"Number of flats: $count")
-    val iterationsRequired = count / batchSize + 1
-    Logger.info(s"Iterations required: $iterationsRequired")
-    def processFlats(pageNumber: Int) {
-      val docs = flatsColl.find()
-        .skip(batchSize * (pageNumber-1))
-        .limit(batchSize)
-      Logger.info(s"Processing page $pageNumber out of $iterationsRequired")
-      docs.forEach(new Block[Document]() {
-        @Override
-        def apply(document: Document) {
-          val params = new util.HashMap[String,Object]()
-          document.put("flatSearchString",document.get("address").toString+" "+document.get("flatFloor")+" "+
-            document.get("numberOfRooms")+" "+document.get("price")+" "+document.get("size"))
-          params.put("_id",new ObjectId(document.get("_id").toString))
-          flatsColl.replaceOne(new org.bson.Document(params),document)
-        }
-      })
-      if (pageNumber < iterationsRequired){
-        processFlats(pageNumber+1)
-      }
-    }
-    Logger.info("Started ad "+new Date().toString)
-    processFlats(1)
-    Logger.info("Stopped ad "+new Date().toString)
-  }
+  private val flatsCollection = connection.getCollection(FlatRepo.CollName)
 
   def expireFlats(olderThanMillis:Int) = {
     def updateDocument(): Document = {
@@ -78,7 +41,7 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
         new Document("$set",updateDocument())
         )
       );
-    val bulkWriteResult = flatsColl.bulkWrite(updates)
+    val bulkWriteResult = flatsCollection.bulkWrite(updates)
     val modified = bulkWriteResult.getModifiedCount
     Logger.info(s"Expired $modified flats, which are not on ss.lv anymore")
   }
@@ -105,7 +68,7 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
   def getFlatById(flatId: String): Option[Flat] = {
     val params = new util.HashMap[String, Object]()
     params.put("_id", new ObjectId(flatId))
-    val documents = flatsColl.find(new Document(params))
+    val documents = flatsCollection.find(new Document(params))
     if (documents.iterator().hasNext()) {
       val doc = documents.iterator().next()
       Some(new Flat(
@@ -190,9 +153,9 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
       new Document(params)
     }
 
-    val updatedDocument = flatsColl.findOneAndUpdate(exactFindFilter(flat), new Document("$set", updateDocument(flat)))
+    val updatedDocument = flatsCollection.findOneAndUpdate(exactFindFilter(flat), new Document("$set", updateDocument(flat)))
     if (updatedDocument==null){
-      flatsColl.insertOne(createDocument(flat))
+      flatsCollection.insertOne(createDocument(flat))
       new Flat(
         Flat.New,
         flat.address,
@@ -245,7 +208,7 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
   }
 
   def findFlatPriceHistoryItemsFor(flat: Flat): List[FlatPriceHistoryItem] = {
-    val documents = flatsColl.find(exactFindFilter(
+    val documents = flatsCollection.find(exactFindFilter(
       new Flat(flat.address,
         flat.rooms,
         flat.size,
@@ -290,13 +253,6 @@ class FlatRepo @Inject()(configuration: play.api.Configuration) {
 }
 
 object FlatRepo {
-  val MongoDbUser = "mongodb.user"
-  val MongoDbDb = "mongodb.db"
-  val MongoDbPort = "mongodb.port"
-  val MongoDbPassword = "mongodb.password"
-  val MongoDbHost = "mongodb.host"
-  val MongoDbSsl = "mongodb.ssl"
   val CollName = "flats"
-  val MongoDbAdditionalProps = "mongodb.additionalProps"
 }
 

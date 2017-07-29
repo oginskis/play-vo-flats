@@ -2,7 +2,10 @@ package model.b2c
 
 import java.text.SimpleDateFormat
 import java.util.Date
+
 import play.api.libs.json._
+
+import model.CommonProps._
 
 
 /**
@@ -94,28 +97,27 @@ case class Flat(
   }
 
   override def toString: String = {
-      "address: " + address.getOrElse(Flat.EmptyProp) + ", " +
-      "rooms: " + rooms.getOrElse(Flat.EmptyProp) + ", " +
-      "size: " + size.getOrElse(Flat.EmptyProp) + ", " +
-      "floor: " + floor.getOrElse(Flat.EmptyProp) + ", " +
-      "maxFloors: " + maxFloors.getOrElse(Flat.EmptyProp) + ", "+
-      "price: " + price.getOrElse(Flat.EmptyProp) + ", " +
-      "link: https://www.ss.lv" + link.getOrElse(Flat.EmptyProp) + ", " +
-      "city: " + city.getOrElse(Flat.EmptyProp) + ", "+
-      "district: "+ district.getOrElse(Flat.EmptyProp) + ", "+
-      "action: "+ action.getOrElse(Flat.EmptyProp) + ", "+
+      "address: " + address.getOrElse(EmptyProp) + ", " +
+      "rooms: " + rooms.getOrElse(EmptyProp) + ", " +
+      "size: " + size.getOrElse(EmptyProp) + ", " +
+      "floor: " + floor.getOrElse(EmptyProp) + ", " +
+      "maxFloors: " + maxFloors.getOrElse(EmptyProp) + ", "+
+      "price: " + price.getOrElse(EmptyProp) + ", " +
+      "link: https://www.ss.lv" + link.getOrElse(EmptyProp) + ", " +
+      "city: " + city.getOrElse(EmptyProp) + ", "+
+      "district: "+ district.getOrElse(EmptyProp) + ", "+
+      "action: "+ action.getOrElse(EmptyProp) + ", "+
       "firstSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(firstSeenAt.getOrElse(0l)
       * 1000)) + ", " +
       "lastSeenAt: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(lastSeenAt.getOrElse(0l)
       * 1000)) + ", " +
-      "expired: "+expired.getOrElse(Flat.EmptyProp) + ", " +
-      "contactDetails: " + contactDetails.getOrElse(Flat.EmptyProp)
+      "expired: "+expired.getOrElse(EmptyProp) + ", " +
+      "contactDetails: " + contactDetails.getOrElse(EmptyProp)
   }
 }
 
 object Flat extends Enumeration {
   val New,SeenBefore,NA = Value
-  val EmptyProp = "Empty"
   implicit val flatWrites = new Writes[Flat] {
     def writes(flat: Flat) = {
       if (flat.contactDetails == None) {
