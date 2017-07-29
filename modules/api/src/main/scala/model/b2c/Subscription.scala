@@ -4,6 +4,7 @@ import model.CommonProps._
 import play.api.libs.json._
 
 case class Subscription(
+                  val subscriptionId: Option[String],
                   val subscriber: Option[String],
                   val priceRange: Option[Range],
                   val sizeRange: Option[Range],
@@ -12,6 +13,18 @@ case class Subscription(
                   val districts: Option[Array[String]],
                   val actions: Option[Array[String]]
                   ) {
+
+  def this(
+    subscriber: Option[String],
+    priceRange: Option[Range],
+    sizeRange: Option[Range],
+    floorRange: Option[Range],
+    cities: Option[Array[String]],
+    districts: Option[Array[String]],
+    actions: Option[Array[String]]) = {
+      this (None, subscriber, priceRange, sizeRange, floorRange, cities, districts, actions)
+  }
+
 
   override def toString(): String = {
     "subscriber: " + subscriber.getOrElse(EmptyProp) + ", "+
@@ -29,6 +42,7 @@ object Subscription {
   implicit val subscriptionWrites = new Writes[Subscription] {
     override def writes(subscription: Subscription) = {
       Json.obj(
+        "subscriptionId" -> subscription.subscriptionId,
         "subscriber" -> subscription.subscriber,
         "priceRange" -> subscription.priceRange,
         "sizeRange" -> subscription.sizeRange,
@@ -41,7 +55,7 @@ object Subscription {
   }
   implicit val subscriptionReads = new Reads[Subscription] {
     override def reads(json: JsValue): JsResult[Subscription] = {
-      val subscription = Subscription(
+      val subscription = new Subscription(
         (json \ "subscriber").asOpt[String],
         (json \ "priceRange").asOpt[Range],
         (json \ "sizeRange").asOpt[Range],

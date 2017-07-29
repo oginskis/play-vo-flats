@@ -20,7 +20,7 @@ import scala.util.Try
   * Created by oginskis on 30/12/2016.
   */
 @Singleton
-class FlatRepo @Inject()(connection: MongoConnection, configuration: play.api.Configuration) {
+class FlatRepo @Inject()(connection: MongoConnection) {
 
   private val flatsCollection = connection.getCollection(FlatRepo.CollName)
 

@@ -2,4 +2,10 @@ import play.sbt.PlayImport.guice
 
 name := """subscription"""
 
-libraryDependencies ++= Seq("org.mongodb" % "mongo-java-driver" % "3.4.1",ws,guice)
+resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases"
+
+libraryDependencies ++= Seq("org.mongodb" % "mongo-java-driver" % "3.4.1",
+  ws,
+  guice,
+  "org.scalactic" %% "scalactic" % "3.0.1",
+  "org.scalatest" %% "scalatest" % "3.0.1" % "test")
