@@ -16,67 +16,47 @@ object SubscriptionRepoHelper {
     val params = new java.util.HashMap[String, Object]()
     params.put("subscriber",subscription.subscriber.get)
     if (subscription.priceRange != None) {
-      val paramsPriceRange = new util.HashMap[String, Object]()
-      if (subscription.priceRange.get.from != None){
-        paramsPriceRange.put("from",java.lang.Integer
-          .valueOf(subscription.priceRange.get.from.get))
-      }
-      if (subscription.priceRange.get.to != None){
-        paramsPriceRange.put("to",java.lang.Integer.
-          valueOf(subscription.priceRange.get.to.get))
-      }
-      params.put("priceRange",new Document(paramsPriceRange))
+      params.put("priceRange",getRangeDocument(subscription.priceRange.get))
     }
     if (subscription.floorRange != None) {
-      val paramsFloorRange = new util.HashMap[String, Object]()
-      if (subscription.floorRange.get.from != None){
-        paramsFloorRange.put("from",java.lang.Integer
-          .valueOf(subscription.floorRange.get.from.get))
-      }
-      if (subscription.floorRange.get.to != None){
-        paramsFloorRange.put("to",java.lang.Integer
-          .valueOf(subscription.floorRange.get.to.get))
-      }
-      params.put("floorRange",new Document(paramsFloorRange))
+      params.put("floorRange",getRangeDocument(subscription.floorRange.get))
     }
     if (subscription.sizeRange != None) {
-      val paramsSizeRange = new util.HashMap[String, Object]()
-      if (subscription.sizeRange.get.from != None){
-        paramsSizeRange.put("from",java.lang.Integer
-          .valueOf(subscription.sizeRange.get.from.get))
-      }
-      if (subscription.sizeRange.get.to != None){
-        paramsSizeRange.put("to",java.lang.Integer
-          .valueOf(subscription.sizeRange.get.to.get))
-      }
-      params.put("sizeRange",new Document(paramsSizeRange))
+      params.put("sizeRange",getRangeDocument(subscription.sizeRange.get))
     }
     if (subscription.cities != None){
-      val paramsCities = new java.util.ArrayList[String]()
-      subscription.cities.get.foreach(city => {
-        paramsCities.add(city)
-      }
-      )
-      params.put("cities",paramsCities)
+      params.put("cities",getListDocument(subscription.cities.get))
     }
     if (subscription.districts != None){
-      val paramsDistricts = new util.ArrayList[String]()
-      subscription.districts.get.foreach(district => {
-        paramsDistricts.add(district)
-      }
-      )
-      params.put("districts",paramsDistricts)
+      params.put("districts",getListDocument(subscription.districts.get))
     }
     if (subscription.actions != None){
-      val paramsActions = new util.ArrayList[String]()
-      subscription.actions.get.foreach(action => {
-        paramsActions.add(action)
-      }
-      )
-      params.put("actions",paramsActions)
+      params.put("actions",getListDocument(subscription.actions.get))
     }
     params.put("itemType", "subscription")
     new Document(params)
+  }
+
+  private def getListDocument(array: Array[String]): util.ArrayList[String] = {
+    val list = new java.util.ArrayList[String]()
+      array.foreach(city => {
+        list.add(city)
+      }
+    )
+    list
+  }
+
+  private def getRangeDocument(range: Range): Document = {
+    val rangeDocument = new util.HashMap[String, Object]()
+    if (range.from != None){
+      rangeDocument.put("from",java.lang.Integer
+        .valueOf(range.from.get))
+    }
+    if (range.to != None){
+      rangeDocument.put("to",java.lang.Integer
+        .valueOf(range.to.get))
+    }
+    new Document(rangeDocument)
   }
 
   def createSubscriptionObject(document: Document): Subscription = {
@@ -104,7 +84,7 @@ object SubscriptionRepoHelper {
   }
 
   private def getListObject(listObject: Object): Option[Array[String]] = {
-    if (listObject != null && listObject.isInstanceOf[java.util.ArrayList[String]]) {
+    if (listObject != null) {
       val list = listObject.asInstanceOf[java.util.ArrayList[String]].asScala
       Option(list.toArray)
     }
