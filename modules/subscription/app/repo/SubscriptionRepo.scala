@@ -27,6 +27,7 @@ class SubscriptionRepo @Inject()(connection: MongoConnection)  {
     }
     val params = new util.HashMap[String, Object]()
     params.put("_id", new ObjectId(subscriptionId))
+    params.put("itemType","subscription")
     val documents = subscriptionCollection.find(new Document(params))
     if (documents.iterator.hasNext){
       return Some(createSubscriptionObject(documents.iterator.next))
@@ -34,13 +35,14 @@ class SubscriptionRepo @Inject()(connection: MongoConnection)  {
     None
   }
 
-  def deleteSubscriptionById(subscriptionId: String) = {
+  def deleteSubscriptionById(subscriptionId: String): Long = {
     if (StringUtil.isNullOrEmpty(subscriptionId)){
       throw new IllegalArgumentException("Cannot delete subscription. SubscriptionId was not set")
     }
     val params = new util.HashMap[String, Object]()
     params.put("_id", new ObjectId(subscriptionId))
-    subscriptionCollection.deleteOne(new Document(params))
+    val result = subscriptionCollection.deleteOne(new Document(params))
+    result.getDeletedCount
   }
 
   def findAllSubscriptionsForEmail(email: String): Option[List[Subscription]] = {
