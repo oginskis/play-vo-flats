@@ -5,9 +5,7 @@ import model.b2c.Range
 
 import model.b2c.Subscription
 import org.bson.Document
-
 import scala.collection.JavaConverters._
-
 import scala.util.Try
 
 object SubscriptionRepoHelper {
@@ -37,6 +35,19 @@ object SubscriptionRepoHelper {
     new Document(params)
   }
 
+  def createSubscriptionObject(document: Document): Subscription = {
+    new Subscription(
+      subscriptionId = Option(document.get("_id").toString),
+      subscriber = Option(document.get("subscriber").toString),
+      priceRange = getRangeObject(document.get("priceRange")),
+      sizeRange = getRangeObject(document.get("sizeRange")),
+      floorRange = getRangeObject(document.get("floorRange")),
+      cities = getListObject(document.get("cities")),
+      districts = getListObject(document.get("districts")),
+      actions = getListObject(document.get("actions"))
+    )
+  }
+
   private def getListDocument(array: Array[String]): util.ArrayList[String] = {
     val list = new java.util.ArrayList[String]()
       array.foreach(city => {
@@ -57,19 +68,6 @@ object SubscriptionRepoHelper {
         .valueOf(range.to.get))
     }
     new Document(rangeDocument)
-  }
-
-  def createSubscriptionObject(document: Document): Subscription = {
-    new Subscription(
-      subscriptionId = Option(document.get("_id").toString),
-      subscriber = Option(document.get("subscriber").toString),
-      priceRange = getRangeObject(document.get("priceRange")),
-      sizeRange = getRangeObject(document.get("sizeRange")),
-      floorRange = getRangeObject(document.get("floorRange")),
-      cities = getListObject(document.get("cities")),
-      districts = getListObject(document.get("districts")),
-      actions = getListObject(document.get("actions"))
-    )
   }
 
   private def getRangeObject(rangeDocument: Object): Option[Range] = {

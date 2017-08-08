@@ -4,7 +4,7 @@ import sbtassembly.Plugin.AssemblyKeys._
 name := """flats"""
 
 lazy val commonSettings = Seq(
-  version := "12.22",
+  version := "12.26",
   scalaVersion := "2.12.3"
 )
 
@@ -25,6 +25,7 @@ lazy val commonAssemblySettings = Seq(
     case x if x.contains("application.conf") => MergeStrategy.concat
     case x if x.contains("routes") => MergeStrategy.first
     case x if x.contains("Routes") => MergeStrategy.first
+    case x if x.contains("Module") => MergeStrategy.first
     case x =>
       val oldStrategy = (mergeStrategy in assembly).value
       oldStrategy(x)

@@ -11,9 +11,9 @@ import model.b2c.{Flat, FlatPriceHistoryItem, SellerContactDetails}
 import org.bson.Document
 import org.bson.types.ObjectId
 import play.api.Logger
+import play.shaded.ahc.io.netty.util.internal.StringUtil
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable.ListBuffer
 import scala.util.Try
 
 /**
@@ -66,12 +66,14 @@ class FlatRepo @Inject()(connection: MongoConnection) {
   }
 
   def getFlatById(flatId: String): Option[Flat] = {
+    if (StringUtil.isNullOrEmpty(flatId)){
+      return None
+    }
     val params = new util.HashMap[String, Object]()
     params.put("_id", new ObjectId(flatId))
     val documents = flatsCollection.find(new Document(params))
-    if (documents.iterator().hasNext()) {
-      val doc = documents.iterator().next()
-      Some(new Flat(
+    val flatList = documents.asScala.toList.map(doc => {
+      new Flat(
         Flat.NA,
         Option(doc.get("address").toString),
         Option(doc.get("numberOfRooms").toString.toInt),
@@ -98,10 +100,13 @@ class FlatRepo @Inject()(connection: MongoConnection) {
           Option(doc.get("district").toString),
           Option(doc.get("action").toString)
         ))),
-        getContactDetails(doc.get("sellerContactDetails").asInstanceOf[Document])
-      ))
-    } else {
-      None
+        getContactDetails(doc.get("sellerContactDetails").asInstanceOf[Document]))
+    })
+    if (flatList.size > 0){
+      return Option(flatList.head)
+    }
+    else {
+      return None
     }
   }
 
@@ -218,21 +223,20 @@ class FlatRepo @Inject()(connection: MongoConnection) {
         flat.district,
         flat.action)
     ))
-    val flatPriceHistoryItems = ListBuffer[FlatPriceHistoryItem]()
-    val cursor = documents.iterator
-    while (cursor.hasNext) {
-      val document = cursor.next
-      if (flat.link.get != document.get("link").toString ||
-        flat.price.get != document.get("price").toString.toInt)
-        flatPriceHistoryItems += FlatPriceHistoryItem(
+    return documents.asScala.toList.map(document => {
+        FlatPriceHistoryItem(
           Option(document.get("link").toString),
           Option(document.get("price").toString.toInt),
           Option(document.get("firstSeenAtEpoch").toString.toLong),
           Option(document.get("lastSeenAtEpoch").toString.toLong),
           getContactDetails(document.get("sellerContactDetails").asInstanceOf[Document])
         )
-    }
-    flatPriceHistoryItems.toList.sortBy(_.lastSeenAt).reverse
+    }).filterNot(historyItem => {
+      historyItem.link.get == flat.link.get &&
+      historyItem.price.get == flat.price.get
+    }).sortBy(
+      _.lastSeenAt
+    ).reverse
   }
 
   private def exactFindFilter(flat: Flat): org.bson.Document = {

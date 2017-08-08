@@ -37,7 +37,7 @@ class SubscriptionRepoHelperTest extends FlatSpec with Matchers{
       actions.contains("sell") should be (true)
     }
 
-  "MondgoDB subscription document object" should "be created out of Subscription domain object even " +
+  it should "be created out of Subscription domain object even " +
     "if all fields except subscriber field are empty" in {
      val subscription = new Subscription(
        subscriber = Option("viktors@gmail.com"),
@@ -58,7 +58,7 @@ class SubscriptionRepoHelperTest extends FlatSpec with Matchers{
     doc.get("actions") should be (null)
   }
 
-  "MongoDB subscription document object" should "be created out of Subscription domain object even " +
+  it should "be created out of Subscription domain object even " +
     "if some fields are empty" in {
     val subscription = new Subscription(
       subscriber = Option("viktors@gmail.com"),
