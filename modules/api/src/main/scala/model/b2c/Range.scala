@@ -1,7 +1,9 @@
 package model.b2c
 
-import play.api.libs.json._
 import model.CommonProps._
+import play.api.libs.json._
+import play.api.libs.json.Reads._
+import play.api.libs.functional.syntax._
 
 case class Range(
                 from:Option[Int],
@@ -9,28 +11,18 @@ case class Range(
                 ) {
 
   override def toString(): String = {
-    "from: " + from.getOrElse(EmptyProp) + ", "+
+  "from: " + from.getOrElse(EmptyProp) + ", "+
   "to: " + to.getOrElse(EmptyProp)
   }
 }
 
 object Range {
 
-  implicit val rangeWrites = new Writes[Range] {
-    override def writes(range: Range)= {
-      Json.obj(
-        "from" -> range.from,
-        "to" -> range.to
-      )
-    }
-  }
-  implicit val rangeReads = new Reads[Range] {
-    override def reads(json: JsValue): JsResult[Range] = {
-      val range = Range(
-        (json \ "from").asOpt[Int],
-        (json \ "to").asOpt[Int]
-      )
-      JsSuccess(range)
-    }
-  }
+  implicit val rangeWrites: Writes[Range] = (
+    (JsPath \ "from").writeNullable[Int] and (JsPath \ "to").writeNullable[Int]
+    )(unlift(Range.unapply))
+
+  implicit val rangeReads: Reads[Range] = (
+    (JsPath \ "from").readNullable[Int](min(1)) and (JsPath \ "to").readNullable[Int]
+    )(Range.apply _)
 }

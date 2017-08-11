@@ -1,25 +1,16 @@
 package scala.repo
 
-import configuration.{MockedMongoConnection, MongoConnection}
 import model.b2c.{Range, Subscription}
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
-import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
+import org.scalatest.{FlatSpec, Matchers}
 import repo.SubscriptionRepo
 
-class SubscriptionRepoTest extends FlatSpec with Matchers with BeforeAndAfterAll {
+import scala.testhelpers.TestApplicationContextHelper._
 
-  val application = {
-    new GuiceApplicationBuilder()
-      .overrides(bind[MongoConnection].to[MockedMongoConnection])
-      .build()
-  }
-
-  val subscriptionRepo = application.injector.instanceOf[SubscriptionRepo]
+class SubscriptionRepoTest extends FlatSpec with Matchers   {
 
   "Subscription " should " be created" in {
     val subscription = new Subscription(
-      subscriber = Option("viktors@gmail.com"),
+      subscriber = "viktors@gmail.com",
       priceRange = Option(Range(Option(1),Option(3))),
       floorRange = Option(Range(Option(2),Option(5))),
       sizeRange = Option(Range(Option(40),Option(70))),
@@ -27,13 +18,13 @@ class SubscriptionRepoTest extends FlatSpec with Matchers with BeforeAndAfterAll
       districts = Option(Array[String]("centre","teika")),
       actions = Option(Array[String]("sell"))
     )
-    subscriptionRepo.createSubscription(subscription)
+    getGuiceContext.injector.instanceOf[SubscriptionRepo].createSubscription(subscription)
   }
 
   var subscriptionId:Option[String] = None
 
   it should "be found by email" in {
-    val subscriptionList = subscriptionRepo.findAllSubscriptionsForEmail("viktors@gmail.com")
+    val subscriptionList = getGuiceContext.injector.instanceOf[SubscriptionRepo].findAllSubscriptionsForEmail("viktors@gmail.com")
     subscriptionList should not be (None)
     subscriptionList.get.size should be (1)
     val subscription = subscriptionList.get.head
@@ -42,7 +33,7 @@ class SubscriptionRepoTest extends FlatSpec with Matchers with BeforeAndAfterAll
   }
 
   private def checkSubscriptionObject(subscription: Subscription) = {
-    subscription.subscriber.get should be("viktors@gmail.com")
+    subscription.subscriber should be("viktors@gmail.com")
     subscription.cities.get should contain("riga")
     subscription.cities.get should contain("jurmala")
     subscription.districts.get should contain("centre")
@@ -58,17 +49,17 @@ class SubscriptionRepoTest extends FlatSpec with Matchers with BeforeAndAfterAll
   }
 
   it should "be found by identifier" in {
-    val subscription = subscriptionRepo.getSubscriptionById(subscriptionId.get)
+    val subscription = getGuiceContext.injector.instanceOf[SubscriptionRepo].getSubscriptionById(subscriptionId.get)
     subscription should not be (None)
     checkSubscriptionObject(subscription.get)
   }
 
-  "Subscription" should "be deleted by it's identifier" in {
-    subscriptionRepo.deleteSubscriptionById(subscriptionId.get)
+  it should "be deleted by it's identifier" in {
+    getGuiceContext.injector.instanceOf[SubscriptionRepo].deleteSubscriptionById(subscriptionId.get)
   }
 
   it should "not be returned by identifier anymore after it has been deleted" in {
-    val subscription = subscriptionRepo.getSubscriptionById(subscriptionId.get)
+    val subscription = getGuiceContext.injector.instanceOf[SubscriptionRepo].getSubscriptionById(subscriptionId.get)
     subscription should be (None)
   }
 

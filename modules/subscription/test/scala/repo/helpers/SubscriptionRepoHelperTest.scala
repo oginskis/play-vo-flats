@@ -7,9 +7,9 @@ import repo.helpers.SubscriptionRepoHelper._
 
 class SubscriptionRepoHelperTest extends FlatSpec with Matchers{
 
-  "MongoDB Subscription document object" should "correspond to Subscription domain object" in {
+  "Subscription document object" should "correspond to Subscription domain object" in {
       val subscription = new Subscription(
-        subscriber = Option("viktors@gmail.com"),
+        subscriber = "viktors@gmail.com",
         priceRange = Option(new model.b2c.Range(Option(1),Option(3))),
         sizeRange = Option(new model.b2c.Range(Option(2),Option(5))),
         floorRange = Option(new model.b2c.Range(Option(2),Option(6))),
@@ -40,7 +40,7 @@ class SubscriptionRepoHelperTest extends FlatSpec with Matchers{
   it should "be created out of Subscription domain object even " +
     "if all fields except subscriber field are empty" in {
      val subscription = new Subscription(
-       subscriber = Option("viktors@gmail.com"),
+       subscriber = "viktors@gmail.com",
        priceRange = None,
        sizeRange = None,
        floorRange = None,
@@ -61,7 +61,7 @@ class SubscriptionRepoHelperTest extends FlatSpec with Matchers{
   it should "be created out of Subscription domain object even " +
     "if some fields are empty" in {
     val subscription = new Subscription(
-      subscriber = Option("viktors@gmail.com"),
+      subscriber = "viktors@gmail.com",
       priceRange = Option(new model.b2c.Range(Option(1),None)),
       sizeRange = Option(new model.b2c.Range(None,Option(5))),
       floorRange = Option(new model.b2c.Range(Option(2),None)),
@@ -84,10 +84,6 @@ class SubscriptionRepoHelperTest extends FlatSpec with Matchers{
     val districts = doc.get("districts").asInstanceOf[java.util.ArrayList[String]]
     districts.contains("centrs") should be (true)
     doc.get("actions") should be (null)
-  }
-
-  "Subscription domain object" should "be created out of MongoDB subscription document object" in {
-
   }
 
 }

@@ -1,10 +1,10 @@
 package repo.helpers
 
 import java.util
-import model.b2c.Range
 
-import model.b2c.Subscription
+import model.b2c.{Range, Subscription}
 import org.bson.Document
+
 import scala.collection.JavaConverters._
 import scala.util.Try
 
@@ -12,7 +12,7 @@ object SubscriptionRepoHelper {
 
   def createSubscriptionDocument(subscription: Subscription): Document = {
     val params = new java.util.HashMap[String, Object]()
-    params.put("subscriber",subscription.subscriber.get)
+    params.put("subscriber",subscription.subscriber)
     if (subscription.priceRange != None) {
       params.put("priceRange",getRangeDocument(subscription.priceRange.get))
     }
@@ -38,7 +38,7 @@ object SubscriptionRepoHelper {
   def createSubscriptionObject(document: Document): Subscription = {
     new Subscription(
       subscriptionId = Option(document.get("_id").toString),
-      subscriber = Option(document.get("subscriber").toString),
+      subscriber = document.get("subscriber").toString,
       priceRange = getRangeObject(document.get("priceRange")),
       sizeRange = getRangeObject(document.get("sizeRange")),
       floorRange = getRangeObject(document.get("floorRange")),

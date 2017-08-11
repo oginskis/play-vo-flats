@@ -3,10 +3,10 @@ package controllers.subscription
 import javax.inject.Inject
 
 import model.CommonProps
+import model.b2c.{Error, Subscription}
 import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, ControllerComponents}
 import repo.SubscriptionRepo
-import model.b2c.Error
 
 class SubscriptionController @Inject()(cc:ControllerComponents,subscriptionRepo: SubscriptionRepo)
   extends AbstractController(cc) {
@@ -39,6 +39,25 @@ class SubscriptionController @Inject()(cc:ControllerComponents,subscriptionRepo:
     } else {
       BadRequest(Json.toJson(new Error("Invalid email","Invalid email format")))
     }
+  }
+
+  def createSubscription() = Action(parse.json) { request => {
+      val result = request.body.validate[Subscription]
+      result.fold(
+        errors => {
+            BadRequest(Json.toJson(new Error("Invalid request",
+              errors.map(error => {
+                ("Invalid value in ["+error._1.toString.tail+"] field")
+              }).mkString(", ")
+          )))
+        },
+        subscription => {
+          subscriptionRepo.createSubscription(subscription)
+          Created(CommonProps.EmptyResponse)
+        }
+      )
+    }
+
   }
 
 }

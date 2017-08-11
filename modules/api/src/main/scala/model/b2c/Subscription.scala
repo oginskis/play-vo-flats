@@ -2,10 +2,12 @@ package model.b2c
 
 import model.CommonProps._
 import play.api.libs.json._
+import play.api.libs.json.Reads._
+import play.api.libs.functional.syntax._
 
 case class Subscription(
-                  val subscriptionId: Option[String],
-                  val subscriber: Option[String],
+                  val subscriptionId: Option[String] = None,
+                  val subscriber: String,
                   val priceRange: Option[Range],
                   val sizeRange: Option[Range],
                   val floorRange: Option[Range],
@@ -14,20 +16,8 @@ case class Subscription(
                   val actions: Option[Array[String]]
                   ) {
 
-  def this(
-    subscriber: Option[String],
-    priceRange: Option[Range],
-    sizeRange: Option[Range],
-    floorRange: Option[Range],
-    cities: Option[Array[String]],
-    districts: Option[Array[String]],
-    actions: Option[Array[String]]) = {
-      this (None, subscriber, priceRange, sizeRange, floorRange, cities, districts, actions)
-  }
-
-
   override def toString(): String = {
-    "subscriber: " + subscriber.getOrElse(EmptyProp) + ", "+
+    "subscriber: " + subscriber + ", "+
     "priceRange: [ " + priceRange.getOrElse(EmptyProp) +" ], "+
     "sizeRange: [ "+ sizeRange.getOrElse(EmptyProp) +" ], " +
     "floorRange [ "+ floorRange.getOrElse(EmptyProp) +" ], "+
@@ -39,32 +29,25 @@ case class Subscription(
 
 object Subscription {
 
-  implicit val subscriptionWrites = new Writes[Subscription] {
-    override def writes(subscription: Subscription) = {
-      Json.obj(
-        "subscriptionId" -> subscription.subscriptionId,
-        "subscriber" -> subscription.subscriber,
-        "priceRange" -> subscription.priceRange,
-        "sizeRange" -> subscription.sizeRange,
-        "floorRange" -> subscription.floorRange,
-        "cities" -> subscription.cities,
-        "districts" -> subscription.districts,
-        "actions" -> subscription.actions
-      )
-    }
-  }
-  implicit val subscriptionReads = new Reads[Subscription] {
-    override def reads(json: JsValue): JsResult[Subscription] = {
-      val subscription = new Subscription(
-        (json \ "subscriber").asOpt[String],
-        (json \ "priceRange").asOpt[Range],
-        (json \ "sizeRange").asOpt[Range],
-        (json \ "floorRange").asOpt[Range],
-        (json \ "cities").asOpt[Array[String]],
-        (json \ "districts").asOpt[Array[String]],
-        (json \ "actions").asOpt[Array[String]]
-      )
-      JsSuccess(subscription)
-    }
-  }
+  implicit val subscriptionWrites: Writes[Subscription] = (
+    (JsPath \ "subscriptionId").writeNullable[String] and
+      (JsPath \ "subscriber").write[String] and
+      (JsPath \ "priceRange").writeNullable[Range] and
+      (JsPath \ "sizeRange").writeNullable[Range] and
+      (JsPath \ "floorRange").writeNullable[Range] and
+      (JsPath \ "cities").writeNullable[Array[String]] and
+      (JsPath \ "districts").writeNullable[Array[String]] and
+      (JsPath \ "actions").writeNullable[Array[String]]
+    )(unlift(Subscription.unapply))
+
+  implicit val subscriptionReads: Reads[Subscription] = (
+      (JsPath \ "subscriptionId").readNullable[String] and
+      (JsPath \ "subscriber").read[String](email) and
+      (JsPath \ "priceRange").readNullable[Range] and
+      (JsPath \ "sizeRange").readNullable[Range] and
+      (JsPath \ "floorRange").readNullable[Range] and
+      (JsPath \ "cities").readNullable[Array[String]] and
+      (JsPath \ "districts").readNullable[Array[String]] and
+      (JsPath \ "actions").readNullable[Array[String]]
+    )(Subscription.apply _)
 }
