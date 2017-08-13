@@ -144,7 +144,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         subscription.subscriber mustBe "viktors@gmail.com"
         subscription.priceRange.get.from mustBe None
         subscription.priceRange.get.to.get mustBe 5
-        subscription.sizeRange.get.from.get mustBe 3
+        subscription.sizeRange.get.from.get mustBe 2
         subscription.sizeRange.get.to mustBe None
         subscription.floorRange.get.from mustBe None
         subscription.floorRange.get.to.get mustBe 10
