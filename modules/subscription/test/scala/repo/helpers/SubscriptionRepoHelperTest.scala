@@ -1,5 +1,7 @@
 package scala.repo.helpers
 
+import java.util
+
 import model.b2c.Subscription
 import org.bson.Document
 import org.scalatestplus.play.PlaySpec
@@ -84,6 +86,87 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         doc.get("actions") mustBe null
       }
     }
+  }
+
+  "Subscription domain object" should {
+    "be created out of subscription document object" when {
+      "all fields are present" in {
+        val params = new java.util.HashMap[String, Object]()
+        params.put("_id","abcdef123456abcdef123456")
+        params.put("subscriber","viktors@gmail.com")
+        params.put("priceRange",createRangeDocument(Option(1),Option(5)))
+        params.put("sizeRange",createRangeDocument(Option(2),Option(6)))
+        params.put("floorRange",createRangeDocument(Option(3),Option(10)))
+        params.put("cities",new util.ArrayList[String](util.Arrays.asList("riga","jurmala")))
+        params.put("districts",new util.ArrayList[String](util.Arrays.asList("centre","teika")))
+        params.put("actions",new util.ArrayList[String](util.Arrays.asList("sell")))
+        val subscription = createSubscriptionObject(new Document(params))
+        subscription.subscriptionId.get mustBe "abcdef123456abcdef123456"
+        subscription.subscriber mustBe "viktors@gmail.com"
+        subscription.priceRange.get.from.get mustBe 1
+        subscription.priceRange.get.to.get mustBe 5
+        subscription.sizeRange.get.from.get mustBe 2
+        subscription.sizeRange.get.to.get mustBe 6
+        subscription.floorRange.get.from.get mustBe 3
+        subscription.floorRange.get.to.get mustBe 10
+        subscription.cities.get must contain ("riga")
+        subscription.cities.get must contain ("jurmala")
+        subscription.districts.get must contain ("centre")
+        subscription.districts.get must contain ("teika")
+        subscription.actions.get must contain ("sell")
+      }
+      "all fields except subscriber are empty" in {
+        val params = new java.util.HashMap[String, Object]()
+        params.put("subscriber","viktors@gmail.com")
+        val subscription = createSubscriptionObject(new Document(params))
+        subscription.subscriptionId mustBe None
+        subscription.subscriber mustBe "viktors@gmail.com"
+        subscription.priceRange mustBe None
+        subscription.priceRange mustBe None
+        subscription.sizeRange mustBe None
+        subscription.sizeRange mustBe None
+        subscription.floorRange mustBe None
+        subscription.floorRange mustBe None
+        subscription.cities mustBe None
+        subscription.districts mustBe None
+        subscription.actions mustBe None
+      }
+      "some fields are empty" in {
+        val params = new java.util.HashMap[String, Object]()
+        params.put("subscriber","viktors@gmail.com")
+        params.put("priceRange",createRangeDocument(None,Option(5)))
+        params.put("sizeRange",createRangeDocument(Option(2),None))
+        params.put("floorRange",createRangeDocument(None,Option(10)))
+        params.put("cities",new util.ArrayList[String](util.Arrays.asList("riga","jurmala")))
+        params.put("actions",new util.ArrayList[String](util.Arrays.asList("sell")))
+        val subscription = createSubscriptionObject(new Document(params))
+        subscription.subscriptionId mustBe None
+        subscription.subscriber mustBe "viktors@gmail.com"
+        subscription.priceRange.get.from mustBe None
+        subscription.priceRange.get.to.get mustBe 5
+        subscription.sizeRange.get.from.get mustBe 2
+        subscription.sizeRange.get.to mustBe None
+        subscription.floorRange.get.from mustBe None
+        subscription.floorRange.get.to.get mustBe 10
+        subscription.cities.get must contain ("riga")
+        subscription.cities.get must contain ("jurmala")
+        subscription.districts mustBe None
+        subscription.actions.get must contain ("sell")
+      }
+    }
+  }
+
+  private def createRangeDocument(from:Option[Int],to:Option[Int]): Document = {
+    val rangeDocument = new util.HashMap[String, Object]()
+    if (from != None) {
+      rangeDocument.put("from", java.lang.Integer
+        .valueOf(from.get))
+    }
+    if (to != None) {
+      rangeDocument.put("to", java.lang.Integer
+        .valueOf(to.get))
+    }
+    new Document(rangeDocument)
   }
 
 }

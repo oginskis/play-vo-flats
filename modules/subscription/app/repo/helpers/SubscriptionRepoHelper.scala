@@ -13,6 +13,9 @@ object SubscriptionRepoHelper {
   def createSubscriptionDocument(subscription: Subscription): Document = {
     val params = new java.util.HashMap[String, Object]()
     params.put("subscriber", subscription.subscriber)
+    if (subscription.subscriptionId != None){
+      params.put("_id",subscription.subscriptionId.get)
+    }
     if (subscription.priceRange != None) {
       params.put("priceRange", getRangeDocument(subscription.priceRange.get))
     }
@@ -59,7 +62,7 @@ object SubscriptionRepoHelper {
 
   def createSubscriptionObject(document: Document): Subscription = {
     new Subscription(
-      subscriptionId = Option(document.get("_id").toString),
+      subscriptionId = Try(Option(document.get("_id").toString)).getOrElse(None),
       subscriber = document.get("subscriber").toString,
       priceRange = getRangeObject(document.get("priceRange")),
       sizeRange = getRangeObject(document.get("sizeRange")),
