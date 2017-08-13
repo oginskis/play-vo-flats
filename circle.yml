@@ -7,7 +7,6 @@ dependencies:
     - "~/.sbt"
   override:
       - sbt update
-      - sbt test
-  test:
-    override:
-      - sbt test
+test:
+  override:
+    - sbt test
