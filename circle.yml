@@ -13,4 +13,6 @@ compile:
 test:
   override:
     - sbt test
+deployment:
+  - sbt assembly
 
