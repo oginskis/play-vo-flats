@@ -5,6 +5,8 @@ dependencies:
   cache_directories:
     - "~/.ivy2"
     - "~/.sbt"
+  override:
+      - sbt update
   test:
     override:
       - sbt test
