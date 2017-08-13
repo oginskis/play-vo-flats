@@ -1,7 +1,7 @@
 package scala.testhelpers
 
-import configuration.testsupport.{MockedMongoConnection, MongoINMemoryDBStarter}
 import configuration.MongoConnection
+import configuration.testsupport.{MockedMongoConnection, MongoINMemoryDBStarter}
 import org.scalatest.FlatSpec
 import play.api.Application
 import play.api.inject.bind
@@ -16,7 +16,7 @@ object TestApplicationContextHelper extends FlatSpec {
       .build()
   }
 
-  def getGuiceContext(): Application ={
+  def getGuiceContext(): Application = {
     application
   }
 

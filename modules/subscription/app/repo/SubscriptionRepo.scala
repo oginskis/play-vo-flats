@@ -4,6 +4,7 @@ import java.util
 import javax.inject.{Inject, Singleton}
 
 import configuration.MongoConnection
+import model.CommonProps
 import model.b2c.Subscription
 import org.bson.Document
 import org.bson.types.ObjectId
@@ -13,7 +14,7 @@ import repo.helpers.SubscriptionRepoHelper._
 import scala.collection.JavaConverters._
 
 @Singleton
-class SubscriptionRepo @Inject()(connection: MongoConnection)  {
+class SubscriptionRepo @Inject()(connection: MongoConnection) {
 
   private val subscriptionCollection = connection.getCollection(SubscriptionRepo.CollName)
 
@@ -22,22 +23,24 @@ class SubscriptionRepo @Inject()(connection: MongoConnection)  {
   }
 
   def getSubscriptionById(subscriptionId: String): Option[Subscription] = {
-    if (StringUtil.isNullOrEmpty(subscriptionId)){
+    if (StringUtil.isNullOrEmpty(subscriptionId) || !subscriptionId.matches(CommonProps.HexadecimalRegexp)
+      || subscriptionId.size != 24) {
       return None
     }
     val params = new util.HashMap[String, Object]()
     params.put("_id", new ObjectId(subscriptionId))
-    params.put("itemType","subscription")
+    params.put("itemType", "subscription")
     val documents = subscriptionCollection.find(new Document(params))
-    if (documents.iterator.hasNext){
+    if (documents.iterator.hasNext) {
       return Some(createSubscriptionObject(documents.iterator.next))
     }
     None
   }
 
   def deleteSubscriptionById(subscriptionId: String): Long = {
-    if (StringUtil.isNullOrEmpty(subscriptionId)){
-      throw new IllegalArgumentException("Cannot delete subscription. SubscriptionId was not set")
+    if (StringUtil.isNullOrEmpty(subscriptionId) || !subscriptionId.matches(CommonProps.HexadecimalRegexp)
+      || subscriptionId.size != 24) {
+      throw new IllegalArgumentException("Cannot delete subscription. Subscription id is empty or not valid")
     }
     val params = new util.HashMap[String, Object]()
     params.put("_id", new ObjectId(subscriptionId))
@@ -46,7 +49,7 @@ class SubscriptionRepo @Inject()(connection: MongoConnection)  {
   }
 
   def findAllSubscriptionsForEmail(email: String): Option[List[Subscription]] = {
-    if (StringUtil.isNullOrEmpty(email)){
+    if (StringUtil.isNullOrEmpty(email) || !email.matches(CommonProps.EmailRegexp)) {
       return None
     }
     val params = new util.HashMap[String, Object]()
