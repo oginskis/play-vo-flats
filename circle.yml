@@ -6,5 +6,4 @@ dependencies:
     - "~/.ivy2"
     - "~/.sbt"
   override:
-    - sbt test:compile
-    - sbt test:test
+    - sbt test
