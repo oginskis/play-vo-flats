@@ -7,12 +7,8 @@ jobs:
       - checkout
       - run: wget -q https://dl.bintray.com/sbt/debian/sbt-0.13.15.deb
       - run: sudo dpkg -i sbt-0.13.15.deb
-      - run:
-          name: Build project
-          command: sbt compile
-      - run:
-          name: Test project
-          command: sbt test
+      - run: sbt compile
+      - run: sbt test
 workflows:
   version: 2
   build_and_test:
