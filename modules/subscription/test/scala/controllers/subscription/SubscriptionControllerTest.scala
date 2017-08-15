@@ -56,6 +56,10 @@ class SubscriptionControllerTest extends PlaySpec with Results {
           """
                    {
                        "subscriber":"viktors.test2@gmail.lv",
+                       "priceRange": {
+                           "from": 70000,
+                           "to": 75000
+                       },
                        "cities": [
                           "riga",
                           "jurmala"
