@@ -32,13 +32,11 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         val floorRange = doc.get("floorRange").asInstanceOf[Document]
         floorRange.get("from") mustBe 2
         floorRange.get("to") mustBe 6
-        val cities = doc.get("cities").asInstanceOf[java.util.ArrayList[String]]
-        cities.contains("riga") mustBe true
-        cities.contains("jurmala") mustBe true
-        val districts = doc.get("districts").asInstanceOf[java.util.ArrayList[String]]
-        districts.contains("centrs") mustBe true
-        val actions = doc.get("actions").asInstanceOf[java.util.ArrayList[String]]
-        actions.contains("sell") mustBe true
+        val params = doc.get("parameters").asInstanceOf[Document]
+        params.get("cities").asInstanceOf[util.ArrayList[String]].contains("riga") mustBe true
+        params.get("cities").asInstanceOf[util.ArrayList[String]].contains("jurmala") mustBe true
+        params.get("districts").asInstanceOf[util.ArrayList[String]].contains("centrs") mustBe true
+        params.get("actions").asInstanceOf[util.ArrayList[String]].contains("sell") mustBe true
       }
       "all fields except subscriber field are empty" in {
         val subscription = new Subscription(
@@ -80,10 +78,10 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         val floorRange = doc.get("floorRange").asInstanceOf[Document]
         floorRange.get("from") mustBe 2
         floorRange.get("to") mustBe null
-        doc.get("cities") mustBe null
-        val districts = doc.get("districts").asInstanceOf[java.util.ArrayList[String]]
-        districts.contains("centrs") mustBe true
-        doc.get("actions") mustBe null
+        val params = doc.get("parameters").asInstanceOf[Document]
+        params.get("cities") mustBe null
+        params.get("districts").asInstanceOf[util.ArrayList[String]].contains("centrs") mustBe true
+        params.get("actions") mustBe null
       }
     }
   }
@@ -97,9 +95,11 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         params.put("priceRange",createRangeDocument(Option(1),Option(5)))
         params.put("sizeRange",createRangeDocument(Option(2),Option(6)))
         params.put("floorRange",createRangeDocument(Option(3),Option(10)))
-        params.put("cities",new util.ArrayList[String](util.Arrays.asList("riga","jurmala")))
-        params.put("districts",new util.ArrayList[String](util.Arrays.asList("centre","teika")))
-        params.put("actions",new util.ArrayList[String](util.Arrays.asList("sell")))
+        val parameters = new util.HashMap[String,Object]()
+        parameters.put("cities",new util.ArrayList[String](util.Arrays.asList("riga","jurmala")))
+        parameters.put("districts",new util.ArrayList[String](util.Arrays.asList("centre","teika")))
+        parameters.put("actions",new util.ArrayList[String](util.Arrays.asList("sell")))
+        params.put("parameters",new Document(parameters))
         val subscription = createSubscriptionObject(new Document(params))
         subscription.subscriptionId.get mustBe "abcdef123456abcdef123456"
         subscription.subscriber mustBe "viktors@gmail.com"
@@ -137,8 +137,10 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         params.put("priceRange",createRangeDocument(None,Option(5)))
         params.put("sizeRange",createRangeDocument(Option(2),None))
         params.put("floorRange",createRangeDocument(None,Option(10)))
-        params.put("cities",new util.ArrayList[String](util.Arrays.asList("riga","jurmala")))
-        params.put("actions",new util.ArrayList[String](util.Arrays.asList("sell")))
+        val parameters = new util.HashMap[String,Object]()
+        parameters.put("cities",new util.ArrayList[String](util.Arrays.asList("riga","jurmala")))
+        parameters.put("actions",new util.ArrayList[String](util.Arrays.asList("sell")))
+        params.put("parameters",new Document(parameters))
         val subscription = createSubscriptionObject(new Document(params))
         subscription.subscriptionId mustBe None
         subscription.subscriber mustBe "viktors@gmail.com"

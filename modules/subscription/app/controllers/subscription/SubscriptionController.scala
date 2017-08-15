@@ -3,7 +3,7 @@ package controllers.subscription
 import javax.inject.Inject
 
 import model.CommonProps
-import model.b2c.{Error, Subscription}
+import model.b2c.{Error, Flat, Subscription}
 import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, ControllerComponents}
 import repo.SubscriptionRepo
@@ -36,7 +36,7 @@ class SubscriptionController @Inject()(cc: ControllerComponents, subscriptionRep
   def getAllSubscriptionsForEmail(email: String) = Action {
     if (email.matches(CommonProps.EmailRegexp)) {
       val subscriptions = subscriptionRepo.findAllSubscriptionsForEmail(email)
-      if (subscriptions.get.size > 0) {
+      if (subscriptions.size > 0) {
         Ok(Json.toJson(subscriptions))
       } else {
         NotFound(CommonProps.EmptyResponse)
@@ -45,6 +45,11 @@ class SubscriptionController @Inject()(cc: ControllerComponents, subscriptionRep
       BadRequest(Json.toJson(new Error("Invalid email", "Invalid email format")))
     }
   }
+
+  def getAllSubscribersForFlat(flat: Flat):List[Subscription] = {
+    List()
+  }
+
 
   def createSubscription() = Action(parse.json) { request => {
     val result = request.body.validate[Subscription]

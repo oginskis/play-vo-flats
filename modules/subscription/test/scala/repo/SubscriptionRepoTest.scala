@@ -1,6 +1,6 @@
 package scala.repo
 
-import model.b2c.{Range, Subscription}
+import model.b2c.{Flat, Range, Subscription}
 import org.scalatestplus.play.PlaySpec
 import repo.SubscriptionRepo
 
@@ -30,8 +30,8 @@ class SubscriptionRepoTest extends PlaySpec {
         val subscriptionList = getGuiceContext.injector.instanceOf[SubscriptionRepo]
           .findAllSubscriptionsForEmail("viktors@gmail.com")
         subscriptionList mustNot be (None)
-        subscriptionList.get.size mustBe 1
-        val subscription = subscriptionList.get.head
+        subscriptionList.size mustBe 1
+        val subscription = subscriptionList.head
         checkSubscriptionObject(subscription)
         subscriptionId = subscription.subscriptionId.get
       }
@@ -40,12 +40,12 @@ class SubscriptionRepoTest extends PlaySpec {
       "an invalid email is passed to the function" in {
         val subscriptionList = getGuiceContext.injector.instanceOf[SubscriptionRepo]
           .findAllSubscriptionsForEmail("viktorsgmail.com")
-        subscriptionList mustBe None
+        subscriptionList mustBe List[Subscription]()
       }
       "a valid email is passed to the function, but subscription does not exist for this email" in {
         val subscriptionList = getGuiceContext.injector.instanceOf[SubscriptionRepo]
           .findAllSubscriptionsForEmail("doesnotexist@gmail.com")
-        subscriptionList.get.size mustBe 0
+        subscriptionList.size mustBe 0
       }
     }
     "be found" when {
@@ -91,6 +91,85 @@ class SubscriptionRepoTest extends PlaySpec {
       "an invalid identifier is passed to the function [IllegalArgumentException must be thrown]" in {
         an [IllegalArgumentException] mustBe thrownBy(getGuiceContext.injector.instanceOf[SubscriptionRepo]
             .deleteSubscriptionById("a7d9"))
+      }
+    }
+  }
+  "Subscriptions" should {
+    "be generated as precondition for findAllSubscribersForFlat test" in {
+      getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        .createSubscription(new Subscription(
+          subscriber = "p1@gmail.com",
+          priceRange = Option(Range(Option(50000), Option(70000))),
+          floorRange = Option(Range(Option(2), Option(5))),
+          sizeRange = Option(Range(Option(40), Option(70))),
+          cities = Option(Array[String]("riga", "jurmala")),
+          districts = Option(Array[String]("centre", "teika")),
+          actions = Option(Array[String]("sell"))
+        ))
+      getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        .createSubscription(new Subscription(
+          subscriber = "p2@gmail.com",
+          priceRange = Option(Range(Option(60000), Option(75000))),
+          floorRange = Option(Range(Option(2),None)),
+          sizeRange = Option(Range(Option(70), Option(90))),
+          cities = Option(Array[String]("riga")),
+          districts = Option(Array[String]("centre", "teika")),
+          actions = Option(Array[String]("sell"))
+        ))
+      getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        .createSubscription(new Subscription(
+          subscriber = "p3@gmail.com",
+          priceRange = Option(Range(None,Option(85000))),
+          floorRange = Option(Range(Option(2),None)),
+          sizeRange = Option(Range(Option(70),None)),
+          cities = Option(Array[String]("riga")),
+          districts = None,
+          actions = Option(Array[String]("sell"))
+        ))
+      getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        .createSubscription(new Subscription(
+          subscriber = "p4@gmail.com",
+          priceRange = Option(Range(None,Option(150000))),
+          floorRange = Option(Range(Option(5),None)),
+          sizeRange = Option(Range(Option(70),None)),
+          cities = Option(Array[String]("riga")),
+          districts = None,
+          actions = Option(Array[String]("sell"))
+        ))
+      getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        .createSubscription(new Subscription(
+          subscriber = "p5@gmail.com",
+          priceRange = Option(Range(Option(90000),None)),
+          floorRange = Option(Range(Option(3),None)),
+          sizeRange = Option(Range(None,Option(150))),
+          cities = None,
+          districts = Option(Array[String]("centre")),
+          actions = Option(Array[String]("sell"))
+        ))
+    }
+    "be found" when {
+      "findAllSubscribersForFlat is kicked of for flat" in {
+        val flat = new Flat(
+          Flat.New,
+          None,
+          Option(4),
+          Option(75),
+          Option(3),
+          Option(5),
+          Option(80000),
+          None,
+          None,
+          None,
+          Option("riga"),
+          Option("teika"),
+          Option("sell"),
+          Option("false"),
+          None,
+          None
+        )
+        val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+              .findAllSubscribersForFlat(flat)
+        subscriptions.size mustBe 1
       }
     }
   }

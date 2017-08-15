@@ -25,14 +25,18 @@ object SubscriptionRepoHelper {
     if (subscription.sizeRange != None) {
       params.put("sizeRange", getRangeDocument(subscription.sizeRange.get))
     }
+    val listParameters = new util.HashMap[String,Object]()
     if (subscription.cities != None) {
-      params.put("cities", getListDocument(subscription.cities.get))
+      listParameters.put("cities", getListDocument(subscription.cities.get))
     }
     if (subscription.districts != None) {
-      params.put("districts", getListDocument(subscription.districts.get))
+      listParameters.put("districts", getListDocument(subscription.districts.get))
     }
     if (subscription.actions != None) {
-      params.put("actions", getListDocument(subscription.actions.get))
+      listParameters.put("actions", getListDocument(subscription.actions.get))
+    }
+    if (!listParameters.isEmpty){
+      params.put("parameters",new Document(listParameters))
     }
     params.put("itemType", "subscription")
     new Document(params)
@@ -67,9 +71,9 @@ object SubscriptionRepoHelper {
       priceRange = getRangeObject(document.get("priceRange")),
       sizeRange = getRangeObject(document.get("sizeRange")),
       floorRange = getRangeObject(document.get("floorRange")),
-      cities = getListObject(document.get("cities")),
-      districts = getListObject(document.get("districts")),
-      actions = getListObject(document.get("actions"))
+      cities = getListObject(document.get("parameters"),"cities"),
+      districts = getListObject(document.get("parameters"),"districts"),
+      actions = getListObject(document.get("parameters"),"actions")
     )
   }
 
@@ -84,10 +88,10 @@ object SubscriptionRepoHelper {
     }
   }
 
-  private def getListObject(listObject: Object): Option[Array[String]] = {
+  private def getListObject(listObject: Object,parameterName: String): Option[Array[String]] = {
     if (listObject != null) {
-      val list = listObject.asInstanceOf[java.util.ArrayList[String]].asScala
-      Option(list.toArray)
+      val doc = listObject.asInstanceOf[Document]
+      return Try(Option(doc.get(parameterName).asInstanceOf[util.ArrayList[String]].asScala.toArray)).getOrElse(None)
     }
     else {
       None

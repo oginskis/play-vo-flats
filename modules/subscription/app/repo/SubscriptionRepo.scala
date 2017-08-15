@@ -3,9 +3,11 @@ package repo
 import java.util
 import javax.inject.{Inject, Singleton}
 
+import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Filters._
 import configuration.MongoConnection
 import model.CommonProps
-import model.b2c.Subscription
+import model.b2c.{Flat, Subscription}
 import org.bson.Document
 import org.bson.types.ObjectId
 import play.shaded.ahc.io.netty.util.internal.StringUtil
@@ -48,14 +50,26 @@ class SubscriptionRepo @Inject()(connection: MongoConnection) {
     result.getDeletedCount
   }
 
-  def findAllSubscriptionsForEmail(email: String): Option[List[Subscription]] = {
+  def findAllSubscriptionsForEmail(email: String): List[Subscription] = {
     if (StringUtil.isNullOrEmpty(email) || !email.matches(CommonProps.EmailRegexp)) {
-      return None
+      return List[Subscription]()
     }
     val params = new util.HashMap[String, Object]()
     params.put("subscriber", email)
     val documents = subscriptionCollection.find(new Document(params)).asScala.toList
-    return Option(documents.map(document => createSubscriptionObject(document)))
+    return documents.map(document => createSubscriptionObject(document))
+  }
+
+  def findAllSubscribersForFlat(flat: Flat): List[Subscription] = {
+    val documents = subscriptionCollection.find(and(
+      or(lte("priceRange.from",flat.price.get),Filters.eq("priceRange.from",null)),
+      or(gte("priceRange.to",flat.price.get),Filters.eq("priceRange.to",null)),
+      or(lte("sizeRange.from",flat.size.get),Filters.eq("sizeRange.from",null)),
+      or(gte("sizeRange.to",flat.size.get),Filters.eq("sizeRange.to",null)),
+      or(lte("floorRange.from",flat.floor.get),Filters.eq("floorRange.from",null)),
+      or(gte("floorRange.to",flat.floor.get),Filters.eq("floorRange.to",null))
+    )).asScala.toList
+    return documents.map(document => createSubscriptionObject(document))
   }
 
 }
