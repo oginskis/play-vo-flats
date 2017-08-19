@@ -1,7 +1,9 @@
 package scala.controllers.subscription
 
+import configuration.testsupport.MongoINMemoryDBSupport
 import controllers.subscription.SubscriptionController
 import model.b2c.Subscription
+import org.scalatest.BeforeAndAfterAll
 import org.scalatestplus.play.PlaySpec
 import play.api.http.HttpVerbs
 import play.api.libs.json.{JsValue, Json}
@@ -12,7 +14,11 @@ import play.api.test.{FakeHeaders, FakeRequest, Helpers}
 import scala.concurrent.Future
 import scala.testhelpers.TestApplicationContextHelper._
 
-class SubscriptionControllerTest extends PlaySpec with Results {
+class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAfterAll {
+
+  override def afterAll = {
+    MongoINMemoryDBSupport.purgeFlats()
+  }
 
   var subscriptionId: String = _
 
@@ -58,7 +64,7 @@ class SubscriptionControllerTest extends PlaySpec with Results {
                        "subscriber":"viktors.test2@gmail.lv",
                        "priceRange": {
                            "from": 70000,
-                           "to": 75000
+                           "to": 79000
                        },
                        "cities": [
                           "riga",

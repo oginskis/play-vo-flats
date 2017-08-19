@@ -13,9 +13,9 @@ class NotificationActor (configuration: Configuration) extends Actor with ActorL
   val emailSender = new EmailSender(configuration)
 
   override def receive: Receive = {
-    case flat: Flat => {
-      try {
-        emailSender.sendEmail(flat)
+      case flat: Flat => {
+        try {
+          emailSender.sendEmail(flat)
       }
       catch {
         case e: Exception => {

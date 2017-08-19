@@ -1,12 +1,18 @@
 package scala.repo
 
+import configuration.testsupport.MongoINMemoryDBSupport
 import model.b2c.{Flat, Range, Subscription}
+import org.scalatest.BeforeAndAfterAll
 import org.scalatestplus.play.PlaySpec
 import repo.SubscriptionRepo
 
 import scala.testhelpers.TestApplicationContextHelper._
 
-class SubscriptionRepoTest extends PlaySpec {
+class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
+
+  override def afterAll = {
+    MongoINMemoryDBSupport.purgeFlats()
+  }
 
   var subscriptionId: String = _
 
@@ -100,8 +106,8 @@ class SubscriptionRepoTest extends PlaySpec {
         .createSubscription(new Subscription(
           subscriber = "p1@gmail.com",
           priceRange = Option(Range(Option(50000), Option(70000))),
-          floorRange = Option(Range(Option(2), Option(5))),
-          sizeRange = Option(Range(Option(40), Option(70))),
+          floorRange = Option(Range(None, Option(5))),
+          sizeRange = Option(Range(Option(40), None)),
           cities = Option(Array[String]("riga", "jurmala")),
           districts = Option(Array[String]("centre", "teika")),
           actions = Option(Array[String]("sell"))
@@ -109,7 +115,7 @@ class SubscriptionRepoTest extends PlaySpec {
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
           subscriber = "p2@gmail.com",
-          priceRange = Option(Range(Option(60000), Option(75000))),
+          priceRange = Option(Range(Option(60000), Option(80000))),
           floorRange = Option(Range(Option(2),None)),
           sizeRange = Option(Range(Option(70), Option(90))),
           cities = Option(Array[String]("riga")),
@@ -119,7 +125,7 @@ class SubscriptionRepoTest extends PlaySpec {
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
           subscriber = "p3@gmail.com",
-          priceRange = Option(Range(None,Option(85000))),
+          priceRange = Option(Range(None,Option(79000))),
           floorRange = Option(Range(Option(2),None)),
           sizeRange = Option(Range(Option(70),None)),
           cities = Option(Array[String]("riga")),
@@ -130,7 +136,7 @@ class SubscriptionRepoTest extends PlaySpec {
         .createSubscription(new Subscription(
           subscriber = "p4@gmail.com",
           priceRange = Option(Range(None,Option(150000))),
-          floorRange = Option(Range(Option(5),None)),
+          floorRange = Option(Range(Option(3),None)),
           sizeRange = Option(Range(Option(70),None)),
           cities = Option(Array[String]("riga")),
           districts = None,
@@ -139,9 +145,9 @@ class SubscriptionRepoTest extends PlaySpec {
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
           subscriber = "p5@gmail.com",
-          priceRange = Option(Range(Option(90000),None)),
-          floorRange = Option(Range(Option(3),None)),
-          sizeRange = Option(Range(None,Option(150))),
+          priceRange = Option(Range(Option(79000),Option(80000))),
+          floorRange = Option(Range(None,Option(3))),
+          sizeRange = Option(Range(Option(73),Option(75))),
           cities = None,
           districts = Option(Array[String]("centre")),
           actions = Option(Array[String]("sell"))
@@ -152,11 +158,11 @@ class SubscriptionRepoTest extends PlaySpec {
         val flat = new Flat(
           Flat.New,
           None,
-          Option(4),
-          Option(75),
-          Option(3),
-          Option(5),
-          Option(80000),
+          rooms = Option(4),
+          size = Option(75),
+          floor = Option(3),
+          maxFloors = Option(5),
+          price = Option(80000),
           None,
           None,
           None,
@@ -169,7 +175,7 @@ class SubscriptionRepoTest extends PlaySpec {
         )
         val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
               .findAllSubscribersForFlat(flat)
-        subscriptions.size mustBe 1
+        subscriptions.size mustBe 3
       }
     }
   }

@@ -61,14 +61,16 @@ class SubscriptionRepo @Inject()(connection: MongoConnection) {
   }
 
   def findAllSubscribersForFlat(flat: Flat): List[Subscription] = {
-    val documents = subscriptionCollection.find(and(
+    val query = and(
       or(lte("priceRange.from",flat.price.get),Filters.eq("priceRange.from",null)),
       or(gte("priceRange.to",flat.price.get),Filters.eq("priceRange.to",null)),
       or(lte("sizeRange.from",flat.size.get),Filters.eq("sizeRange.from",null)),
       or(gte("sizeRange.to",flat.size.get),Filters.eq("sizeRange.to",null)),
       or(lte("floorRange.from",flat.floor.get),Filters.eq("floorRange.from",null)),
       or(gte("floorRange.to",flat.floor.get),Filters.eq("floorRange.to",null))
-    )).asScala.toList
+    )
+
+    val documents = subscriptionCollection.find(query).asScala.toList
     return documents.map(document => createSubscriptionObject(document))
   }
 
