@@ -4,13 +4,14 @@ import sbtassembly.Plugin.AssemblyKeys._
 name := """flats"""
 
 lazy val commonSettings = Seq(
-  version := "12.35",
+  version := "12.37",
   scalaVersion := "2.12.3"
 )
 
 lazy val commonAssemblySettings = Seq(
   mainClass in assembly := Some("play.core.server.ProdServerStart"),
   test in assembly := {},
+  parallelExecution in Test := false,
   fullClasspath in assembly += Attributed.blank(PlayKeys.playPackageAssets.value),
   mergeStrategy in assembly := {
     case "META-INF/io.netty.versions.properties" => MergeStrategy.concat
