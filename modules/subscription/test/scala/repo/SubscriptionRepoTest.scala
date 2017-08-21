@@ -176,6 +176,10 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
         val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
               .findAllSubscribersForFlat(flat)
         subscriptions.size mustBe 3
+        val subscribers = subscriptions.map(subscription => subscription.subscriber)
+        subscribers must contain ("p2@gmail.com")
+        subscribers must contain ("p4@gmail.com")
+        subscribers must contain ("p5@gmail.com")
       }
     }
   }
