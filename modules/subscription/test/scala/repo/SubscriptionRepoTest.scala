@@ -149,7 +149,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           floorRange = Option(Range(None,Option(3))),
           sizeRange = Option(Range(Option(73),Option(75))),
           cities = None,
-          districts = Option(Array[String]("centre")),
+          districts = Option(Array[String]("centre","teika")),
           actions = Option(Array[String]("sell"))
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
@@ -162,9 +162,29 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           districts = None,
           actions = None
         ))
+      getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        .createSubscription(new Subscription(
+          subscriber = "p7@gmail.com",
+          priceRange = None,
+          floorRange = None,
+          sizeRange = None,
+          cities = Option(Array[String]("jurmala")),
+          districts = Option(Array[String]("vaivari")),
+          actions = None
+        ))
+      getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        .createSubscription(new Subscription(
+          subscriber = "p8@gmail.com",
+          priceRange = None,
+          floorRange = None,
+          sizeRange = None,
+          cities = None,
+          districts = None,
+          actions = Option(Array[String]("rent"))
+        ))
     }
     "be found" when {
-      "findAllSubscribersForFlat is kicked of for flat: rooms=4,size=75,floor=3,price=80000 (4)" in {
+      "findAllSubscribersForFlat is kicked of for flat: rooms=4,size=75,floor=3,price=80000,riga,teika,sell (4)" in {
         val flat = new Flat(
           Flat.New,
           None,
@@ -192,7 +212,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
         subscribers must contain ("p5@gmail.com")
         subscribers must contain ("p6@gmail.com")
       }
-      "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=2,price=80000 (3)" in {
+      "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=2,price=80000,riga,teika,sell (3)" in {
         val flat = new Flat(
           Flat.New,
           None,
@@ -219,7 +239,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
         subscribers must contain ("p5@gmail.com")
         subscribers must contain ("p6@gmail.com")
       }
-      "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=140000 (2)" in {
+      "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=140000,riga,teika,sell (2)" in {
         val flat = new Flat(
           Flat.New,
           None,
@@ -245,7 +265,34 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
         subscribers must contain ("p4@gmail.com")
         subscribers must contain ("p6@gmail.com")
       }
-      "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=300000 (1)" in {
+      "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=140000,jurmala,vaivari,sell (3)" in {
+        val flat = new Flat(
+          Flat.New,
+          None,
+          rooms = Option(2),
+          size = Option(75),
+          floor = Option(4),
+          maxFloors = Option(5),
+          price = Option(70000),
+          None,
+          None,
+          None,
+          Option("jurmala"),
+          Option("vaivari"),
+          Option("sell"),
+          Option("false"),
+          None,
+          None
+        )
+        val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+          .findAllSubscribersForFlat(flat)
+        subscriptions.size mustBe 3
+        val subscribers = subscriptions.map(subscription => subscription.subscriber)
+        subscribers must contain ("p7@gmail.com")
+        subscribers must contain ("p6@gmail.com")
+        subscribers must contain ("p4@gmail.com")
+      }
+      "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=300000,jurmala,teika,sell (1)" in {
         val flat = new Flat(
           Flat.New,
           None,
@@ -269,6 +316,32 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
         subscriptions.size mustBe 1
         val subscribers = subscriptions.map(subscription => subscription.subscriber)
         subscribers must contain ("p6@gmail.com")
+      }
+      "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=300000,jurmala,teika,rent (2)" in {
+        val flat = new Flat(
+          Flat.New,
+          None,
+          rooms = Option(2),
+          size = Option(75),
+          floor = Option(4),
+          maxFloors = Option(5),
+          price = Option(300000),
+          None,
+          None,
+          None,
+          Option("jurmala"),
+          Option("teika"),
+          Option("rent"),
+          Option("false"),
+          None,
+          None
+        )
+        val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+          .findAllSubscribersForFlat(flat)
+        subscriptions.size mustBe 2
+        val subscribers = subscriptions.map(subscription => subscription.subscriber)
+        subscribers must contain ("p6@gmail.com")
+        subscribers must contain ("p8@gmail.com")
       }
     }
   }
