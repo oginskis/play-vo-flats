@@ -101,7 +101,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
     }
   }
   "Subscriptions" should {
-    "be generated as precondition for findAllSubscribersForFlat test" in {
+    "be generated as precondition for findAllSubscribersForFlat test (6)" in {
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
           subscriber = "p1@gmail.com",
@@ -138,7 +138,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           priceRange = Option(Range(None,Option(150000))),
           floorRange = Option(Range(Option(3),None)),
           sizeRange = Option(Range(Option(70),None)),
-          cities = Option(Array[String]("riga")),
+          cities = Option(Array[String]("jurmala","riga")),
           districts = None,
           actions = Option(Array[String]("sell"))
         ))
@@ -152,9 +152,19 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           districts = Option(Array[String]("centre")),
           actions = Option(Array[String]("sell"))
         ))
+      getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        .createSubscription(new Subscription(
+          subscriber = "p6@gmail.com",
+          priceRange = None,
+          floorRange = None,
+          sizeRange = None,
+          cities = None,
+          districts = None,
+          actions = None
+        ))
     }
     "be found" when {
-      "findAllSubscribersForFlat is kicked of for flat" in {
+      "findAllSubscribersForFlat is kicked of for flat: rooms=4,size=75,floor=3,price=80000 (4)" in {
         val flat = new Flat(
           Flat.New,
           None,
@@ -175,11 +185,90 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
         )
         val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
               .findAllSubscribersForFlat(flat)
-        subscriptions.size mustBe 3
+        subscriptions.size mustBe 4
         val subscribers = subscriptions.map(subscription => subscription.subscriber)
         subscribers must contain ("p2@gmail.com")
         subscribers must contain ("p4@gmail.com")
         subscribers must contain ("p5@gmail.com")
+        subscribers must contain ("p6@gmail.com")
+      }
+      "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=2,price=80000 (3)" in {
+        val flat = new Flat(
+          Flat.New,
+          None,
+          rooms = Option(2),
+          size = Option(75),
+          floor = Option(2),
+          maxFloors = Option(5),
+          price = Option(80000),
+          None,
+          None,
+          None,
+          Option("riga"),
+          Option("teika"),
+          Option("sell"),
+          Option("false"),
+          None,
+          None
+        )
+        val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+          .findAllSubscribersForFlat(flat)
+        subscriptions.size mustBe 3
+        val subscribers = subscriptions.map(subscription => subscription.subscriber)
+        subscribers must contain ("p2@gmail.com")
+        subscribers must contain ("p5@gmail.com")
+        subscribers must contain ("p6@gmail.com")
+      }
+      "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=140000 (2)" in {
+        val flat = new Flat(
+          Flat.New,
+          None,
+          rooms = Option(2),
+          size = Option(75),
+          floor = Option(4),
+          maxFloors = Option(5),
+          price = Option(140000),
+          None,
+          None,
+          None,
+          Option("riga"),
+          Option("teika"),
+          Option("sell"),
+          Option("false"),
+          None,
+          None
+        )
+        val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+          .findAllSubscribersForFlat(flat)
+        subscriptions.size mustBe 2
+        val subscribers = subscriptions.map(subscription => subscription.subscriber)
+        subscribers must contain ("p4@gmail.com")
+        subscribers must contain ("p6@gmail.com")
+      }
+      "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=300000 (1)" in {
+        val flat = new Flat(
+          Flat.New,
+          None,
+          rooms = Option(2),
+          size = Option(75),
+          floor = Option(4),
+          maxFloors = Option(5),
+          price = Option(300000),
+          None,
+          None,
+          None,
+          Option("jurmala"),
+          Option("teika"),
+          Option("sell"),
+          Option("false"),
+          None,
+          None
+        )
+        val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+          .findAllSubscribersForFlat(flat)
+        subscriptions.size mustBe 1
+        val subscribers = subscriptions.map(subscription => subscription.subscriber)
+        subscribers must contain ("p6@gmail.com")
       }
     }
   }

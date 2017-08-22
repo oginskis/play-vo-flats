@@ -69,8 +69,16 @@ class SubscriptionRepo @Inject()(connection: MongoConnection) {
       or(lte("floorRange.from",flat.floor.get),Filters.eq("floorRange.from",null)),
       or(gte("floorRange.to",flat.floor.get),Filters.eq("floorRange.to",null))
     )
-
-    val documents = subscriptionCollection.find(query).asScala.toList
+    val newQuery = and(
+      or(lte("priceRange.from",flat.price.get),Filters.eq("priceRange.from",null)),
+      or(gte("priceRange.to",flat.price.get),Filters.eq("priceRange.to",null)),
+      or(lte("sizeRange.from",flat.size.get),Filters.eq("sizeRange.from",null)),
+      or(gte("sizeRange.to",flat.size.get),Filters.eq("sizeRange.to",null)),
+      or(lte("floorRange.from",flat.floor.get),Filters.eq("floorRange.from",null)),
+      or(gte("floorRange.to",flat.floor.get),Filters.eq("floorRange.to",null)),
+      or(Filters.eq("parameters.cities","riga"),Filters.eq("parameters.cities",null))
+    )
+    val documents = subscriptionCollection.find(newQuery).asScala.toList
     return documents.map(document => createSubscriptionObject(document))
   }
 
