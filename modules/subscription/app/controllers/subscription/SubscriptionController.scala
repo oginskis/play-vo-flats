@@ -46,11 +46,6 @@ class SubscriptionController @Inject()(cc: ControllerComponents, subscriptionRep
     }
   }
 
-  def getAllSubscribersForFlat(flat: Flat):List[Subscription] = {
-    List()
-  }
-
-
   def createSubscription() = Action(parse.json) { request => {
     val result = request.body.validate[Subscription]
     result.fold(

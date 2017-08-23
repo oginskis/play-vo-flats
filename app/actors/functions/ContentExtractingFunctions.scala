@@ -117,16 +117,16 @@ object ContentExtractingFunctions {
         .filter(filterOutRubbish)
         .map(mapToFlats)
         .map(flat => {
-          new Flat(flat.address,
-            flat.rooms,
-            flat.size,
-            flat.floor,
-            flat.maxFloors,
-            flat.price,
-            flat.link,
-            flatRequestQuery.city,
-            flatRequestQuery.district,
-            flatRequestQuery.action)
+          new Flat(address = flat.address,
+            rooms = flat.rooms,
+            size = flat.size,
+            floor = flat.floor,
+            maxFloors = flat.maxFloors,
+            price = flat.price,
+            link = flat.link,
+            city = flatRequestQuery.city,
+            district = flatRequestQuery.district,
+            action = flatRequestQuery.action)
         })
     }
   }

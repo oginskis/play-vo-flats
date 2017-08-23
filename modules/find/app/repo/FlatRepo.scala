@@ -74,33 +74,33 @@ class FlatRepo @Inject()(connection: MongoConnection) {
     val documents = flatsCollection.find(new Document(params))
     val flatList = documents.asScala.toList.map(doc => {
       new Flat(
-        Flat.NA,
-        Option(doc.get("address").toString),
-        Option(doc.get("numberOfRooms").toString.toInt),
-        Option(doc.get("size").toString.toInt),
-        Option(doc.get("flatFloor").toString.toInt),
-        Option(doc.get("maxFloors").toString.toInt),
-        Option(doc.get("price").toString.toInt),
-        Option(doc.get("link").toString),
-        Option(doc.get("firstSeenAtEpoch").toString.toLong),
-        Option(doc.get("lastSeenAtEpoch").toString.toLong),
-        Option(doc.get("city").toString),
-        Option(doc.get("district").toString),
-        Option(doc.get("action").toString),
-        Option(doc.get("expired").toString),
-        Option(findFlatPriceHistoryItemsFor(new Flat(
-          Option(doc.get("address").toString),
-          Option(doc.get("numberOfRooms").toString.toInt),
-          Option(doc.get("size").toString.toInt),
-          Option(doc.get("flatFloor").toString.toInt),
-          Option(doc.get("maxFloors").toString.toInt),
-          Option(doc.get("price").toString.toInt),
-          Option(doc.get("link").toString),
-          Option(doc.get("city").toString),
-          Option(doc.get("district").toString),
-          Option(doc.get("action").toString)
+        status = Flat.NA,
+        address = Option(doc.get("address").toString),
+        rooms = Option(doc.get("numberOfRooms").toString.toInt),
+        size = Option(doc.get("size").toString.toInt),
+        floor = Option(doc.get("flatFloor").toString.toInt),
+        maxFloors = Option(doc.get("maxFloors").toString.toInt),
+        price = Option(doc.get("price").toString.toInt),
+        link = Option(doc.get("link").toString),
+        firstSeenAt = Option(doc.get("firstSeenAtEpoch").toString.toLong),
+        lastSeenAt = Option(doc.get("lastSeenAtEpoch").toString.toLong),
+        city = Option(doc.get("city").toString),
+        district = Option(doc.get("district").toString),
+        action = Option(doc.get("action").toString),
+        expired = Option(doc.get("expired").toString),
+        flatPriceHistoryItems = Option(findFlatPriceHistoryItemsFor(new Flat(
+          address = Option(doc.get("address").toString),
+          rooms = Option(doc.get("numberOfRooms").toString.toInt),
+          size = Option(doc.get("size").toString.toInt),
+          floor = Option(doc.get("flatFloor").toString.toInt),
+          maxFloors = Option(doc.get("maxFloors").toString.toInt),
+          price = Option(doc.get("price").toString.toInt),
+          link = Option(doc.get("link").toString),
+          city = Option(doc.get("city").toString),
+          district = Option(doc.get("district").toString),
+          action = Option(doc.get("action").toString)
         ))),
-        getContactDetails(doc.get("sellerContactDetails").asInstanceOf[Document]))
+        contactDetails = getContactDetails(doc.get("sellerContactDetails").asInstanceOf[Document]))
     })
     if (flatList.size > 0){
       return Option(flatList.head)
@@ -162,66 +162,65 @@ class FlatRepo @Inject()(connection: MongoConnection) {
     if (updatedDocument==null){
       flatsCollection.insertOne(createDocument(flat))
       new Flat(
-        Flat.New,
-        flat.address,
-        flat.rooms,
-        flat.size,
-        flat.floor,
-        flat.maxFloors,
-        flat.price,
-        flat.link,
-        Option(currentTimestamp),
-        Option(currentTimestamp),
-        flat.city,
-        flat.district,
-        flat.action,
-        Option("false"),
-        Option(findFlatPriceHistoryItemsFor(new Flat(
-          flat.address,
-          flat.rooms,
-          flat.size,
-          flat.floor,
-          flat.maxFloors,
-          flat.price,
-          flat.link,
-          flat.city,
-          flat.district,
-          flat.action
+        status = Flat.New,
+        address = flat.address,
+        rooms = flat.rooms,
+        size = flat.size,
+        floor = flat.floor,
+        maxFloors = flat.maxFloors,
+        price = flat.price,
+        link = flat.link,
+        firstSeenAt = Option(currentTimestamp),
+        lastSeenAt = Option(currentTimestamp),
+        city = flat.city,
+        district = flat.district,
+        action = flat.action,
+        expired = Option("false"),
+        flatPriceHistoryItems = Option(findFlatPriceHistoryItemsFor(new Flat(
+          address = flat.address,
+          rooms = flat.rooms,
+          size = flat.size,
+          floor = flat.floor,
+          maxFloors = flat.maxFloors,
+          price = flat.price,
+          link = flat.link,
+          city = flat.city,
+          district = flat.district,
+          action = flat.action
         ))),
-        flat.contactDetails
+        contactDetails = flat.contactDetails
       )
     } else {
       new Flat(
-        Flat.SeenBefore,
-        Option(updatedDocument.get("address").toString),
-        Option(updatedDocument.get("numberOfRooms").toString.toInt),
-        Option(updatedDocument.get("size").toString.toInt),
-        Option(updatedDocument.get("flatFloor").toString.toInt),
-        Option(updatedDocument.get("maxFloors").toString.toInt),
-        Option(updatedDocument.get("price").toString.toInt),
-        Option(updatedDocument.get("link").toString),
-        Option(updatedDocument.get("firstSeenAtEpoch").toString.toLong),
-        Option(currentTimestamp),
-        Option(updatedDocument.get("city").toString),
-        Option(updatedDocument.get("district").toString),
-        Option(updatedDocument.get("action").toString),
-        Option("false"),
-        None,
-        getContactDetails(updatedDocument.get("sellerContactDetails").asInstanceOf[Document])
+        status = Flat.SeenBefore,
+        address = Option(updatedDocument.get("address").toString),
+        rooms = Option(updatedDocument.get("numberOfRooms").toString.toInt),
+        size = Option(updatedDocument.get("size").toString.toInt),
+        floor = Option(updatedDocument.get("flatFloor").toString.toInt),
+        maxFloors = Option(updatedDocument.get("maxFloors").toString.toInt),
+        price = Option(updatedDocument.get("price").toString.toInt),
+        link = Option(updatedDocument.get("link").toString),
+        firstSeenAt = Option(updatedDocument.get("firstSeenAtEpoch").toString.toLong),
+        lastSeenAt = Option(currentTimestamp),
+        city = Option(updatedDocument.get("city").toString),
+        district = Option(updatedDocument.get("district").toString),
+        action = Option(updatedDocument.get("action").toString),
+        expired = Option("false"),
+        contactDetails = getContactDetails(updatedDocument.get("sellerContactDetails").asInstanceOf[Document])
       )
     }
   }
 
   def findFlatPriceHistoryItemsFor(flat: Flat): List[FlatPriceHistoryItem] = {
     val documents = flatsCollection.find(exactFindFilter(
-      new Flat(flat.address,
-        flat.rooms,
-        flat.size,
-        flat.floor,
-        flat.maxFloors,
-        flat.city,
-        flat.district,
-        flat.action)
+      new Flat(address = flat.address,
+        rooms = flat.rooms,
+        size = flat.size,
+        floor = flat.floor,
+        maxFloors = flat.maxFloors,
+        city = flat.city,
+        district = flat.district,
+        action = flat.action)
     ))
     return documents.asScala.toList.map(document => {
         FlatPriceHistoryItem(

@@ -45,17 +45,17 @@ class ExtractingActor (flatRepo:FlatRepo,
     }
     case (flat: Flat) => {
       try {
-        val extractedFlat = new Flat(flat.address,
-          flat.rooms,
-          flat.size,
-          flat.floor,
-          flat.maxFloors,
-          flat.price,
-          flat.link,
-          flat.city,
-          flat.district,
-          flat.action,
-          extractFlatContactDetails(
+        val extractedFlat = new Flat(address = flat.address,
+          rooms = flat.rooms,
+          size = flat.size,
+          floor = flat.floor,
+          maxFloors = flat.maxFloors,
+          price = flat.price,
+          link = flat.link,
+          city = flat.city,
+          district = flat.district,
+          action = flat.action,
+          contactDetails = extractFlatContactDetails(
             configuration.get[String](ContentExtractingFunctions.SsLvBaseUrl) + flat.link.get,
             wsClient,configuration))
         persistActor ! extractedFlat

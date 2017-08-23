@@ -12,89 +12,23 @@ import model.CommonProps._
   * Created by oginskis on 30/12/2016.
   */
 case class Flat(
-                 val status: Flat.Value,
-                 val address: Option[String],
-                 val rooms: Option[Int],
-                 val size: Option[Int],
-                 val floor: Option[Int],
-                 val maxFloors: Option[Int],
-                 val price: Option[Int],
-                 val link: Option[String],
-                 val firstSeenAt: Option[Long],
-                 val lastSeenAt: Option[Long],
-                 val city: Option[String],
-                 val district: Option[String],
-                 val action: Option[String],
-                 val expired: Option[String],
-                 val flatPriceHistoryItems: Option[List[FlatPriceHistoryItem]],
-                 val contactDetails: Option[SellerContactDetails]
+                 val status: Flat.Value = Flat.New,
+                 val address: Option[String] = None,
+                 val rooms: Option[Int] = None,
+                 val size: Option[Int] = None,
+                 val floor: Option[Int] = None,
+                 val maxFloors: Option[Int] = None,
+                 val price: Option[Int] = None,
+                 val link: Option[String] = None,
+                 val firstSeenAt: Option[Long] = None,
+                 val lastSeenAt: Option[Long] = None,
+                 val city: Option[String] = None,
+                 val district: Option[String] = None,
+                 val action: Option[String] = None,
+                 val expired: Option[String] = None,
+                 val flatPriceHistoryItems: Option[List[FlatPriceHistoryItem]] = None,
+                 val contactDetails: Option[SellerContactDetails] = None
                ) {
-
-  def this(status: Flat.Value,
-           address: Option[String],
-           rooms: Option[Int],
-           size: Option[Int],
-           floor: Option[Int],
-           maxFloors: Option[Int],
-           price: Option[Int],
-           link: Option[String],
-           contactDetails: Option[SellerContactDetails]) = {
-    this(status, address, rooms, size, floor, maxFloors, price, link, None, None, None, None, None, None, None, contactDetails)
-  }
-
-  def this(status: Flat.Value,
-           address: Option[String],
-           rooms: Option[Int],
-           size: Option[Int],
-           floor: Option[Int],
-           maxFloors: Option[Int],
-           price: Option[Int],
-           link: Option[String]) = {
-    this(status, address, rooms, size, floor, maxFloors, price, link, None, None, None, None, None, None, None, None)
-  }
-
-  def this(address: Option[String],
-           rooms: Option[Int],
-           size: Option[Int],
-           floor: Option[Int],
-           maxFloors: Option[Int],
-           price: Option[Int],
-           link: Option[String],
-           city: Option[String],
-           district: Option[String],
-           action: Option[String],
-           contactDetails: Option[SellerContactDetails]) = {
-    this(Flat.NA, address, rooms, size, floor, maxFloors, price, link, None, None, city, district, action, None, None, contactDetails)
-  }
-
-  def this(address: Option[String],
-           rooms: Option[Int],
-           size: Option[Int],
-           floor: Option[Int],
-           maxFloors: Option[Int],
-           price: Option[Int],
-           link: Option[String],
-           city: Option[String],
-           district: Option[String],
-           action: Option[String]) = {
-    this(Flat.NA, address, rooms, size, floor, maxFloors, price, link, None, None, city, district, action, None, None, None)
-  }
-
-
-  def this(address: Option[String],
-           rooms: Option[Int],
-           size: Option[Int],
-           floor: Option[Int],
-           maxFloors: Option[Int],
-           city: Option[String],
-           district: Option[String],
-           action: Option[String]) = {
-    this(Flat.NA, address, rooms, size, floor, maxFloors, None, None, None, None, city, district, action, None, None, None)
-  }
-
-  def this(expired: Option[String]) ={
-    this(Flat.NA,None,None,None,None,None,None,None,None,None,None,None,None,expired,None,None)
-  }
 
   override def toString: String = {
       "address: " + address.getOrElse(EmptyProp) + ", " +
@@ -118,6 +52,7 @@ case class Flat(
 
 object Flat extends Enumeration {
   val New,SeenBefore,NA = Value
+
   implicit val flatWrites = new Writes[Flat] {
     def writes(flat: Flat) = {
       if (flat.contactDetails == None) {
