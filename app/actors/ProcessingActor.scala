@@ -27,7 +27,7 @@ class ProcessingActor (flatRepo:FlatRepo,
     case ProcessingActor.Process => {
       val flatSearchRequestConfig = configuration.underlying.getObjectList(ProcessingActor.SearchRequestList).asScala
       flatSearchRequestConfig.foreach(configItem =>
-        extractingActor ! (new FlatRequestQuery(Option(configItem.get("city").unwrapped.toString),
+        extractingActor ! (FlatRequestQuery(Option(configItem.get("city").unwrapped.toString),
           Option(configItem.get("district").unwrapped.toString),
           Option(configItem.get("action").unwrapped.toString)
         ),1)

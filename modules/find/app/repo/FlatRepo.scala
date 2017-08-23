@@ -88,7 +88,7 @@ class FlatRepo @Inject()(connection: MongoConnection) {
         district = Option(doc.get("district").toString),
         action = Option(doc.get("action").toString),
         expired = Option(doc.get("expired").toString),
-        flatPriceHistoryItems = Option(findFlatPriceHistoryItemsFor(new Flat(
+        flatPriceHistoryItems = Option(findFlatPriceHistoryItemsFor(Flat(
           address = Option(doc.get("address").toString),
           rooms = Option(doc.get("numberOfRooms").toString.toInt),
           size = Option(doc.get("size").toString.toInt),
@@ -176,7 +176,7 @@ class FlatRepo @Inject()(connection: MongoConnection) {
         district = flat.district,
         action = flat.action,
         expired = Option("false"),
-        flatPriceHistoryItems = Option(findFlatPriceHistoryItemsFor(new Flat(
+        flatPriceHistoryItems = Option(findFlatPriceHistoryItemsFor(Flat(
           address = flat.address,
           rooms = flat.rooms,
           size = flat.size,
