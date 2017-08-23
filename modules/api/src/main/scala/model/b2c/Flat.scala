@@ -52,7 +52,6 @@ case class Flat(
 }
 
 object Flat extends Enumeration {
-  val New,SeenBefore,NA = Value
 
   implicit val flatWrites: Writes[Flat] = (
       (JsPath \ "status").write[String] and
@@ -91,7 +90,4 @@ object Flat extends Enumeration {
       (JsPath \ "flatPriceHistoryItems").readNullable[List[FlatPriceHistoryItem]] and
       (JsPath \ "sellerContactDetails").readNullable[SellerContactDetails]
     )(Flat.apply _)
-
-
-
 }
