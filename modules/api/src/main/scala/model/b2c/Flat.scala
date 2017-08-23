@@ -90,5 +90,4 @@ object Flat extends Enumeration {
       (JsPath \ "flatPriceHistoryItems").readNullable[List[FlatPriceHistoryItem]] and
       (JsPath \ "sellerContactDetails").readNullable[SellerContactDetails]
     )(Flat.apply _)
-
 }
