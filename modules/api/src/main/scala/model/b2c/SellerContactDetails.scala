@@ -1,12 +1,15 @@
 package model.b2c
 
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{JsPath, Reads, Writes}
 import model.CommonProps._
+import play.api.libs.functional.syntax.unlift
+import play.api.libs.functional.syntax._
+
 
 /**
   * Created by oginskis on 24/06/2017.
   */
-class SellerContactDetails(
+case class SellerContactDetails(
                     val phoneNumbers: Option[List[String]],
                     val webPage: Option[String],
                     val company: Option[String]
@@ -23,29 +26,15 @@ class SellerContactDetails(
 
 object SellerContactDetails {
 
-  implicit val flatWrites = new Writes[SellerContactDetails] {
-    def writes(contactDetails: SellerContactDetails) = {
-      if (contactDetails.webPage != None && contactDetails.company != None) {
-        Json.obj(
-          "phoneNumbers" -> contactDetails.phoneNumbers,
-          "webPage" -> contactDetails.webPage,
-          "company" -> contactDetails.company
-        )
-      } else if (contactDetails.webPage == None && contactDetails.company != None) {
-        Json.obj(
-          "phoneNumbers" -> contactDetails.phoneNumbers,
-          "company" -> contactDetails.company
-        )
-      } else if (contactDetails.webPage != None && contactDetails.company == None) {
-        Json.obj(
-          "phoneNumbers" -> contactDetails.phoneNumbers,
-          "webPage" -> contactDetails.webPage
-        )
-      } else {
-        Json.obj(
-          "phoneNumbers" -> contactDetails.phoneNumbers
-        )
-      }
-    }
-  }
+  implicit val sellerContactDetailsWrites: Writes[SellerContactDetails] = (
+      (JsPath \ "phoneNumbers").writeNullable[List[String]] and
+      (JsPath \ "webPage").writeNullable[String] and
+      (JsPath \ "company").writeNullable[String]
+    )(unlift(SellerContactDetails.unapply))
+
+  implicit val sellerContactDetailsReads: Reads[SellerContactDetails] = (
+      (JsPath \ "phoneNumbers").readNullable[List[String]] and
+      (JsPath \ "webPage").readNullable[String] and
+      (JsPath \ "company").readNullable[String]
+    )(SellerContactDetails.apply _)
 }

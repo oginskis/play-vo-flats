@@ -4,15 +4,16 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import play.api.libs.json._
-
 import model.CommonProps._
-
+import play.api.libs.functional.syntax.unlift
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Reads._
 
 /**
   * Created by oginskis on 30/12/2016.
   */
 case class Flat(
-                 val status: Flat.Value = Flat.New,
+                 val status: String = "NA",
                  val address: Option[String] = None,
                  val rooms: Option[Int] = None,
                  val size: Option[Int] = None,
@@ -53,48 +54,44 @@ case class Flat(
 object Flat extends Enumeration {
   val New,SeenBefore,NA = Value
 
-  implicit val flatWrites = new Writes[Flat] {
-    def writes(flat: Flat) = {
-      if (flat.contactDetails == None) {
-        Json.obj(
-          "address" -> flat.address,
-          "rooms" -> flat.rooms,
-          "size" -> flat.size,
-          "floor" -> flat.floor,
-          "maxFloors" -> flat.maxFloors,
-          "price" -> flat.price,
-          "link" -> ("https://www.ss.lv" + flat.link.get),
-          "city" -> flat.city,
-          "district" -> flat.district,
-          "action" -> flat.action,
-          "firstSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.firstSeenAt.getOrElse(0l)
-            * 1000))),
-          "lastSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.lastSeenAt.getOrElse(0l)
-            * 1000))),
-          "expired" -> flat.expired,
-          "flatPriceHistoryItems" -> flat.flatPriceHistoryItems)
-      } else {
-        Json.obj(
-          "address" -> flat.address,
-          "rooms" -> flat.rooms,
-          "size" -> flat.size,
-          "floor" -> flat.floor,
-          "maxFloors" -> flat.maxFloors,
-          "price" -> flat.price,
-          "link" -> ("https://www.ss.lv" + flat.link.get),
-          "city" -> flat.city,
-          "district" -> flat.district,
-          "action" -> flat.action,
-          "firstSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.firstSeenAt.getOrElse(0l)
-            * 1000))),
-          "lastSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flat.lastSeenAt.getOrElse(0l)
-            * 1000))),
-          "expired" -> flat.expired,
-          "contactDetails" -> flat.contactDetails,
-          "flatPriceHistoryItems" -> flat.flatPriceHistoryItems)
-      }
+  implicit val flatWrites: Writes[Flat] = (
+      (JsPath \ "status").write[String] and
+      (JsPath \ "address").writeNullable[String] and
+      (JsPath \ "rooms").writeNullable[Int] and
+      (JsPath \ "size").writeNullable[Int] and
+      (JsPath \ "floor").writeNullable[Int] and
+      (JsPath \ "maxFloors").writeNullable[Int] and
+      (JsPath \ "price").writeNullable[Int] and
+      (JsPath \ "link").writeNullable[String] and
+      (JsPath \ "firstSeenAt").writeNullable[Long] and
+      (JsPath \ "lastSeenAt").writeNullable[Long] and
+      (JsPath \ "city").writeNullable[String] and
+      (JsPath \ "district").writeNullable[String] and
+      (JsPath \ "action").writeNullable[String] and
+      (JsPath \ "expired").writeNullable[String] and
+      (JsPath \ "flatPriceHistoryItems").writeNullable[List[FlatPriceHistoryItem]] and
+      (JsPath \ "sellerContactDetails").writeNullable[SellerContactDetails]
+    )(unlift(Flat.unapply))
 
-    }
-  }
+  implicit val flatReads: Reads[Flat] = (
+      (JsPath \ "status").read[String] and
+      (JsPath \ "address").readNullable[String](minLength(3)) and
+      (JsPath \ "rooms").readNullable[Int](min(-1)) and
+      (JsPath \ "size").readNullable[Int](min(10)) and
+      (JsPath \ "floor").readNullable[Int](min(-1)) and
+      (JsPath \ "maxFloors").readNullable[Int](min(0)) and
+      (JsPath \ "price").readNullable[Int](min(0)) and
+      (JsPath \ "link").readNullable[String] and
+      (JsPath \ "firstSeenAt").readNullable[Long] and
+      (JsPath \ "lastSeenAt").readNullable[Long] and
+      (JsPath \ "city").readNullable[String] and
+      (JsPath \ "district").readNullable[String] and
+      (JsPath \ "action").readNullable[String] and
+      (JsPath \ "expired").readNullable[String] and
+      (JsPath \ "flatPriceHistoryItems").readNullable[List[FlatPriceHistoryItem]] and
+      (JsPath \ "sellerContactDetails").readNullable[SellerContactDetails]
+    )(Flat.apply _)
+
+
 
 }

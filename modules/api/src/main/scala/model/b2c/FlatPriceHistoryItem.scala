@@ -3,8 +3,10 @@ package model.b2c
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{JsPath, Reads, Writes}
 import model.CommonProps._
+import play.api.libs.functional.syntax.unlift
+import play.api.libs.functional.syntax._
 
 /**
   * Created by oginskis on 21/05/2017.
@@ -30,28 +32,20 @@ case class FlatPriceHistoryItem(
 }
 
 object FlatPriceHistoryItem {
-  implicit val flatWrites = new Writes[FlatPriceHistoryItem] {
-    def writes(flatHistoryItem: FlatPriceHistoryItem) = {
-      if (flatHistoryItem.contactDetails == None) {
-        Json.obj(
-          "link" -> ("https://www.ss.lv" + flatHistoryItem.link.get),
-          "price" -> flatHistoryItem.price,
-          "firstSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flatHistoryItem.firstSeenAt.getOrElse(0l)
-            * 1000))),
-          "lastSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flatHistoryItem.lastSeenAt.getOrElse(0l)
-            * 1000)))
-        )
-      } else {
-        Json.obj(
-          "link" -> ("https://www.ss.lv" + flatHistoryItem.link.get),
-          "price" -> flatHistoryItem.price,
-          "firstSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flatHistoryItem.firstSeenAt.getOrElse(0l)
-            * 1000))),
-          "lastSeenAt" -> (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date(flatHistoryItem.lastSeenAt.getOrElse(0l)
-            * 1000))),
-          "contactDetails" -> flatHistoryItem.contactDetails
-        )
-      }
-    }
-  }
+
+  implicit val flatPriceHistoryItemWrites: Writes[FlatPriceHistoryItem] = (
+      (JsPath \ "link").writeNullable[String] and
+      (JsPath \ "price").writeNullable[Int] and
+      (JsPath \ "firstSeenAt").writeNullable[Long] and
+      (JsPath \ "lastSeenAt").writeNullable[Long] and
+      (JsPath \ "sellerContactDetails").writeNullable[SellerContactDetails]
+    )(unlift(FlatPriceHistoryItem.unapply))
+
+  implicit val flatPriceHistoryItemReads: Reads[FlatPriceHistoryItem] = (
+      (JsPath \ "link").readNullable[String] and
+      (JsPath \ "price").readNullable[Int] and
+      (JsPath \ "firstSeenAt").readNullable[Long] and
+      (JsPath \ "lastSeenAt").readNullable[Long] and
+      (JsPath \ "sellerContactDetails").readNullable[SellerContactDetails]
+    )(FlatPriceHistoryItem.apply _)
 }

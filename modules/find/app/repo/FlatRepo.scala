@@ -73,8 +73,8 @@ class FlatRepo @Inject()(connection: MongoConnection) {
     params.put("_id", new ObjectId(flatId))
     val documents = flatsCollection.find(new Document(params))
     val flatList = documents.asScala.toList.map(doc => {
-      new Flat(
-        status = Flat.NA,
+      Flat(
+        status = "NA",
         address = Option(doc.get("address").toString),
         rooms = Option(doc.get("numberOfRooms").toString.toInt),
         size = Option(doc.get("size").toString.toInt),
@@ -161,8 +161,8 @@ class FlatRepo @Inject()(connection: MongoConnection) {
     val updatedDocument = flatsCollection.findOneAndUpdate(exactFindFilter(flat), new Document("$set", updateDocument(flat)))
     if (updatedDocument==null){
       flatsCollection.insertOne(createDocument(flat))
-      new Flat(
-        status = Flat.New,
+      Flat(
+        status = "New",
         address = flat.address,
         rooms = flat.rooms,
         size = flat.size,
@@ -191,8 +191,8 @@ class FlatRepo @Inject()(connection: MongoConnection) {
         contactDetails = flat.contactDetails
       )
     } else {
-      new Flat(
-        status = Flat.SeenBefore,
+      Flat(
+        status = "SeenBefore",
         address = Option(updatedDocument.get("address").toString),
         rooms = Option(updatedDocument.get("numberOfRooms").toString.toInt),
         size = Option(updatedDocument.get("size").toString.toInt),
@@ -213,7 +213,7 @@ class FlatRepo @Inject()(connection: MongoConnection) {
 
   def findFlatPriceHistoryItemsFor(flat: Flat): List[FlatPriceHistoryItem] = {
     val documents = flatsCollection.find(exactFindFilter(
-      new Flat(address = flat.address,
+      Flat(address = flat.address,
         rooms = flat.rooms,
         size = flat.size,
         floor = flat.floor,

@@ -77,15 +77,15 @@ object ContentExtractingFunctions {
       val attr: List[JsoupElement] = entry.select(".msga2-o").toList
       val link: String = entry.select(".msg2 .d1 .am").head.attr("href")
       val rawFloor = attr(3).text.replace("\\", "/")
-      new Flat(
-        Flat.New,
-        Option(attr(0).text.replace("\\", "/")),
-        Option(Try(attr(1).text.trim.replace("\\", "/").toInt).getOrElse(-1)),
-        Option(attr(2).text.trim.toInt),
-        Option(rawFloor.substring(0, rawFloor.lastIndexOf("/")).toDouble.toInt),
-        Option(rawFloor.substring(rawFloor.lastIndexOf("/") + 1).toInt),
-        Option(attr(6).text.replace(",", "").replace(" €", "").trim.toInt),
-        Option(link))
+      Flat(
+        status = "New",
+        address = Option(attr(0).text.replace("\\", "/")),
+        rooms = Option(Try(attr(1).text.trim.replace("\\", "/").toInt).getOrElse(-1)),
+        size = Option(attr(2).text.trim.toInt),
+        floor = Option(rawFloor.substring(0, rawFloor.lastIndexOf("/")).toDouble.toInt),
+        maxFloors = Option(rawFloor.substring(rawFloor.lastIndexOf("/") + 1).toInt),
+        price = Option(attr(6).text.replace(",", "").replace(" €", "").trim.toInt),
+        link = Option(link))
     }
     def filterOutRubbish(entry: JsoupElement): Boolean = {
       val attr: List[JsoupElement] = entry.select(".msga2-o").toList
@@ -117,7 +117,7 @@ object ContentExtractingFunctions {
         .filter(filterOutRubbish)
         .map(mapToFlats)
         .map(flat => {
-          new Flat(address = flat.address,
+          Flat(address = flat.address,
             rooms = flat.rooms,
             size = flat.size,
             floor = flat.floor,
