@@ -12,8 +12,8 @@ before_cache:
 jobs:
   include:
     - stage: compile
-    - script: sbt compile
+      script: sbt compile
     - stage: test
-    - script: sbt test
+      script: sbt test
     - stage: deploy
-    - script: sbt assembly
+      script: sbt assembly
