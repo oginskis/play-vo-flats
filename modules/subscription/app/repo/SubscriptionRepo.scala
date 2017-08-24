@@ -70,7 +70,8 @@ class SubscriptionRepo @Inject()(connection: MongoConnection) {
       or(gte("floorRange.to",flat.floor.get),Filters.eq("floorRange.to",null)),
       or(Filters.eq("parameters.cities",flat.city.get),Filters.eq("parameters.cities",null)),
       or(Filters.eq("parameters.districts",flat.district.get),Filters.eq("parameters.districts",null)),
-      or(Filters.eq("parameters.actions",flat.action.get),Filters.eq("parameters.actions",null))
+      or(Filters.eq("parameters.actions",flat.action.get),Filters.eq("parameters.actions",null)),
+      Filters.eq("itemType","subscription")
     )
     val documents = subscriptionCollection.find(query).asScala.toList
     return documents.map(document => createSubscriptionObject(document))

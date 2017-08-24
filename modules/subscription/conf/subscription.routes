@@ -3,4 +3,5 @@ DELETE  /subscriptions/subscription/:id         controllers.subscription.Subscri
 GET     /subscriptions/subscription/:id         controllers.subscription.SubscriptionController.getSubscriptionById(id: String)
 GET     /subscriptions/email/:email             controllers.subscription.SubscriptionController.getAllSubscriptionsForEmail(email: String)
 POST    /subscriptions/subscription             controllers.subscription.SubscriptionController.createSubscription()
+POST    /subscriptions/subscribers              controllers.subscription.SubscriptionController.getAllWhoSubscribedFor()
 

@@ -46,11 +46,35 @@ class SubscriptionController @Inject()(cc: ControllerComponents, subscriptionRep
     }
   }
 
+  def getAllWhoSubscribedFor() = Action(parse.json) { request => {
+    val result = request.body.validate[Flat]
+    result.fold(
+      errors => {
+        BadRequest(Json.toJson(Error("Invalid request",
+          errors.map(error => {
+            ("Invalid value in [" + error._1.toString.tail + "] field")
+          }).mkString(", ")
+        )))
+      },
+      flat => {
+        if (flat.price==None || flat.size==None || flat.floor==None || flat.city==None ||
+          flat.district==None || flat.action==None){
+          BadRequest(Json.toJson(Error("Invalid request","city,district,action,floor,size and price properties" +
+            " must be present on Flat entity")))
+        } else {
+          val subscribers = subscriptionRepo.findAllSubscribersForFlat(flat)
+          Ok(Json.toJson(subscribers))
+        }
+      }
+    )
+    }
+  }
+
   def createSubscription() = Action(parse.json) { request => {
     val result = request.body.validate[Subscription]
     result.fold(
       errors => {
-        BadRequest(Json.toJson(new Error("Invalid request",
+        BadRequest(Json.toJson(Error("Invalid request",
           errors.map(error => {
             ("Invalid value in [" + error._1.toString.tail + "] field")
           }).mkString(", ")
@@ -61,8 +85,7 @@ class SubscriptionController @Inject()(cc: ControllerComponents, subscriptionRep
         Created(CommonProps.EmptyResponse)
       }
     )
-  }
-
+    }
   }
 
 }
