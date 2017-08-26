@@ -13,7 +13,6 @@ import play.api.libs.json.Reads._
   * Created by oginskis on 30/12/2016.
   */
 case class Flat(
-
                  val status: String = "NA",
                  val address: Option[String] = None,
                  val rooms: Option[Int] = None,
