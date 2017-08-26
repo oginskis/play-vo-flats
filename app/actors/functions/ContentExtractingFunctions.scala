@@ -78,7 +78,7 @@ object ContentExtractingFunctions {
       val link: String = entry.select(".msg2 .d1 .am").head.attr("href")
       val rawFloor = attr(3).text.replace("\\", "/")
       Flat(
-        status = "New",
+        status = Option("New"),
         address = Option(attr(0).text.replace("\\", "/")),
         rooms = Option(Try(attr(1).text.trim.replace("\\", "/").toInt).getOrElse(-1)),
         size = Option(attr(2).text.trim.toInt),

@@ -186,7 +186,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
     "be found" when {
       "findAllSubscribersForFlat is kicked of for flat: rooms=4,size=75,floor=3,price=80000,riga,teika,sell (4)" in {
         val flat = Flat(
-          "New",
+          Option("New"),
           None,
           rooms = Option(4),
           size = Option(75),
@@ -214,7 +214,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
       }
       "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=2,price=80000,riga,teika,sell (3)" in {
         val flat = Flat(
-          "New",
+          Option("New"),
           None,
           rooms = Option(2),
           size = Option(75),
@@ -241,7 +241,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
       }
       "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=140000,riga,teika,sell (2)" in {
         val flat = Flat(
-          "New",
+          Option("New"),
           None,
           rooms = Option(2),
           size = Option(75),
@@ -267,7 +267,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
       }
       "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=140000,jurmala,vaivari,sell (3)" in {
         val flat = Flat(
-          "New",
+          Option("New"),
           None,
           rooms = Option(2),
           size = Option(75),
@@ -294,7 +294,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
       }
       "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=300000,jurmala,teika,sell (1)" in {
         val flat = Flat(
-          "New",
+          Option("New"),
           None,
           rooms = Option(2),
           size = Option(75),
@@ -319,7 +319,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
       }
       "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=300000,jurmala,teika,rent (2)" in {
         val flat = Flat(
-          "New",
+          Option("New"),
           None,
           rooms = Option(2),
           size = Option(75),

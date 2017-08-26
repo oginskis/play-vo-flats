@@ -74,7 +74,6 @@ class FlatRepo @Inject()(connection: MongoConnection) {
     val documents = flatsCollection.find(new Document(params))
     val flatList = documents.asScala.toList.map(doc => {
       Flat(
-        status = "NA",
         address = Option(doc.get("address").toString),
         rooms = Option(doc.get("numberOfRooms").toString.toInt),
         size = Option(doc.get("size").toString.toInt),
@@ -162,7 +161,7 @@ class FlatRepo @Inject()(connection: MongoConnection) {
     if (updatedDocument==null){
       flatsCollection.insertOne(createDocument(flat))
       Flat(
-        status = "New",
+        status = Option("New"),
         address = flat.address,
         rooms = flat.rooms,
         size = flat.size,
@@ -192,7 +191,7 @@ class FlatRepo @Inject()(connection: MongoConnection) {
       )
     } else {
       Flat(
-        status = "SeenBefore",
+        status = Option("SeenBefore"),
         address = Option(updatedDocument.get("address").toString),
         rooms = Option(updatedDocument.get("numberOfRooms").toString.toInt),
         size = Option(updatedDocument.get("size").toString.toInt),

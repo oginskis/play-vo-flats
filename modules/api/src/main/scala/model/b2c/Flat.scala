@@ -13,7 +13,7 @@ import play.api.libs.json.Reads._
   * Created by oginskis on 30/12/2016.
   */
 case class Flat(
-                 val status: String = "NA",
+                 val status: Option[String] = Option("NA"),
                  val address: Option[String] = None,
                  val rooms: Option[Int] = None,
                  val size: Option[Int] = None,
@@ -54,7 +54,7 @@ case class Flat(
 object Flat extends Enumeration {
 
   implicit val flatWrites: Writes[Flat] = (
-      (JsPath \ "status").write[String] and
+      (JsPath \ "status").writeNullable[String] and
       (JsPath \ "address").writeNullable[String] and
       (JsPath \ "rooms").writeNullable[Int] and
       (JsPath \ "size").writeNullable[Int] and
@@ -73,7 +73,7 @@ object Flat extends Enumeration {
     )(unlift(Flat.unapply))
 
   implicit val flatReads: Reads[Flat] = (
-      (JsPath \ "status").read[String] and
+      (JsPath \ "status").readNullable[String] and
       (JsPath \ "address").readNullable[String](minLength(3)) and
       (JsPath \ "rooms").readNullable[Int](min(-1)) and
       (JsPath \ "size").readNullable[Int](min(10)) and

@@ -244,7 +244,6 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
         val body = Json.parse(
           """
             {
-            	"status":"N/A",
             	"price": 70000,
             	"size": 54,
             	"floor": 3,

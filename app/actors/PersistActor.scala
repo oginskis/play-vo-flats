@@ -29,7 +29,7 @@ class PersistActor (flatRepo: FlatRepo,
           ) true
           else false
         }
-        if ("New" == persistedFlat.status && matchesFilter(persistedFlat)) {
+        if ("New" == persistedFlat.status.get && matchesFilter(persistedFlat)) {
           Logger.info(s"New flat has been found $persistedFlat Sending out emails...")
           notificationActor ! persistedFlat
         }
