@@ -22,7 +22,7 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
 
   var subscriptionId: String = _
 
-  "Subscription" should {
+  "Subscription(s)" should {
     "be created with valid input" when {
       "all data is present" in {
         val body = Json.parse(
@@ -30,15 +30,15 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
                    {
                        "subscriber":"viktors.test1@gmail.lv",
                        "priceRange": {
-                          "from": 2,
-                          "to": 3
+                          "from": 50000,
+                          "to": 70000
                         },
                        "sizeRange": {
                           "from": 40,
                           "to": 70
                         },
                        "floorRange": {
-                          "from": 2,
+                          "from": 3,
                           "to": 5
                        },
                        "cities": [
@@ -54,7 +54,11 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
                        ]
                    }
                      """)
-        val result: Future[Result] = prepareCreateSubscriptionRequestAndCallAPI(body)
+        val result: Future[Result] = prepareRequestAndCallApi(
+          body,
+          controllers.subscription.routes.SubscriptionController.createSubscription().url,
+          getGuiceContext().injector.instanceOf[SubscriptionController].createSubscription()
+        )
         status(result) mustBe 201
       }
       "ranges are missing" in {
@@ -62,12 +66,7 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
           """
                    {
                        "subscriber":"viktors.test2@gmail.lv",
-                       "priceRange": {
-                           "from": 70000,
-                           "to": 79000
-                       },
                        "cities": [
-                          "riga",
                           "jurmala"
                        ],
                        "districts": [
@@ -79,7 +78,11 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
                        ]
                    }
                      """)
-        val result: Future[Result] = prepareCreateSubscriptionRequestAndCallAPI(body)
+        val result: Future[Result] = prepareRequestAndCallApi(
+          body,
+          controllers.subscription.routes.SubscriptionController.createSubscription().url,
+          getGuiceContext().injector.instanceOf[SubscriptionController].createSubscription()
+        )
         status(result) mustBe 201
       }
       "some string collections are missing" in {
@@ -88,12 +91,12 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
                    {
                        "subscriber":"viktors.test3@gmail.lv",
                        "priceRange": {
-                          "from": 2,
-                          "to": 3
+                          "from": 75000,
+                          "to": 80000
                         },
                        "sizeRange": {
                           "from": 40,
-                          "to": 70
+                          "to": 60
                         },
                        "floorRange": {
                           "from": 2,
@@ -104,7 +107,11 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
                        ]
                    }
                      """)
-        val result: Future[Result] = prepareCreateSubscriptionRequestAndCallAPI(body)
+        val result: Future[Result] = prepareRequestAndCallApi(
+          body,
+          controllers.subscription.routes.SubscriptionController.createSubscription().url,
+          getGuiceContext().injector.instanceOf[SubscriptionController].createSubscription()
+        )
         status(result) mustBe 201
       }
       "part of the ranges is missing" in {
@@ -113,10 +120,10 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
                    {
                        "subscriber":"viktors.test4@gmail.lv",
                        "priceRange": {
-                          "from": 2
+                          "from": 50000
                         },
                        "sizeRange": {
-                          "to": 70
+                          "to": 60
                         },
                        "floorRange": {
                           "from": 2
@@ -126,7 +133,11 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
                        ]
                    }
                      """)
-        val result: Future[Result] = prepareCreateSubscriptionRequestAndCallAPI(body)
+        val result: Future[Result] = prepareRequestAndCallApi(
+          body,
+          controllers.subscription.routes.SubscriptionController.createSubscription().url,
+          getGuiceContext().injector.instanceOf[SubscriptionController].createSubscription()
+        )
         status(result) mustBe 201
       }
     }
@@ -146,7 +157,7 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
                         },
                        "floorRange": {
                           "from": 2,
-                          "to": 5
+                          "to": 3
                        },
                        "cities": [
                           "riga",
@@ -161,8 +172,11 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
                        ]
                    }
                      """)
-
-        val result: Future[Result] = prepareCreateSubscriptionRequestAndCallAPI(body)
+        val result: Future[Result] = prepareRequestAndCallApi(
+          body,
+          controllers.subscription.routes.SubscriptionController.createSubscription().url,
+          getGuiceContext().injector.instanceOf[SubscriptionController].createSubscription()
+        )
         status(result) mustBe 400
         val responseBody = Json.parse(contentAsString(result))
         (responseBody \ "errorName").as[String] mustBe "Invalid request"
@@ -199,7 +213,11 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
                    }
                      """)
 
-        val result: Future[Result] = prepareCreateSubscriptionRequestAndCallAPI(body)
+        val result: Future[Result] = prepareRequestAndCallApi(
+          body,
+          controllers.subscription.routes.SubscriptionController.createSubscription().url,
+          getGuiceContext().injector.instanceOf[SubscriptionController].createSubscription()
+        )
         status(result) mustBe 400
         val responseBody = Json.parse(contentAsString(result))
         (responseBody \ "errorName").as[String] mustBe "Invalid request"
@@ -207,7 +225,7 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
       }
     }
     "be found" when {
-      "email of subscriber is passed to the function" in {
+      "email of subscriber is passed to the corresponding function" in {
         val result: Future[Result] = callGetAllSubscriptionsForEmail("viktors.test1@gmail.lv")
         status(result) mustBe 200
         val responseBody = Json.parse(contentAsString(result))
@@ -217,10 +235,35 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
         subscriptionId = subscription.subscriptionId.get
         validateSubscription(subscription)
       }
-      "subscription identifier is passed to the function" in {
+      "subscription identifier is passed to the corresponding function" in {
         val result: Future[Result] = callGetSubscriptionById(subscriptionId)
         val responseBody = Json.parse(contentAsString(result))
         validateSubscription(responseBody.as[Subscription])
+      }
+      "flat entity is passed to the corresponding function" in {
+        val body = Json.parse(
+          """
+            {
+            	"status":"N/A",
+            	"price": 70000,
+            	"size": 54,
+            	"floor": 3,
+            	"city": "riga",
+            	"district": "centre",
+            	"action": "sell"
+            }
+          """)
+        val result: Future[Result] = prepareRequestAndCallApi(
+          body,
+          controllers.subscription.routes.SubscriptionController.getAllWhoSubscribedFor().url,
+          getGuiceContext().injector.instanceOf[SubscriptionController].getAllWhoSubscribedFor()
+        )
+        status(result) mustBe 200
+        val subscriptions = Json.parse(contentAsString(result)).as[List[Subscription]]
+        subscriptions.size mustBe 2
+        val subscribers = subscriptions.map(subscription => subscription.subscriber)
+        subscribers must contain ("viktors.test4@gmail.lv")
+        subscribers must contain ("viktors.test1@gmail.lv")
       }
     }
     "not be found" when {
@@ -305,11 +348,11 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
   private def validateSubscription(subscription: Subscription) = {
     subscription.subscriptionId mustNot be(None)
     subscription.subscriber mustBe "viktors.test1@gmail.lv"
-    subscription.priceRange.get.from.get mustBe 2
-    subscription.priceRange.get.to.get mustBe 3
+    subscription.priceRange.get.from.get mustBe 50000
+    subscription.priceRange.get.to.get mustBe 70000
     subscription.sizeRange.get.from.get mustBe 40
     subscription.sizeRange.get.to.get mustBe 70
-    subscription.floorRange.get.from.get mustBe 2
+    subscription.floorRange.get.from.get mustBe 3
     subscription.floorRange.get.to.get mustBe 5
     subscription.cities.get.contains("riga") mustBe true
     subscription.cities.get.contains("jurmala") mustBe true
@@ -318,16 +361,15 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
     subscription.actions.get.contains("sell") mustBe true
   }
 
-  private def prepareCreateSubscriptionRequestAndCallAPI(body: JsValue) = {
+  private def prepareRequestAndCallApi(body: JsValue, endpointUrl: String,
+                                       action:Action[JsValue]): Future[Result] = {
     val request = FakeRequest(
       Helpers.POST,
-      controllers.subscription.routes.SubscriptionController.createSubscription().url,
+      endpointUrl,
       FakeHeaders(Seq.empty),
       body
     )
-    val controller = getGuiceContext().injector.instanceOf[SubscriptionController]
-    val result: Future[Result] = controller.createSubscription().apply(request)
-    result
+    action.apply(request)
   }
 
 }
