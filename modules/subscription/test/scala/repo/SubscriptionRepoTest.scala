@@ -145,12 +145,42 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
           subscriber = "p5@gmail.com",
+          priceRange = Option(Range(Option(77000),Option(80000))),
+          floorRange = Option(Range(Option(1),Option(3))),
+          sizeRange = Option(Range(Option(73),Option(75))),
+          cities = None,
+          districts = Option(Array[String]("centre","teika")),
+          actions = Option(Array[String]("sell"))
+        ))
+      getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        .createSubscription(new Subscription(
+          subscriber = "p5@gmail.com",
           priceRange = Option(Range(Option(79000),Option(80000))),
           floorRange = Option(Range(None,Option(3))),
           sizeRange = Option(Range(Option(73),Option(75))),
           cities = None,
           districts = Option(Array[String]("centre","teika")),
           actions = Option(Array[String]("sell"))
+        ))
+      getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        .createSubscription(new Subscription(
+          subscriber = "p6@gmail.com",
+          priceRange = None,
+          floorRange = None,
+          sizeRange = None,
+          cities = None,
+          districts = None,
+          actions = None
+        ))
+      getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        .createSubscription(new Subscription(
+          subscriber = "p6@gmail.com",
+          priceRange = None,
+          floorRange = None,
+          sizeRange = None,
+          cities = None,
+          districts = None,
+          actions = None
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(

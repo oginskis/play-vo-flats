@@ -13,7 +13,8 @@ case class Subscription(
                   val floorRange: Option[Range],
                   val cities: Option[Array[String]],
                   val districts: Option[Array[String]],
-                  val actions: Option[Array[String]]
+                  val actions: Option[Array[String]],
+                  val enabled: Option[Boolean] = Option(false)
                   ) {
 
   override def toString(): String = {
@@ -23,7 +24,8 @@ case class Subscription(
     "floorRange [ "+ floorRange.getOrElse(EmptyProp) +" ], "+
     "cities: " + cities.getOrElse(EmptyProp) + ", "+
     "districts: " + districts.getOrElse(EmptyProp) + ", "+
-    "actions: " + actions.getOrElse(EmptyProp)
+    "actions: " + actions.getOrElse(EmptyProp) + ", "+
+    "enabled: " + enabled.getOrElse(EmptyProp)
   }
 }
 
@@ -37,7 +39,8 @@ object Subscription {
       (JsPath \ "floorRange").writeNullable[Range] and
       (JsPath \ "cities").writeNullable[Array[String]] and
       (JsPath \ "districts").writeNullable[Array[String]] and
-      (JsPath \ "actions").writeNullable[Array[String]]
+      (JsPath \ "actions").writeNullable[Array[String]] and
+      (JsPath \ "enabled").writeNullable[Boolean]
     )(unlift(Subscription.unapply))
 
   implicit val subscriptionReads: Reads[Subscription] = (
@@ -48,6 +51,7 @@ object Subscription {
       (JsPath \ "floorRange").readNullable[Range] and
       (JsPath \ "cities").readNullable[Array[String]] and
       (JsPath \ "districts").readNullable[Array[String]] and
-      (JsPath \ "actions").readNullable[Array[String]]
+      (JsPath \ "actions").readNullable[Array[String]] and
+      (JsPath \ "enabled").readNullable[Boolean]
     )(Subscription.apply _)
 }

@@ -3,7 +3,8 @@ package repo
 import java.util
 import javax.inject.{Inject, Singleton}
 
-import com.mongodb.client.model.Filters
+import com.mongodb.BasicDBObject
+import com.mongodb.client.model.{Aggregates, Filters}
 import com.mongodb.client.model.Filters.{or, _}
 import configuration.MongoConnection
 import model.CommonProps
@@ -62,21 +63,32 @@ class SubscriptionRepo @Inject()(connection: MongoConnection) {
 
   def findAllSubscribersForFlat(flat: Flat): List[Subscription] = {
     val query = and(
-      or(lte("priceRange.from",flat.price.get),Filters.eq("priceRange.from",null)),
-      or(gte("priceRange.to",flat.price.get),Filters.eq("priceRange.to",null)),
-      or(lte("sizeRange.from",flat.size.get),Filters.eq("sizeRange.from",null)),
-      or(gte("sizeRange.to",flat.size.get),Filters.eq("sizeRange.to",null)),
-      or(lte("floorRange.from",flat.floor.get),Filters.eq("floorRange.from",null)),
-      or(gte("floorRange.to",flat.floor.get),Filters.eq("floorRange.to",null)),
-      or(Filters.eq("parameters.cities",flat.city.get),Filters.eq("parameters.cities",null)),
-      or(Filters.eq("parameters.districts",flat.district.get),Filters.eq("parameters.districts",null)),
-      or(Filters.eq("parameters.actions",flat.action.get),Filters.eq("parameters.actions",null)),
-      Filters.eq("itemType","subscription")
+      or(lte("priceRange.from", flat.price.get), Filters.eq("priceRange.from", null)),
+      or(gte("priceRange.to", flat.price.get), Filters.eq("priceRange.to", null)),
+      or(lte("sizeRange.from", flat.size.get), Filters.eq("sizeRange.from", null)),
+      or(gte("sizeRange.to", flat.size.get), Filters.eq("sizeRange.to", null)),
+      or(lte("floorRange.from", flat.floor.get), Filters.eq("floorRange.from", null)),
+      or(gte("floorRange.to", flat.floor.get), Filters.eq("floorRange.to", null)),
+      or(Filters.eq("parameters.cities", flat.city.get), Filters.eq("parameters.cities", null)),
+      or(Filters.eq("parameters.districts", flat.district.get), Filters.eq("parameters.districts", null)),
+      or(Filters.eq("parameters.actions", flat.action.get), Filters.eq("parameters.actions", null)),
+      Filters.eq("itemType", "subscription")
     )
-    val documents = subscriptionCollection.find(query).asScala.toList
+    val documents = subscriptionCollection.aggregate(util.Arrays.asList(
+      Aggregates.`match`(query),
+      new Document("$sort",new Document("subscriber",1)),
+      new Document("$group",new Document("_id","$subscriber")
+        .append("subscriber",new Document("$first","$subscriber"))
+        .append("itemType",new Document("$first","$itemType"))
+        .append("priceRange",new Document("$first","$priceRange"))
+        .append("sizeRange",new Document("$first","$sizeRange"))
+        .append("floorRange",new Document("$first","$floorRange"))
+        .append("parameters",new Document("$first","$parameters"))
+      )
+      )
+    ).asScala.toList
     return documents.map(document => createSubscriptionObject(document))
   }
-
 }
 
 object SubscriptionRepo {

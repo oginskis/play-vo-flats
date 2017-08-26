@@ -358,6 +358,7 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
     subscription.districts.get.contains("centre") mustBe true
     subscription.districts.get.contains("teika") mustBe true
     subscription.actions.get.contains("sell") mustBe true
+    subscription.enabled.get mustBe false
   }
 
   private def prepareRequestAndCallApi(body: JsValue, endpointUrl: String,
