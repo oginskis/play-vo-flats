@@ -232,7 +232,10 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
         val subscriptions = responseBody.as[List[Subscription]]
         subscriptions.size mustBe 1
         val subscription = subscriptions.head
-        subscriptionId = subscription.subscriptionId.get
+        subscription.subscriptionId match {
+          case Some(value) => subscriptionId = value
+          case None => fail("SubscriptionId must be present")
+        }
         validateSubscription(subscription)
       }
       "subscription identifier is passed to the corresponding function" in {
@@ -345,20 +348,51 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
   }
 
   private def validateSubscription(subscription: Subscription) = {
-    subscription.subscriptionId mustNot be(None)
+    subscription.subscriptionId mustNot be (None)
     subscription.subscriber mustBe "viktors.test1@gmail.lv"
-    subscription.priceRange.get.from.get mustBe 50000
-    subscription.priceRange.get.to.get mustBe 70000
-    subscription.sizeRange.get.from.get mustBe 40
-    subscription.sizeRange.get.to.get mustBe 70
-    subscription.floorRange.get.from.get mustBe 3
-    subscription.floorRange.get.to.get mustBe 5
-    subscription.cities.get.contains("riga") mustBe true
-    subscription.cities.get.contains("jurmala") mustBe true
-    subscription.districts.get.contains("centre") mustBe true
-    subscription.districts.get.contains("teika") mustBe true
-    subscription.actions.get.contains("sell") mustBe true
-    subscription.enabled.get mustBe false
+    subscription.priceRange match {
+      case Some(range) => {
+        range.from mustBe Some(50000)
+        range.to mustBe Some(70000)
+      }
+      case None => fail("priceRange must be present")
+    }
+    subscription.sizeRange match {
+      case Some(range) => {
+        range.from mustBe Some(40)
+        range.to mustBe Some(70)
+      }
+      case None => fail("sizeRange must be present")
+    }
+    subscription.floorRange match {
+      case Some(range) => {
+        range.from mustBe Some(3)
+        range.to mustBe Some(5)
+      }
+      case None => fail("floorRange must be present")
+    }
+    subscription.cities match {
+      case Some(list) => {
+        list must contain ("riga")
+        list must contain ("jurmala")
+      }
+      case None => fail("Cities list must not be empty")
+    }
+    subscription.districts match {
+      case Some(list) => {
+        list must contain("centre")
+        list must contain("teika")
+      }
+      case None => fail("Districts list must not be empty")
+    }
+    subscription.actions match {
+      case Some(list) => {
+        list must contain("sell")
+      }
+      case None => fail("Actions list must not be empty")
+    }
+    subscription.enabled mustBe Option(false)
+    subscription.lastUpdatedDateTime mustNot be (None)
   }
 
   private def prepareRequestAndCallApi(body: JsValue, endpointUrl: String,
