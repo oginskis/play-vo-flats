@@ -57,22 +57,19 @@ object SubscriptionRepoHelper {
 
   private def getListDocument(array: Array[String]): util.ArrayList[String] = {
     val list = new java.util.ArrayList[String]()
-    array.foreach(city => {
-        list.add(city)
-      }
-    )
+    array.foreach(city => list.add(city))
     list
   }
 
   private def getRangeDocument(range: Range): Document = {
     val rangeDocument = new util.HashMap[String, Object]()
-    if (range.from != None) {
-      rangeDocument.put("from", java.lang.Integer
-        .valueOf(range.from.get))
+    range.from match {
+      case Some(value) => rangeDocument.put("from", java.lang.Integer.valueOf(value))
+      case None => {}
     }
-    if (range.to != None) {
-      rangeDocument.put("to", java.lang.Integer
-        .valueOf(range.to.get))
+    range.to match {
+      case Some(value) => rangeDocument.put("to", java.lang.Integer.valueOf(value))
+      case None => {}
     }
     new Document(rangeDocument)
   }

@@ -118,18 +118,48 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         val subscription = createSubscriptionObject(new Document(params))
         subscription.subscriptionId.get mustBe "abcdef123456abcdef123456"
         subscription.subscriber mustBe "viktors@gmail.com"
-        subscription.priceRange.get.from.get mustBe 1
-        subscription.priceRange.get.to.get mustBe 5
-        subscription.sizeRange.get.from.get mustBe 2
-        subscription.sizeRange.get.to.get mustBe 6
-        subscription.floorRange.get.from.get mustBe 3
-        subscription.floorRange.get.to.get mustBe 10
-        subscription.cities.get must contain ("riga")
-        subscription.cities.get must contain ("jurmala")
-        subscription.districts.get must contain ("centre")
-        subscription.districts.get must contain ("teika")
-        subscription.actions.get must contain ("sell")
-        subscription.lastUpdatedDateTime.get mustBe currentDateTimeEpoch
+        subscription.priceRange match {
+          case Some(range) => {
+            range.from mustBe Some(1)
+            range.to mustBe Some(5)
+          }
+          case None => fail("priceRange must be present")
+        }
+        subscription.sizeRange match {
+          case Some(range) => {
+            range.from mustBe Some(2)
+            range.to mustBe Some(6)
+          }
+          case None => fail("sizeRange must be present")
+        }
+        subscription.floorRange match {
+          case Some(range) => {
+            range.from mustBe Some(3)
+            range.to mustBe Some(10)
+          }
+          case None => fail("floorRange must be present")
+        }
+        subscription.cities match {
+          case Some(list) => {
+              list must contain ("riga")
+              list must contain ("jurmala")
+            }
+          case None => fail("Cities list must not be empty")
+        }
+        subscription.districts match {
+          case Some(list) => {
+              list must contain("centre")
+              list must contain("teika")
+          }
+          case None => fail("Districts list must not be empty")
+        }
+        subscription.actions match {
+          case Some(list) => {
+            list must contain("sell")
+          }
+          case None => fail("Actions list must not be empty")
+        }
+        subscription.lastUpdatedDateTime mustBe Some(currentDateTimeEpoch)
         subscription.enabled mustBe Some(true)
       }
       "all fields except subscriber are empty" in {
@@ -148,8 +178,8 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         subscription.cities mustBe None
         subscription.districts mustBe None
         subscription.actions mustBe None
-        subscription.lastUpdatedDateTime.get mustBe currentDateTimeEpoch
-        subscription.enabled.get mustBe false
+        subscription.lastUpdatedDateTime mustBe Some(currentDateTimeEpoch)
+        subscription.enabled mustBe Some(false)
       }
       "some fields are empty" in {
         val params = new java.util.HashMap[String, Object]()
@@ -166,17 +196,42 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         val subscription = createSubscriptionObject(new Document(params))
         subscription.subscriptionId mustBe None
         subscription.subscriber mustBe "viktors@gmail.com"
-        subscription.priceRange.get.from mustBe None
-        subscription.priceRange.get.to.get mustBe 5
-        subscription.sizeRange.get.from.get mustBe 2
-        subscription.sizeRange.get.to mustBe None
-        subscription.floorRange.get.from mustBe None
-        subscription.floorRange.get.to.get mustBe 10
-        subscription.cities.get must contain ("riga")
-        subscription.cities.get must contain ("jurmala")
+        subscription.priceRange match {
+          case Some(range) => {
+            range.from mustBe None
+            range.to mustBe Some(5)
+          }
+          case None => fail("priceRange must be present")
+        }
+        subscription.sizeRange match {
+          case Some(range) => {
+            range.from mustBe Some(2)
+            range.to mustBe None
+          }
+          case None => fail("sizeRange must be present")
+        }
+        subscription.floorRange match {
+          case Some(range) => {
+            range.from mustBe None
+            range.to mustBe Some(10)
+          }
+          case None => fail("floorRange must be present")
+        }
+        subscription.cities match {
+          case Some(list) => {
+            list must contain ("riga")
+            list must contain ("jurmala")
+          }
+          case None => fail("Cities list must not be empty")
+        }
         subscription.districts mustBe None
-        subscription.actions.get must contain ("sell")
-        subscription.lastUpdatedDateTime.get mustBe currentDateTimeEpoch
+        subscription.actions match {
+          case Some(list) => {
+            list must contain("sell")
+          }
+          case None => fail("Actions list must not be empty")
+        }
+        subscription.lastUpdatedDateTime mustBe Some(currentDateTimeEpoch)
         subscription.enabled mustBe Some(true)
       }
     }
@@ -184,13 +239,13 @@ class SubscriptionRepoHelperTest extends PlaySpec {
 
   private def createRangeDocument(from:Option[Int],to:Option[Int]): Document = {
     val rangeDocument = new util.HashMap[String, Object]()
-    if (from != None) {
-      rangeDocument.put("from", java.lang.Integer
-        .valueOf(from.get))
+    from match {
+      case Some(value) => rangeDocument.put("from", java.lang.Integer.valueOf(value))
+      case None => {}
     }
-    if (to != None) {
-      rangeDocument.put("to", java.lang.Integer
-        .valueOf(to.get))
+    to match {
+      case Some(value) => rangeDocument.put("to", java.lang.Integer.valueOf(value))
+      case None => {}
     }
     new Document(rangeDocument)
   }
