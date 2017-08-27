@@ -3,7 +3,6 @@ package repo
 import java.util
 import javax.inject.{Inject, Singleton}
 
-import com.mongodb.BasicDBObject
 import com.mongodb.client.model.{Aggregates, Filters}
 import com.mongodb.client.model.Filters.{or, _}
 import configuration.MongoConnection

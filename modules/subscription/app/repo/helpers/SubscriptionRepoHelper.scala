@@ -1,10 +1,8 @@
 package repo.helpers
 
 import java.util
-
 import model.b2c.{Range, Subscription}
 import org.bson.Document
-
 import scala.collection.JavaConverters._
 import scala.util.Try
 
@@ -13,30 +11,45 @@ object SubscriptionRepoHelper {
   def createSubscriptionDocument(subscription: Subscription): Document = {
     val params = new java.util.HashMap[String, Object]()
     params.put("subscriber", subscription.subscriber)
-    if (subscription.subscriptionId != None){
-      params.put("_id",subscription.subscriptionId.get)
+    subscription.subscriptionId match {
+      case Some(value) => params.put("_id",value)
+      case None =>
     }
-    if (subscription.priceRange != None) {
-      params.put("priceRange", getRangeDocument(subscription.priceRange.get))
+    subscription.enabled match {
+      case Some(value) => params.put("enabled",java.lang.Boolean.valueOf(value))
+      case None =>
     }
-    if (subscription.floorRange != None) {
-      params.put("floorRange", getRangeDocument(subscription.floorRange.get))
+    subscription.priceRange match {
+      case Some(value) => params.put("priceRange",getRangeDocument(value))
+      case None =>
     }
-    if (subscription.sizeRange != None) {
-      params.put("sizeRange", getRangeDocument(subscription.sizeRange.get))
+    subscription.floorRange match {
+      case Some(value) => params.put("floorRange",getRangeDocument(value))
+      case None =>
+    }
+    subscription.sizeRange match {
+      case Some(value) => params.put("sizeRange",getRangeDocument(value))
+      case None =>
     }
     val listParameters = new util.HashMap[String,Object]()
-    if (subscription.cities != None) {
-      listParameters.put("cities", getListDocument(subscription.cities.get))
+    subscription.cities match {
+      case Some(value) => listParameters.put("cities",getListDocument(value))
+      case None =>
     }
-    if (subscription.districts != None) {
-      listParameters.put("districts", getListDocument(subscription.districts.get))
+    subscription.districts match {
+      case Some(value) => listParameters.put("districts",getListDocument(value))
+      case None =>
     }
-    if (subscription.actions != None) {
-      listParameters.put("actions", getListDocument(subscription.actions.get))
+    subscription.actions match {
+      case Some(value) => listParameters.put("actions",getListDocument(value))
+      case None =>
     }
     if (!listParameters.isEmpty){
       params.put("parameters",new Document(listParameters))
+    }
+    subscription.lastUpdatedDateTime match {
+      case Some(value) => params.put("lastUpdatedDateTime",java.lang.Long.valueOf(value))
+      case None =>
     }
     params.put("itemType", "subscription")
     new Document(params)
@@ -45,8 +58,8 @@ object SubscriptionRepoHelper {
   private def getListDocument(array: Array[String]): util.ArrayList[String] = {
     val list = new java.util.ArrayList[String]()
     array.foreach(city => {
-      list.add(city)
-    }
+        list.add(city)
+      }
     )
     list
   }
@@ -73,7 +86,9 @@ object SubscriptionRepoHelper {
       floorRange = getRangeObject(document.get("floorRange")),
       cities = getListObject(document.get("parameters"),"cities"),
       districts = getListObject(document.get("parameters"),"districts"),
-      actions = getListObject(document.get("parameters"),"actions")
+      actions = getListObject(document.get("parameters"),"actions"),
+      enabled = Option(document.getBoolean("enabled")),
+      lastUpdatedDateTime = Option(document.getLong("lastUpdatedDateTime"))
     )
   }
 

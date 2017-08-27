@@ -1,5 +1,7 @@
 package scala.repo
 
+import java.time.Instant
+
 import configuration.testsupport.MongoINMemoryDBSupport
 import model.b2c.{Flat, Range, Subscription}
 import org.scalatest.BeforeAndAfterAll
@@ -26,7 +28,8 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = Option(Range(Option(40), Option(70))),
           cities = Option(Array[String]("riga", "jurmala")),
           districts = Option(Array[String]("centre", "teika")),
-          actions = Option(Array[String]("sell"))
+          actions = Option(Array[String]("sell")),
+          lastUpdatedDateTime = Option(Instant.now.getEpochSecond)
         )
         getGuiceContext.injector.instanceOf[SubscriptionRepo].createSubscription(subscription)
       }
@@ -110,7 +113,8 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = Option(Range(Option(40), None)),
           cities = Option(Array[String]("riga", "jurmala")),
           districts = Option(Array[String]("centre", "teika")),
-          actions = Option(Array[String]("sell"))
+          actions = Option(Array[String]("sell")),
+          lastUpdatedDateTime = Option(Instant.now.getEpochSecond)
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -120,7 +124,8 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = Option(Range(Option(70), Option(90))),
           cities = Option(Array[String]("riga")),
           districts = Option(Array[String]("centre", "teika")),
-          actions = Option(Array[String]("sell"))
+          actions = Option(Array[String]("sell")),
+          lastUpdatedDateTime = Option(Instant.now.getEpochSecond)
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -130,7 +135,8 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = Option(Range(Option(70),None)),
           cities = Option(Array[String]("riga")),
           districts = None,
-          actions = Option(Array[String]("sell"))
+          actions = Option(Array[String]("sell")),
+          lastUpdatedDateTime = Option(Instant.now.getEpochSecond)
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -140,7 +146,8 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = Option(Range(Option(70),None)),
           cities = Option(Array[String]("jurmala","riga")),
           districts = None,
-          actions = Option(Array[String]("sell"))
+          actions = Option(Array[String]("sell")),
+          lastUpdatedDateTime = Option(Instant.now.getEpochSecond)
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -150,7 +157,8 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = Option(Range(Option(73),Option(75))),
           cities = None,
           districts = Option(Array[String]("centre","teika")),
-          actions = Option(Array[String]("sell"))
+          actions = Option(Array[String]("sell")),
+          lastUpdatedDateTime = Option(Instant.now.getEpochSecond)
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -160,7 +168,8 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = Option(Range(Option(73),Option(75))),
           cities = None,
           districts = Option(Array[String]("centre","teika")),
-          actions = Option(Array[String]("sell"))
+          actions = Option(Array[String]("sell")),
+          lastUpdatedDateTime = Option(Instant.now.getEpochSecond)
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -170,7 +179,8 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = None,
           cities = None,
           districts = None,
-          actions = None
+          actions = None,
+          lastUpdatedDateTime = Option(Instant.now.getEpochSecond)
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -180,7 +190,8 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = None,
           cities = None,
           districts = None,
-          actions = None
+          actions = None,
+          lastUpdatedDateTime = Option(Instant.now.getEpochSecond)
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -190,7 +201,8 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = None,
           cities = None,
           districts = None,
-          actions = None
+          actions = None,
+          lastUpdatedDateTime = Option(Instant.now.getEpochSecond)
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -200,7 +212,8 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = None,
           cities = Option(Array[String]("jurmala")),
           districts = Option(Array[String]("vaivari")),
-          actions = None
+          actions = None,
+          lastUpdatedDateTime = Option(Instant.now.getEpochSecond)
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -210,7 +223,8 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = None,
           cities = None,
           districts = None,
-          actions = Option(Array[String]("rent"))
+          actions = Option(Array[String]("rent")),
+          lastUpdatedDateTime = Option(Instant.now.getEpochSecond)
         ))
     }
     "be found" when {
