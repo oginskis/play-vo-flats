@@ -83,6 +83,7 @@ class SubscriptionRepo @Inject()(connection: MongoConnection) {
         .append("sizeRange",new Document("$first","$sizeRange"))
         .append("floorRange",new Document("$first","$floorRange"))
         .append("parameters",new Document("$first","$parameters"))
+        .append("language",new Document("$first","$language"))
       )
       )
     ).asScala.toList

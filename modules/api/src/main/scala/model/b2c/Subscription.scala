@@ -19,7 +19,8 @@ case class Subscription(
                   val districts: Option[Array[String]],
                   val actions: Option[Array[String]],
                   val enabled: Option[Boolean] = Option(false),
-                  val lastUpdatedDateTime: Option[Long] = Option(Instant.now.getEpochSecond)
+                  val lastUpdatedDateTime: Option[Long] = Option(Instant.now.getEpochSecond),
+                  val language: String = "en"
                   ) {
 
   override def toString(): String = {
@@ -32,7 +33,8 @@ case class Subscription(
     "actions: " + actions.getOrElse(EmptyProp) + ", "+
     "enabled: " + enabled.getOrElse(EmptyProp) + ", "+
     "lastUpdatedDateTime: " + new SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
-      .format(new Date(lastUpdatedDateTime.getOrElse(0l) * 1000))
+      .format(new Date(lastUpdatedDateTime.getOrElse(0l) * 1000)) + ", "+
+    "language: " + language
   }
 }
 
@@ -48,7 +50,8 @@ object Subscription {
       (JsPath \ "districts").writeNullable[Array[String]] and
       (JsPath \ "actions").writeNullable[Array[String]] and
       (JsPath \ "enabled").writeNullable[Boolean] and
-      (JsPath \ "lastUpdatedDateTime").writeNullable[Long]
+      (JsPath \ "lastUpdatedDateTime").writeNullable[Long] and
+      (JsPath \ "language").write[String]
     )(unlift(Subscription.unapply))
 
   implicit val subscriptionReads: Reads[Subscription] = (
@@ -61,6 +64,7 @@ object Subscription {
       (JsPath \ "districts").readNullable[Array[String]] and
       (JsPath \ "actions").readNullable[Array[String]] and
       (JsPath \ "enabled").readNullable[Boolean] and
-      (JsPath \ "lastUpdatedDateTime").readNullable[Long]
+      (JsPath \ "lastUpdatedDateTime").readNullable[Long] and
+      (JsPath \ "language").read[String]
     )(Subscription.apply _)
 }

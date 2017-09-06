@@ -78,11 +78,18 @@ lazy val search = (project in file("modules/search"))
   .dependsOn(api)
   .aggregate(api)
 
-lazy val subscription = (project in file("modules/subscription"))
+lazy val notification = (project in file("modules/notification"))
   .settings(commonSettings,
     fork in run := false,assemblySettings,commonAssemblySettings)
   .enablePlugins(PlayScala)
   .dependsOn(api,common)
   .aggregate(api,common)
+
+lazy val subscription = (project in file("modules/subscription"))
+  .settings(commonSettings,
+    fork in run := false,assemblySettings,commonAssemblySettings)
+  .enablePlugins(PlayScala)
+  .dependsOn(api,common,notification)
+  .aggregate(api,common,notification)
 
 

@@ -1,0 +1,393 @@
+@(flat: model.b2c.Flat, messages: play.api.i18n.Messages)
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    @if(flat.flatPriceHistoryItems != None && !flat.flatPriceHistoryItems.get.isEmpty) {
+        <title>@messages("email.newFlatShort") @flat.address.get, @flat.price.get</title>
+    } else {
+        <title>@messages("email.updatedFlatShort") @flat.address.get, @flat.price.get</title>
+    }
+</head>
+<body style="margin:0; padding:0;">
+<center>
+    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width:600px;" bgcolor="#FFFFFF">
+        <tr>
+            <td align="center" valign="top" style="font-size:0;">
+                <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;font-size:24px;font-family: Roboto,Tahoma, sans-serif;color: darkblue;padding: 20px 0 20px 0">
+                    @if(flat.flatPriceHistoryItems == None || flat.flatPriceHistoryItems.get.isEmpty) {
+                    <strong>@messages("email.newFlat")</strong>
+                    } else {
+                    <strong>@messages("email.updatedFlat")</strong>
+                    }
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td align="center" valign="top" width="100%">
+                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;" bgcolor="#FFFFFF">
+                    <tr>
+                        <td align="left" valign="top" style="font-size:0;background-color: whitesmoke">
+                            <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <strong>@messages("email.address")</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;
+                                            color: #555;">
+                                            <strong>@flat.address.get</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" valign="top" style="font-size:0;">
+                            <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <strong>@messages("email.city"), @messages("email.district")</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            @{flat.city.get + ", " +flat.district.get}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" valign="top" style="font-size:0;background-color: whitesmoke">
+                            <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <strong>@messages("email.size")</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            @flat.size.get  @messages("email.m2")
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" valign="top" style="font-size:0;">
+                            <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <strong>@messages("email.floor")</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            @{flat.floor.get + "/"+ flat.maxFloors.get}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" valign="top" style="font-size:0;background-color: whitesmoke">
+                            <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <strong>@messages("email.numberOfRooms")</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            @if(flat.rooms.get > -1) {
+                                                @flat.rooms
+                                            } else {
+                                                Other
+                                            }
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" valign="top" style="font-size:0;">
+                            <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <strong>@messages("email.price")</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;
+                                        color: #555;">
+                                            <strong>@flat.price @messages("email.currency")</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" valign="top" style="font-size:0;background-color: whitesmoke">
+                            <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <strong>@messages("email.link")</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <a style="color: #555;" href="https://www.ss.com@flat.link.get" target="_blank">https://www.ss.com@flat.link.get</a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    @if(flat.contactDetails != None) {
+                        <tr>
+                            <td align="left" valign="top" style="font-size:0;">
+                                <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                    <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                        <tr>
+                                            <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                                <strong>@messages("email.whoPublished")</strong>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        @if(flat.contactDetails.get.phoneNumbers != None && !flat.contactDetails.get.phoneNumbers.get.isEmpty) {
+                            <tr>
+                                <td align="left" valign="top" style="font-size:0;">
+                                    <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                        <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                            <tr>
+                                                <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;padding: 0 0 0 5px;">
+                                                    <i>@messages("email.contacts.phone")</i>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                        <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                            <tr>
+                                                <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;padding: 0 0 0 5px;">
+                                                    @flat.contactDetails.get.phoneNumbers.get.mkString(", ")
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        @if(flat.contactDetails.get.company != None) {
+                        <tr>
+                            <td align="left" valign="top" style="font-size:0;">
+                                <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                        <tr>
+                                            <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;padding: 0 0 0 5px;">
+                                                <i>@messages("email.contacts.company")</i>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                        <tr>
+                                            <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;padding: 0 0 0 5px;">
+                                                @flat.contactDetails.get.company.get
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                        @if(flat.contactDetails.get.webPage != None) {
+                        <tr>
+                            <td align="left" valign="top" style="font-size:0;">
+                                <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                        <tr>
+                                            <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;padding: 0 0 0 5px;">
+                                                <i>@messages("email.contacts.www")</i>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                        <tr>
+                                            <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;padding: 0 0 0 5px;">
+                                                <a style="color: #555;" href="@flat.contactDetails.get.webPage.get" target="_blank">@{flat.contactDetails.get.webPage.get.take(20) + "..."}</a></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    }
+                </table>
+            </td>
+        </tr>
+        @if(flat.flatPriceHistoryItems != None && !flat.flatPriceHistoryItems.get.isEmpty) {
+            <tr>
+                <td align="center">
+                    <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;font-size:18px;font-family: Roboto,Tahoma, sans-serif;color: darkblue;padding: 30px 0 0px 0">
+                        <strong>@messages("email.historic")</strong>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td align="center" valign="top" width="100%">
+                    <table width="100%" border="0" cellpadding="5" cellspacing="0" style="min-width:360px;" bgcolor="#FFFFFF">
+                        <tr>
+                            <td style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;background-color: whitesmoke;
+                                       min-width: 80px;">
+                                <strong>@messages("email.price")</strong>
+                            </td>
+                            <td style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;background-color: whitesmoke;
+                                       min-width: 160px;">
+                                <strong>@messages("email.activeBetween")</strong>
+                            </td>
+                            <td style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;background-color: whitesmoke;
+                                       min-width: 120px;">
+                                <strong>@messages("email.whoPublished")</strong>
+                            </td>
+                        </tr>
+            @for(item <- flat.flatPriceHistoryItems.get) {
+                        <tr>
+                            <td valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;
+                                   min-width: 80px;">
+                                @item.price EUR
+                            </td>
+                            <td valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;
+                                   min-width: 160px;">
+                                <span style="word-break: keep-all">@{(new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date(item.firstSeenAt.get * 1000)))}
+                                    <i>@messages("email.and")</i>
+                                @{(new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date(item.lastSeenAt.get * 1000)))}</span>
+                                 <br />
+                            </td>
+                            <td valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;
+                                   min-width: 120px;">
+                                @if(item.contactDetails != None) {
+                                    @if(item.contactDetails.get.phoneNumbers != None && !item.contactDetails.get.phoneNumbers.get.isEmpty) {
+                                        <i>@item.contactDetails.get.phoneNumbers.get.mkString(", ")</i>
+                                    } else {
+                                        <i>N/A</i>
+                                    }
+                                    @if(item.contactDetails.get.company != None) {
+                                        <br />
+                                        <i>@item.contactDetails.get.company.get</i>
+                                    }
+                                    @if(item.contactDetails.get.webPage != None) {
+                                        <br />
+                                        <i><a style="color: #555;" href="@item.contactDetails.get.webPage.get" target="_blank">@{item.contactDetails.get.webPage.get.take(30) + "..."}</a></i>
+                                    }
+                                } else {
+                                    <i>N/A</i>
+                                }
+                            </td>
+                        </tr>
+            }
+                    </table>
+                </td>
+            </tr>
+        }
+        <tr>
+            <td>
+                <hr style="border: 1px solid black">
+            </td>
+        </tr>
+        <tr>
+            <td align="left" valign="top">
+            <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;">
+                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:500px;" class="deviceWidth">
+                        <tr>
+                            <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;color: darkgray;
+                                                             padding: 0 0 0 5px;">
+                                <a style="color: #555;" href="#" target="_blank">@messages("email.serviceName")</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td align="left" valign="top">
+            <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;">
+                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:500px;" class="deviceWidth">
+                        <tr>
+                            <td align="left" valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;color: darkgray;
+                                                             padding: 0 0 0 5px;">
+                                <a style="color: #555;" href="#" target="_blank">@messages("email.unsubscribe")</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td align="left" valign="top">
+                <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;">
+                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:500px;" class="deviceWidth">
+                        <tr>
+                            <td align="left" valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;color: darkgray;
+                                                             padding: 0 0 0 5px;">
+                                <a style="color: #555;" href="#" target="_blank">@messages("email.unsubscribeAll")</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </table>
+</center>
+</body>
+</html>

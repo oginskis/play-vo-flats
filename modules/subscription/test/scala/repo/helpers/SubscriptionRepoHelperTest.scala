@@ -43,8 +43,9 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         params.get("actions").asInstanceOf[util.ArrayList[String]].contains("sell") mustBe true
         doc.getLong("lastUpdatedDateTime") mustBe currentDateTimeEpoch
         doc.getBoolean("enabled") mustBe false
+        doc.getString("language") mustBe "en"
       }
-      "all fields except subscriber and enabled field are empty" in {
+      "all fields except subscriber and enabled, and language fields are empty" in {
         val subscription = new Subscription(
           subscriber = "viktors@gmail.com",
           priceRange = None,
@@ -54,7 +55,8 @@ class SubscriptionRepoHelperTest extends PlaySpec {
           districts = None,
           actions = None,
           enabled = Option(true),
-          lastUpdatedDateTime = Option(currentDateTimeEpoch)
+          lastUpdatedDateTime = Option(currentDateTimeEpoch),
+          language = "lv"
         )
         val doc = createSubscriptionDocument(subscription)
         doc.get("subscriber").toString mustBe "viktors@gmail.com"
@@ -65,6 +67,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         doc.get("districts") mustBe null
         doc.get("actions") mustBe null
         doc.get("enabled") mustBe true
+        doc.get("language") mustBe "lv"
       }
       "some fields are empty" in {
         val subscription = new Subscription(
@@ -76,7 +79,8 @@ class SubscriptionRepoHelperTest extends PlaySpec {
           districts = Option(Array[String]("centrs")),
           actions = None,
           enabled = Option(false),
-          lastUpdatedDateTime = Option(currentDateTimeEpoch)
+          lastUpdatedDateTime = Option(currentDateTimeEpoch),
+          language = "en"
         )
         val doc: Document = createSubscriptionDocument(subscription)
         doc.get("subscriber").toString mustBe "viktors@gmail.com"
@@ -95,6 +99,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         params.get("actions") mustBe null
         doc.getLong("lastUpdatedDateTime") mustBe currentDateTimeEpoch
         doc.get("enabled") mustBe false
+        doc.get("language") mustBe "en"
       }
     }
   }
@@ -110,6 +115,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         params.put("priceRange",createRangeDocument(Option(1),Option(5)))
         params.put("sizeRange",createRangeDocument(Option(2),Option(6)))
         params.put("floorRange",createRangeDocument(Option(3),Option(10)))
+        params.put("language","en")
         val parameters = new util.HashMap[String,Object]()
         parameters.put("cities",new util.ArrayList[String](util.Arrays.asList("riga","jurmala")))
         parameters.put("districts",new util.ArrayList[String](util.Arrays.asList("centre","teika")))
@@ -118,6 +124,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         val subscription = createSubscriptionObject(new Document(params))
         subscription.subscriptionId.get mustBe "abcdef123456abcdef123456"
         subscription.subscriber mustBe "viktors@gmail.com"
+        subscription.language mustBe "en"
         subscription.priceRange match {
           case Some(range) => {
             range.from mustBe Some(1)
@@ -180,6 +187,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         subscription.actions mustBe None
         subscription.lastUpdatedDateTime mustBe Some(currentDateTimeEpoch)
         subscription.enabled mustBe Some(false)
+        subscription.language mustBe "en"
       }
       "some fields are empty" in {
         val params = new java.util.HashMap[String, Object]()
@@ -189,6 +197,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         params.put("floorRange",createRangeDocument(None,Option(10)))
         params.put("lastUpdatedDateTime",java.lang.Long.valueOf(currentDateTimeEpoch))
         params.put("enabled",java.lang.Boolean.valueOf(true))
+        params.put("language","lv")
         val parameters = new util.HashMap[String,Object]()
         parameters.put("cities",new util.ArrayList[String](util.Arrays.asList("riga","jurmala")))
         parameters.put("actions",new util.ArrayList[String](util.Arrays.asList("sell")))
@@ -196,6 +205,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         val subscription = createSubscriptionObject(new Document(params))
         subscription.subscriptionId mustBe None
         subscription.subscriber mustBe "viktors@gmail.com"
+        subscription.language mustBe "lv"
         subscription.priceRange match {
           case Some(range) => {
             range.from mustBe None

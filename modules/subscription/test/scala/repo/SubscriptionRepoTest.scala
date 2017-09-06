@@ -395,6 +395,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
 
   private def checkSubscriptionObject(subscription: Subscription) = {
     subscription.subscriber mustBe "viktors@gmail.com"
+    subscription.language mustBe "en"
     subscription.districts match {
       case Some(list) => {
         list must contain("centre")

@@ -29,6 +29,7 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
           """
                    {
                        "subscriber":"viktors.test1@gmail.lv",
+                       "language": "en",
                        "priceRange": {
                           "from": 50000,
                           "to": 70000
@@ -66,6 +67,7 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
           """
                    {
                        "subscriber":"viktors.test2@gmail.lv",
+                       "language": "lv",
                        "cities": [
                           "jurmala"
                        ],
@@ -90,6 +92,7 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
           """
                    {
                        "subscriber":"viktors.test3@gmail.lv",
+                       "language": "en",
                        "priceRange": {
                           "from": 75000,
                           "to": 80000
@@ -119,6 +122,7 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
           """
                    {
                        "subscriber":"viktors.test4@gmail.lv",
+                       "language": "lv",
                        "priceRange": {
                           "from": 50000
                         },
@@ -147,6 +151,7 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
           """
                    {
                        "subscriber":"qwerty",
+                       "language": "en",
                        "priceRange": {
                           "from": 2,
                           "to": 3
@@ -187,6 +192,7 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
           """
                    {
                        "subscriber":"viktors.test@gmail.lv",
+                       "language": "en",
                        "priceRange": {
                           "from": "2",
                           "to": 3

@@ -11,6 +11,7 @@ object SubscriptionRepoHelper {
   def createSubscriptionDocument(subscription: Subscription): Document = {
     val params = new java.util.HashMap[String, Object]()
     params.put("subscriber", subscription.subscriber)
+    params.put("language",subscription.language)
     subscription.subscriptionId match {
       case Some(value) => params.put("_id",value)
       case None =>
@@ -85,7 +86,8 @@ object SubscriptionRepoHelper {
       districts = getListObject(document.get("parameters"),"districts"),
       actions = getListObject(document.get("parameters"),"actions"),
       enabled = Option(document.getBoolean("enabled")),
-      lastUpdatedDateTime = Option(document.getLong("lastUpdatedDateTime"))
+      lastUpdatedDateTime = Option(document.getLong("lastUpdatedDateTime")),
+      language = Try(document.get("language").toString).getOrElse("en")
     )
   }
 
