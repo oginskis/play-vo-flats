@@ -4,6 +4,7 @@ import javax.inject.{Inject, Singleton}
 import javax.mail.internet.{InternetAddress, MimeMessage}
 import javax.mail._
 
+import model.CommonProps._
 import model.b2c.{Flat, Subscription}
 import play.api.Configuration
 import play.api.i18n._
@@ -21,7 +22,7 @@ class EmailSendingService @Inject()(config: Configuration, languages:Langs,
   val session = Session.getInstance(props,
     new javax.mail.Authenticator() {
       override protected def getPasswordAuthentication(): javax.mail.PasswordAuthentication = {
-        return new PasswordAuthentication(config.get[String](EmailSender.SmtpUsername),
+        new PasswordAuthentication(config.get[String](EmailSender.SmtpUsername),
           config.get[String](EmailSender.SmtpPassword))
       }
     });
@@ -34,7 +35,9 @@ class EmailSendingService @Inject()(config: Configuration, languages:Langs,
       .render(flat,localizedMessages)
       .body,"utf-8", "html")
     message.setFrom(new InternetAddress(config.get[String](EmailSender.SentFrom)))
-    message.setSubject(flat.address.get+ ", "+flat.district.get+", "+flat.city.get+", " +flat.price.get+ " EUR")
+    message.setSubject(flat.address.getOrElse(EmptyProp)+
+      ", "+flat.district.getOrElse(EmptyProp)+", "+flat.city.getOrElse(EmptyProp)+", "
+      + flat.price.getOrElse(EmptyProp)+ " EUR")
     message.setRecipients(Message.RecipientType.TO,
       config.get[String](EmailSender.SendToList).split(",")
         .map(email => {
