@@ -1,4 +1,4 @@
-package services
+package scala.services
 
 import javax.inject.{Inject, Singleton}
 import javax.mail.internet.{InternetAddress, MimeMessage}
@@ -11,7 +11,7 @@ import play.api.i18n._
 
 
 @Singleton
-class EmailSendingService @Inject()(config: Configuration, languages:Langs,
+class EmailSendingService @Inject()(config: Configuration,
                                     messagesApi: MessagesApi) {
 
   val props = new java.util.Properties()
@@ -38,14 +38,8 @@ class EmailSendingService @Inject()(config: Configuration, languages:Langs,
     message.setSubject(flat.address.getOrElse(EmptyProp)+
       ", "+flat.district.getOrElse(EmptyProp)+", "+flat.city.getOrElse(EmptyProp)+", "
       + flat.price.getOrElse(EmptyProp)+ " EUR")
-    message.setRecipients(Message.RecipientType.TO,
-      config.get[String](EmailSender.SendToList).split(",")
-        .map(email => {
-          val address: Address = new InternetAddress(email)
-          address
-        }
-        ).array
-    )
+    val address:Address = new InternetAddress(subscription.subscriber)
+    message.setRecipients(Message.RecipientType.TO,Array(address))
     Transport.send(message)
   }
 
