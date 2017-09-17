@@ -7,8 +7,7 @@ object TestApplicationContextHelper {
 
   private val application = {
     new GuiceApplicationBuilder()
-      .configure("smtp.host" -> "localhost",
-        "smtp.port" -> "2525")
+      .configure("smtp.host" -> "localhost", "smtp.port" -> 2525)
       .build()
   }
 
