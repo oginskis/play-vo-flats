@@ -1,4 +1,4 @@
-@(flat: model.b2c.Flat, messages: play.api.i18n.Messages)
+@(flat: model.b2c.Flat, subscription: model.b2c.Subscription, messages: play.api.i18n.Messages)
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -347,12 +347,275 @@
         </tr>
         <tr>
             <td align="left" valign="top">
-            <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;">
+                <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;font-size:12px;font-family: Roboto,Tahoma, sans-serif;color: darkblue;padding: 10px 3px 3px 3px">
+                    <strong>
+                            @messages("email.reason")
+                    </strong>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td align="left" valign="top" style="font-size: 0;">
+                <div style="display: inline-block;
+                    max-width: 200px;
+                    vertical-align: top;
+                    width: 100%;">
+                    <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width: 200px;" class="deviceWidth">
+                        <tr>
+                            <td align="left" valign="top" style="font-size: 12px;
+                                font-family: Roboto, Tahoma, sans-serif;">
+                                <strong>
+                                @messages("email.subscriber")
+                                </strong>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div style="display: inline-block;
+                    max-width: 300px;
+                    vertical-align: top;
+                    width: 100%;">
+                    <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width: 300px;" class="deviceWidth">
+                        <tr>
+                            <td align="left" valign="top" style="font-size: 12px;
+                                font-family: Roboto, Tahoma, sans-serif;">
+                            @subscription.subscriber
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        @for(cities <- subscription.cities) {
+            <tr>
+                <td align="left" valign="top" style="font-size: 0;">
+                    <div style="display: inline-block;
+                        max-width: 200px;
+                        vertical-align: top;
+                        width: 100%;">
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width: 200px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size: 12px;
+                                    font-family: Roboto, Tahoma, sans-serif;">
+                                    <strong>
+                                    @messages("email.cities")
+                                    </strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="display: inline-block;
+                        max-width: 300px;
+                        vertical-align: top;
+                        width: 100%;">
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width: 300px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size: 12px;
+                                    font-family: Roboto, Tahoma, sans-serif;">
+                                    @cities.mkString(", ")
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        }
+        @for(districts <- subscription.districts) {
+            <tr>
+                <td align="left" valign="top" style="font-size: 0;">
+                    <div style="display: inline-block;
+                        max-width: 200px;
+                        vertical-align: top;
+                        width: 100%;">
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width: 200px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size: 12px;
+                                    font-family: Roboto, Tahoma, sans-serif;">
+                                    <strong>
+                                            @messages("email.districts")
+                                    </strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="display: inline-block;
+                        max-width: 300px;
+                        vertical-align: top;
+                        width: 100%;">
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width: 300px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size: 12px;
+                                    font-family: Roboto, Tahoma, sans-serif;">
+                                @districts.mkString(", ")
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        }
+        @for(actions <- subscription.actions) {
+            <tr>
+                <td align="left" valign="top" style="font-size: 0;">
+                    <div style="display: inline-block;
+                        max-width: 200px;
+                        vertical-align: top;
+                        width: 100%;">
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width: 200px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size: 12px;
+                                    font-family: Roboto, Tahoma, sans-serif;">
+                                    <strong>
+                                            @messages("email.actions")
+                                    </strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="display: inline-block;
+                        max-width: 300px;
+                        vertical-align: top;
+                        width: 100%;">
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width: 300px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size: 12px;
+                                    font-family: Roboto, Tahoma, sans-serif;">
+                                @actions.mkString(", ")
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        }
+        @for(pr <- subscription.priceRange) {
+            <tr>
+                <td align="left" valign="top" style="font-size: 0;">
+                    <div style="display: inline-block;
+                        max-width: 200px;
+                        vertical-align: top;
+                        width: 100%;">
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width: 200px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size: 12px;
+                                    font-family: Roboto, Tahoma, sans-serif;">
+                                    <strong>
+                                            @messages("email.priceRange")
+                                    </strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="display: inline-block;
+                        max-width: 300px;
+                        vertical-align: top;
+                        width: 100%;">
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width: 300px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size: 12px;
+                                    font-family: Roboto, Tahoma, sans-serif;">
+                                    @pr.from match {
+                                        case Some(value) => {@value EUR }
+                                        case None => {... }
+                                    }
+                                    -
+                                    @pr.to match {
+                                        case Some(value) => { @value EUR}
+                                        case None => { ...}
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        }
+        @for(sr <- subscription.sizeRange) {
+            <tr>
+                <td align="left" valign="top" style="font-size:0;">
+                    <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;">
+                                    <strong>
+                                            @messages("email.sizeRange")
+                                    </strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;">
+                                    @sr.from match {
+                                        case Some(value) => {@value m2 }
+                                        case None => {... }
+                                    }
+                                -
+                                    @sr.to match {
+                                        case Some(value) => { @value m2}
+                                        case None => { ...}
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        }
+        @for(fr <- subscription.floorRange) {
+            <tr>
+                <td align="left" valign="top" style="font-size: 0;">
+                    <div style="display: inline-block;
+                        max-width: 200px;
+                        vertical-align: top;
+                        width: 100%;">
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width: 200px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size: 12px;
+                                    font-family: Roboto, Tahoma, sans-serif;">
+                                    <strong>
+                                            @messages("email.floorRange")
+                                    </strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="display: inline-block;
+                        max-width: 300px;
+                        vertical-align: top;
+                        width: 100%;">
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width: 300px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size: 12px;
+                                    font-family: Roboto, Tahoma, sans-serif;">
+                                    @fr.from match {
+                                        case Some(value) => {@value }
+                                        case None => {... }
+                                    }
+                                -
+                                    @fr.to match {
+                                        case Some(value) => { @value}
+                                        case None => { ...}
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        }
+        <tr>
+            <td align="left" valign="top">
+                <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;">
                     <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:500px;" class="deviceWidth">
                         <tr>
-                            <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;color: darkgray;
-                                                             padding: 0 0 0 5px;">
-                                <a style="color: #555;" href="#" target="_blank">@messages("email.serviceName")</a>
+                            <td align="left" valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;color: darkgray;
+                                padding: 3px 0 10px 3px;">
+                                <a style="color: #555;" href="#" target="_blank">
+                                        @messages("email.unsubscribe")
+                                </a>
                             </td>
                         </tr>
                     </table>
@@ -360,17 +623,8 @@
             </td>
         </tr>
         <tr>
-            <td align="left" valign="top">
-            <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;">
-                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:500px;" class="deviceWidth">
-                        <tr>
-                            <td align="left" valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;color: darkgray;
-                                                             padding: 0 0 0 5px;">
-                                <a style="color: #555;" href="#" target="_blank">@messages("email.unsubscribe")</a>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
+            <td>
+                <hr style="border: 1px solid black">
             </td>
         </tr>
         <tr>
@@ -379,8 +633,26 @@
                     <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:500px;" class="deviceWidth">
                         <tr>
                             <td align="left" valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;color: darkgray;
-                                                             padding: 0 0 0 5px;">
-                                <a style="color: #555;" href="#" target="_blank">@messages("email.unsubscribeAll")</a>
+                                padding: 0 0 0 5px;">
+                                <a style="color: #555;" href="#" target="_blank">
+                                        @messages("email.unsubscribeAll") @subscription.subscriber
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td align="left" valign="top">
+                <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;padding-bottom: 10px;">
+                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:500px;" class="deviceWidth">
+                        <tr>
+                            <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;color: darkgray;
+                                padding: 0 0 0 5px;">
+                                <a style="color: #555;" href="#" target="_blank">
+                                        @messages("email.serviceName")
+                                </a>
                             </td>
                         </tr>
                     </table>

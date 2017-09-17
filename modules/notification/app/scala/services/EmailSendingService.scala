@@ -28,11 +28,11 @@ class EmailSendingService @Inject()(config: Configuration,
     });
 
 
-  def sendEmail(flat: Flat, subscription: Subscription) = {
+  def sendFlatNotificationEmail(flat: Flat, subscription: Subscription) = {
     val localizedMessages:Messages = MessagesImpl(Lang(subscription.language),messagesApi)
     val message = new MimeMessage(session)
     message.setText(views.html.Application.newflat
-      .render(flat,localizedMessages)
+      .render(flat,subscription,localizedMessages)
       .body,"utf-8", "html")
     message.setFrom(new InternetAddress(config.get[String](EmailSender.SentFrom)))
     message.setSubject(flat.address.getOrElse(EmptyProp)+

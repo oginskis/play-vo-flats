@@ -18,9 +18,18 @@ email.contacts.company=Company
 email.contacts.www=WWW
 email.activeBetween=Active between
 
-email.serviceName=www.adscraper.lv
-email.unsubscribe=Unsubscribe from the current filter
-email.unsubscribeAll=Do not receive any e-mails from the Adscraper anymore :(
-
 email.historic=Historic prices for this flat
 email.and=and
+
+email.reason=You received this email because you had been subscribed to the following filter:
+email.cities=Cities
+email.districts=Districts
+email.actions=Actions
+email.priceRange=Price range
+email.sizeRange=Size range
+email.floorRange=Floor range
+email.subscriber=Email address
+
+email.serviceName=www.adscraper.lv
+email.unsubscribe=Unsubscribe
+email.unsubscribeAll=Unsubscribe from ALL filters for email

@@ -18,9 +18,18 @@ email.contacts.company=Uzņēmums
 email.contacts.www=WWW
 email.activeBetween=Periods, kad cena aktīva
 
-email.serviceName=www.adscraper.lv
-email.unsubscribe=Atrakstīties no šī filtra
-email.unsubscribeAll=Atrakstīties no visiem Adscraper filtriem :(
-
 email.historic=Vēsturiskās cenas šim dzīvoklim
 email.and=un
+
+email.reason=Tu esi saņēmis šo e-pastu, jo esi pierakstījies sekojošam filtram:
+email.cities=Pilsētas
+email.districts=Rajoni
+email.actions=Darbības
+email.priceRange=Cenas diapazons
+email.sizeRange=Izmēra diapazons
+email.floorRange=Stāvu diapazons
+email.subscriber=E-pasta adrese
+
+email.serviceName=www.adscraper.lv
+email.unsubscribe=Atrakstīties
+email.unsubscribeAll=Atrakstīties no visiem filtriem e-pastam
