@@ -1,25 +1,29 @@
 package scala.repo
 
-import java.time.Instant
-
+import com.dumbster.smtp.SimpleSmtpServer
 import configuration.testsupport.MongoINMemoryDBSupport
 import model.b2c.{Flat, Range, Subscription}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatestplus.play.PlaySpec
 import repo.SubscriptionRepo
 
+import scala.collection.JavaConverters._
+import scala.collection.immutable.StringOps
 import scala.testhelpers.TestApplicationContextHelper._
 
 class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
 
+  val fakeSmtp = SimpleSmtpServer.start(2525)
+
   override def afterAll = {
     MongoINMemoryDBSupport.purgeFlats()
+    fakeSmtp.stop()
   }
-  var currentDateTimeEpoch:Long = Instant.now.getEpochSecond
   var subscriptionId: String = _
+  var activationToken: String = _
 
   "Subscription" should {
-    "be created" when {
+    "be created and activated" when {
       "a valid subscription object is passed to the function" in {
         val subscription = new Subscription(
           subscriber = "viktors@gmail.com",
@@ -28,10 +32,22 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = Option(Range(Option(40), Option(70))),
           cities = Option(Array[String]("riga", "jurmala")),
           districts = Option(Array[String]("centre", "teika")),
-          actions = Option(Array[String]("sell")),
-          lastUpdatedDateTime = Option(currentDateTimeEpoch)
+          actions = Option(Array[String]("sell"))
         )
         getGuiceContext.injector.instanceOf[SubscriptionRepo].createSubscription(subscription)
+      }
+      "an activation email is received" in {
+        val emails = fakeSmtp.getReceivedEmails.asScala
+        emails.size mustBe 1
+        for (email <- emails.headOption){
+          val index = new StringOps(email.getBody).lastIndexOfSlice("/subscription/enable/")
+          activationToken = email.getBody.substring(index+21,32+index+21)
+        }
+      }
+      "subscription is activated" in {
+        val enabled = getGuiceContext.injector.instanceOf[SubscriptionRepo].enableSubscription(activationToken)
+        enabled mustBe true
+        fakeSmtp.reset
       }
     }
     "be found" when {
@@ -116,8 +132,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = Option(Range(Option(40), None)),
           cities = Option(Array[String]("riga", "jurmala")),
           districts = Option(Array[String]("centre", "teika")),
-          actions = Option(Array[String]("sell")),
-          lastUpdatedDateTime = Option(currentDateTimeEpoch)
+          actions = Option(Array[String]("sell"))
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -127,8 +142,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = Option(Range(Option(70), Option(90))),
           cities = Option(Array[String]("riga")),
           districts = Option(Array[String]("centre", "teika")),
-          actions = Option(Array[String]("sell")),
-          lastUpdatedDateTime = Option(currentDateTimeEpoch)
+          actions = Option(Array[String]("sell"))
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -138,8 +152,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = Option(Range(Option(70),None)),
           cities = Option(Array[String]("riga")),
           districts = None,
-          actions = Option(Array[String]("sell")),
-          lastUpdatedDateTime = Option(currentDateTimeEpoch)
+          actions = Option(Array[String]("sell"))
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -149,8 +162,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = Option(Range(Option(70),None)),
           cities = Option(Array[String]("jurmala","riga")),
           districts = None,
-          actions = Option(Array[String]("sell")),
-          lastUpdatedDateTime = Option(currentDateTimeEpoch)
+          actions = Option(Array[String]("sell"))
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -160,8 +172,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = Option(Range(Option(73),Option(75))),
           cities = None,
           districts = Option(Array[String]("centre","teika")),
-          actions = Option(Array[String]("sell")),
-          lastUpdatedDateTime = Option(currentDateTimeEpoch)
+          actions = Option(Array[String]("sell"))
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -171,8 +182,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = Option(Range(Option(73),Option(75))),
           cities = None,
           districts = Option(Array[String]("centre","teika")),
-          actions = Option(Array[String]("sell")),
-          lastUpdatedDateTime = Option(currentDateTimeEpoch)
+          actions = Option(Array[String]("sell"))
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -182,30 +192,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = None,
           cities = None,
           districts = None,
-          actions = None,
-          lastUpdatedDateTime = Option(currentDateTimeEpoch)
-        ))
-      getGuiceContext.injector.instanceOf[SubscriptionRepo]
-        .createSubscription(new Subscription(
-          subscriber = "p6@gmail.com",
-          priceRange = None,
-          floorRange = None,
-          sizeRange = None,
-          cities = None,
-          districts = None,
-          actions = None,
-          lastUpdatedDateTime = Option(currentDateTimeEpoch)
-        ))
-      getGuiceContext.injector.instanceOf[SubscriptionRepo]
-        .createSubscription(new Subscription(
-          subscriber = "p6@gmail.com",
-          priceRange = None,
-          floorRange = None,
-          sizeRange = None,
-          cities = None,
-          districts = None,
-          actions = None,
-          lastUpdatedDateTime = Option(currentDateTimeEpoch)
+          actions = None
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -215,8 +202,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = None,
           cities = Option(Array[String]("jurmala")),
           districts = Option(Array[String]("vaivari")),
-          actions = None,
-          lastUpdatedDateTime = Option(currentDateTimeEpoch)
+          actions = None
         ))
       getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .createSubscription(new Subscription(
@@ -226,11 +212,44 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           sizeRange = None,
           cities = None,
           districts = None,
-          actions = Option(Array[String]("rent")),
-          lastUpdatedDateTime = Option(currentDateTimeEpoch)
+          actions = Option(Array[String]("rent"))
         ))
     }
+    "not be found unless enabled" in {
+      val flat = Flat(
+        Option("New"),
+        None,
+        rooms = Option(4),
+        size = Option(75),
+        floor = Option(3),
+        maxFloors = Option(5),
+        price = Option(80000),
+        None,
+        None,
+        None,
+        Option("riga"),
+        Option("teika"),
+        Option("sell"),
+        Option("false"),
+        None,
+        None
+      )
+      val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        .findAllSubscribersForFlat(flat)
+      subscriptions.size mustBe 0
+    }
     "be found" when {
+      "enabled" in {
+        val subscriptionRepo = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        fakeSmtp.getReceivedEmails.size mustBe 9
+        fakeSmtp.getReceivedEmails.forEach( email => {
+            val index = new StringOps(email.getBody).lastIndexOfSlice("/subscription/enable/")
+            activationToken = email.getBody.substring(index + 21, 32 + index + 21)
+            val enabled = getGuiceContext.injector.instanceOf[SubscriptionRepo].enableSubscription(activationToken)
+            enabled mustBe true
+          }
+        )
+      }
       "findAllSubscribersForFlat is kicked of for flat: rooms=4,size=75,floor=3,price=80000,riga,teika,sell (4)" in {
         val flat = Flat(
           Option("New"),
@@ -442,9 +461,8 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
       case None => fail("SubscriptionId must not be None")
     }
     subscription.enabled match {
-      case Some(value) => value mustBe false
+      case Some(value) => value mustBe true
       case None => fail("Enabled flag must not be None")
     }
-    subscription.lastUpdatedDateTime mustBe Some(currentDateTimeEpoch)
   }
 }

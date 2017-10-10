@@ -3,46 +3,69 @@ package controllers.subscription
 import javax.inject.Inject
 
 import model.CommonProps
-import model.b2c.{Error, Flat, Subscription}
+import model.b2c.{Error, Flat, Subscription, Success}
 import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, ControllerComponents}
 import repo.SubscriptionRepo
+import CommonProps._
 
-class SubscriptionController @Inject()(cc: ControllerComponents, subscriptionRepo: SubscriptionRepo)
+import scala.services.EmailSendingService
+
+class SubscriptionController @Inject()(cc: ControllerComponents, subscriptionRepo: SubscriptionRepo,
+                                       emailSendingService: EmailSendingService)
   extends AbstractController(cc) {
 
-  def getSubscriptionById(id: String) = Action {
-    if (id.size == 24 && id.matches(CommonProps.HexadecimalRegexp)) {
-      val subscription = subscriptionRepo.getSubscriptionById(id)
-      if (subscription == None) {
-        NotFound(CommonProps.EmptyResponse)
-      } else {
-        Ok(Json.toJson(subscriptionRepo.getSubscriptionById(id)))
+  def getSubscriptionById(subscriptionId: String) = Action {
+    subscriptionId match {
+      case id if id.matches(HexadecimalRegexp) => {
+        val subscription = subscriptionRepo.getSubscriptionById(id)
+        if (subscription == None) {
+          NotFound(EmptyResponse)
+        } else {
+          Ok(Json.toJson(subscriptionRepo.getSubscriptionById(id)))
+        }
       }
+      case _ => BadRequest(Json.toJson(Error.mustBeHexadecimal("SubscriptionId")))
     }
-    else BadRequest(Json.toJson(Error.mustBeHexadecimal("SubscriptionId")))
   }
 
-  def deleteSubscriptionById(id: String) = Action {
-    if (id.size == 24 && id.matches(CommonProps.HexadecimalRegexp)) {
-      if (subscriptionRepo.deleteSubscriptionById(id) > 0) {
-        Ok(CommonProps.EmptyResponse)
+  def enableSubscription(token: String) = Action {
+    token match {
+      case activationToken if activationToken.matches(HexadecimalRegexp32) => {
+        val result = subscriptionRepo.enableSubscription(activationToken)
+        if (result) {
+            Ok(Json.toJson(Success("OK","Subscription has been activated")))
+        } else {
+            NotFound(EmptyResponse)
+        }
       }
-      else NotFound(CommonProps.EmptyResponse)
+      case _ => BadRequest(Json.toJson(Error.mustBeHexadecimal("activationToken")))
     }
-    else BadRequest(Json.toJson(Error.mustBeHexadecimal("SubscriptionId")))
+  }
+
+  def deleteSubscriptionById(subscriptionId: String) = Action {
+    subscriptionId match {
+      case id if id.matches(HexadecimalRegexp) => {
+        if (subscriptionRepo.deleteSubscriptionById(subscriptionId) > 0) {
+          Ok(CommonProps.EmptyResponse)
+        }
+        else NotFound(EmptyResponse)
+      }
+      case _ => BadRequest(Json.toJson(Error.mustBeHexadecimal("SubscriptionId")))
+    }
   }
 
   def getAllSubscriptionsForEmail(email: String) = Action {
-    if (email.matches(CommonProps.EmailRegexp)) {
-      val subscriptions = subscriptionRepo.findAllSubscriptionsForEmail(email)
-      if (subscriptions.size > 0) {
-        Ok(Json.toJson(subscriptions))
-      } else {
-        NotFound(CommonProps.EmptyResponse)
+    email match {
+      case email if email.matches(EmailRegexp) => {
+        val subscriptions = subscriptionRepo.findAllSubscriptionsForEmail(email)
+        if (subscriptions.size > 0) {
+          Ok(Json.toJson(subscriptions))
+        } else {
+          NotFound(EmptyResponse)
+        }
       }
-    } else {
-      BadRequest(Json.toJson(new Error("Invalid email", "Invalid email format")))
+      case _ => BadRequest(Json.toJson(Error("Invalid email", "Invalid email format")))
     }
   }
 
@@ -82,7 +105,7 @@ class SubscriptionController @Inject()(cc: ControllerComponents, subscriptionRep
       },
       subscription => {
         subscriptionRepo.createSubscription(subscription)
-        Created(CommonProps.EmptyResponse)
+        Created(Json.toJson(Success("OK","Subscription has been created")))
       }
     )
     }

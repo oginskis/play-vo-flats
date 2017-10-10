@@ -5,7 +5,7 @@ import javax.mail.internet.{InternetAddress, MimeMessage}
 import javax.mail._
 
 import model.CommonProps._
-import model.b2c.{Flat, Subscription}
+import model.b2c.{FlatNotification, SubscriptionActivationRequest}
 import play.api.Configuration
 import play.api.i18n._
 
@@ -28,21 +28,40 @@ class EmailSendingService @Inject()(config: Configuration,
     });
 
 
-  def sendFlatNotificationEmail(flat: Flat, subscription: Subscription) = {
-    val localizedMessages:Messages = MessagesImpl(Lang(subscription.language),messagesApi)
-    val message = new MimeMessage(session)
-    message.setText(views.html.Application.newflat
-      .render(flat,subscription,localizedMessages)
-      .body,"utf-8", "html")
-    message.setFrom(new InternetAddress(config.get[String](EmailSender.SentFrom)))
-    message.setSubject(flat.address.getOrElse(EmptyProp)+
-      ", "+flat.district.getOrElse(EmptyProp)+", "+flat.city.getOrElse(EmptyProp)+", "
-      + flat.price.getOrElse(EmptyProp)+ " EUR")
-    val address:Address = new InternetAddress(subscription.subscriber)
-    message.setRecipients(Message.RecipientType.TO,Array(address))
-    Transport.send(message)
+  def sendFlatNotificationEmail(flatNotification: FlatNotification) = {
+    for {
+      flat <- flatNotification.flat
+      subscription <- flatNotification.subscription
+    } yield {
+      val localizedMessages: Messages = MessagesImpl(Lang(subscription.language), messagesApi)
+      val message = new MimeMessage(session)
+      message.setText(views.html.Application.newflat
+        .render(flat, subscription, localizedMessages)
+        .body, "utf-8", "html")
+      message.setFrom(new InternetAddress(config.get[String](EmailSender.SentFrom)))
+      message.setSubject(flat.address.getOrElse(EmptyProp) +
+        ", " + flat.district.getOrElse(EmptyProp) + ", " + flat.city.getOrElse(EmptyProp) + ", "
+        + flat.price.getOrElse(EmptyProp) + " EUR")
+      val address: Address = new InternetAddress(subscription.subscriber)
+      message.setRecipients(Message.RecipientType.TO, Array(address))
+      Transport.send(message)
+    }
   }
 
+  def sendSubscriptionActivationEmail(subscriptionActivationRequest: SubscriptionActivationRequest) = {
+    val activationToken = subscriptionActivationRequest.activationToken
+    val subscription = subscriptionActivationRequest.subscription
+    val localizedMessages: Messages = MessagesImpl(Lang(subscription.language), messagesApi)
+    val message = new MimeMessage(session)
+    message.setText(views.html.Application.activateSubscription
+      .render(activationToken, subscription, localizedMessages)
+      .body, "utf-8", "html")
+    message.setFrom(new InternetAddress(config.get[String](EmailSender.SentFrom)))
+    message.setSubject(localizedMessages("email.activation.header"))
+    val address: Address = new InternetAddress(subscription.subscriber)
+    message.setRecipients(Message.RecipientType.TO, Array(address))
+    Transport.send(message)
+  }
 }
 
 object EmailSender {

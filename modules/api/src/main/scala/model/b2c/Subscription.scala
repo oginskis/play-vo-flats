@@ -12,12 +12,12 @@ import play.api.libs.functional.syntax._
 case class Subscription(
                   val subscriptionId: Option[String] = None,
                   val subscriber: String,
-                  val priceRange: Option[Range],
-                  val sizeRange: Option[Range],
-                  val floorRange: Option[Range],
-                  val cities: Option[Array[String]],
-                  val districts: Option[Array[String]],
-                  val actions: Option[Array[String]],
+                  val priceRange: Option[Range] = None,
+                  val sizeRange: Option[Range] = None,
+                  val floorRange: Option[Range] = None,
+                  val cities: Option[Array[String]] = None,
+                  val districts: Option[Array[String]] = None,
+                  val actions: Option[Array[String]] = None,
                   val enabled: Option[Boolean] = Option(false),
                   val lastUpdatedDateTime: Option[Long] = Option(Instant.now.getEpochSecond),
                   val language: String = "en"

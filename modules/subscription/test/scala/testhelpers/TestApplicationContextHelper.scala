@@ -13,6 +13,7 @@ object TestApplicationContextHelper extends FlatSpec {
     MongoINMemoryDBSupport.startInMemoryMongo
     new GuiceApplicationBuilder()
       .overrides(bind[MongoConnection].to[MockedMongoConnection])
+      .configure("smtp.host" -> "localhost", "smtp.port" -> 2525)
       .build()
   }
 

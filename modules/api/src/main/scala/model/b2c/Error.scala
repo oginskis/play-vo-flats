@@ -15,7 +15,7 @@ object Error {
       fieldName + " must be valid hexadecimal string")
   }
 
-  implicit val rangeWrites = new Writes[Error] {
+  implicit val errorWrites = new Writes[Error] {
     override def writes(error: Error)= {
       Json.obj(
         "errorName" -> error.name,

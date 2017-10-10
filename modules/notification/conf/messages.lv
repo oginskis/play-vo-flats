@@ -26,10 +26,25 @@ email.cities=Pilsētas
 email.districts=Rajoni
 email.actions=Darbības
 email.priceRange=Cenas diapazons
-email.sizeRange=Izmēra diapazons
+email.sizeRange=Platības diapazons
 email.floorRange=Stāvu diapazons
 email.subscriber=E-pasta adrese
 
 email.serviceName=www.adscraper.lv
 email.unsubscribe=Atrakstīties
 email.unsubscribeAll=Atrakstīties no visiem filtriem e-pastam
+
+email.ss.lv.ahref=https://www.ss.com
+email.ss.lv.text=ss.com
+
+email.activation.title=Abonēšanas apstiprināšana
+email.activation.header=Filtra abonēšanas apstiprināšana
+email.activation.infoText1=Kāds tikko ir reģistrējis 
+email.activation.infoText2=ēpastu paziņojumu saņemšanai par jauniem dzīvokļu sludinājumiem un esošo sludinājumu cenu izmaiņām portālā
+email.activation.infoText3=Paziņojumi tiks sūtīti par sludinājumiem, kas atbilst sekojošam filtram: 
+email.activation.warning=UZMANĪBU! Jūs neizvēlējāties filtrēšanas kritērijus. Jūs saņemsiet paziņojumus par VISIEM jauniem sludinājumiem un esošo sludinājumu cenu izmaiņām!
+email.activation.button.explanation=Lai aktivizētu filtru, nospiediet zemāk esošo pogu 
+email.activation.button.text=Aktivizēt
+email.activation.button.url1=http://localhost:9000/subscription/enable/
+email.activation.infoText4=Ja jūst nevarat nospiest pogu, lūdzu iekopējiet sekojošu saiti jūsu pārlukprogrammā:
+email.activation.infoText5=Ja jūs vairs nevēlaties abonēt filtru, lūdzu ignorējiet šo ēpastu

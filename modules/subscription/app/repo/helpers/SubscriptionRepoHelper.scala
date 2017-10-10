@@ -1,56 +1,95 @@
 package repo.helpers
 
 import java.util
-import model.b2c.{Range, Subscription}
+
+import model.CommonProps
+import model.b2c.{Range, Subscription, SubscriptionActivationRequest}
 import org.bson.Document
+import org.bson.types.ObjectId
+
 import scala.collection.JavaConverters._
 import scala.util.Try
 
 object SubscriptionRepoHelper {
 
+  def createSubscriptionDocument(subscriptionActivationRequest:SubscriptionActivationRequest): Document = {
+    val document = createSubscriptionDocument(subscriptionActivationRequest.subscription)
+    document.append("activationToken", subscriptionActivationRequest.activationToken)
+  }
+
   def createSubscriptionDocument(subscription: Subscription): Document = {
     val params = new java.util.HashMap[String, Object]()
     params.put("subscriber", subscription.subscriber)
     params.put("language",subscription.language)
-    subscription.subscriptionId match {
-      case Some(value) => params.put("_id",value)
-      case None =>
+    for (subscriptionId <- subscription.subscriptionId){
+      params.put("_id",subscriptionId)
     }
-    subscription.enabled match {
-      case Some(value) => params.put("enabled",java.lang.Boolean.valueOf(value))
-      case None =>
+    for (enabled <- subscription.enabled){
+      params.put("enabled",java.lang.Boolean.valueOf(enabled))
     }
-    subscription.priceRange match {
-      case Some(value) => params.put("priceRange",getRangeDocument(value))
-      case None =>
+    for (priceRange <- subscription.priceRange) {
+      params.put("priceRange",getRangeDocument(priceRange))
     }
-    subscription.floorRange match {
-      case Some(value) => params.put("floorRange",getRangeDocument(value))
-      case None =>
+    for (floorRange <- subscription.floorRange) {
+      params.put("floorRange",getRangeDocument(floorRange))
     }
-    subscription.sizeRange match {
-      case Some(value) => params.put("sizeRange",getRangeDocument(value))
-      case None =>
+    for (sizeRange <- subscription.sizeRange) {
+      params.put("sizeRange",getRangeDocument(sizeRange))
     }
     val listParameters = new util.HashMap[String,Object]()
-    subscription.cities match {
-      case Some(value) => listParameters.put("cities",getListDocument(value))
-      case None =>
+    for (cities <- subscription.cities) {
+      listParameters.put("cities",getListDocument(cities))
     }
-    subscription.districts match {
-      case Some(value) => listParameters.put("districts",getListDocument(value))
-      case None =>
+    for (districts <- subscription.districts) {
+      listParameters.put("districts",getListDocument(districts))
     }
-    subscription.actions match {
-      case Some(value) => listParameters.put("actions",getListDocument(value))
-      case None =>
+    for (actions <- subscription.actions) {
+      listParameters.put("actions",getListDocument(actions))
     }
     if (!listParameters.isEmpty){
       params.put("parameters",new Document(listParameters))
     }
-    subscription.lastUpdatedDateTime match {
-      case Some(value) => params.put("lastUpdatedDateTime",java.lang.Long.valueOf(value))
-      case None =>
+    for (lastUpdatedDateTime <- subscription.lastUpdatedDateTime){
+      params.put("lastUpdatedDateTime",java.lang.Long.valueOf(lastUpdatedDateTime))
+    }
+    params.put("itemType", "subscription")
+    new Document(params)
+  }
+
+  def createSubscriptionActivationRequestQueryDoc(activationToken: String): Document = {
+    val params = new java.util.HashMap[String, Object]()
+    params.put("activationToken",activationToken)
+    new Document(params)
+  }
+
+  def createFindSubscriptionByIdDocumentQueryDoc(subscription: Subscription): Document = {
+    createFindSubscriptionByIdDocumentQueryDoc(subscription.subscriptionId)
+  }
+
+  def createFindSubscriptionByIdDocumentQueryDoc(id: Option[String]): Document = {
+    val document = createFindSubscriptionBy(id,"_id")
+    document.append("enabled",java.lang.Boolean.valueOf(true))
+  }
+
+  def createFindSubscriptionByIdActivationTokenQueryDoc(token: String): Document = {
+    val document = createFindSubscriptionBy(Option(token),"activationToken")
+    document.append("enabled",java.lang.Boolean.valueOf(false))
+  }
+
+  def createFindSubscriptionBy(id: Option[String], fieldName: String): Document = {
+    val params = new java.util.HashMap[String, Object]()
+    id match {
+      case Some(id) => {
+        if (fieldName == "_id") {
+          params.put(fieldName, new ObjectId(id))
+        }
+        else {
+          params.put(fieldName, id)
+        }
+      }
+      case None => {
+        throw new IllegalArgumentException("id is empty")
+      }
     }
     params.put("itemType", "subscription")
     new Document(params)
@@ -64,20 +103,27 @@ object SubscriptionRepoHelper {
 
   private def getRangeDocument(range: Range): Document = {
     val rangeDocument = new util.HashMap[String, Object]()
-    range.from match {
-      case Some(value) => rangeDocument.put("from", java.lang.Integer.valueOf(value))
-      case None => {}
+    for (from <- range.from) {
+      rangeDocument.put("from", java.lang.Integer.valueOf(from))
     }
-    range.to match {
-      case Some(value) => rangeDocument.put("to", java.lang.Integer.valueOf(value))
-      case None => {}
+    for (to <- range.to) {
+      rangeDocument.put("to", java.lang.Integer.valueOf(to))
     }
     new Document(rangeDocument)
   }
 
   def createSubscriptionObject(document: Document): Subscription = {
     new Subscription(
-      subscriptionId = Try(Option(document.get("_id").toString)).getOrElse(None),
+      subscriptionId = Try(
+        {
+          val id = document.get("_id").toString
+          if (id.matches(CommonProps.EmailRegexp)){
+            Option(document.get("id").toString)
+          } else {
+            Option(id)
+          }
+        }
+      ).getOrElse(None),
       subscriber = document.get("subscriber").toString,
       priceRange = getRangeObject(document.get("priceRange")),
       sizeRange = getRangeObject(document.get("sizeRange")),

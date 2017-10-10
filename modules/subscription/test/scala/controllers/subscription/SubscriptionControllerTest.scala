@@ -1,5 +1,6 @@
 package scala.controllers.subscription
 
+import com.dumbster.smtp.{SimpleSmtpServer, SmtpMessage}
 import configuration.testsupport.MongoINMemoryDBSupport
 import controllers.subscription.SubscriptionController
 import model.b2c.Subscription
@@ -11,13 +12,17 @@ import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test.{FakeHeaders, FakeRequest, Helpers}
 
+import scala.collection.immutable.StringOps
 import scala.concurrent.Future
 import scala.testhelpers.TestApplicationContextHelper._
 
 class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAfterAll {
 
+  val fakeSmtp = SimpleSmtpServer.start(2525)
+
   override def afterAll = {
     MongoINMemoryDBSupport.purgeFlats()
+    fakeSmtp.stop()
   }
 
   var subscriptionId: String = _
@@ -231,23 +236,16 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
       }
     }
     "be found" when {
-      "email of subscriber is passed to the corresponding function" in {
-        val result: Future[Result] = callGetAllSubscriptionsForEmail("viktors.test1@gmail.lv")
-        status(result) mustBe 200
-        val responseBody = Json.parse(contentAsString(result))
-        val subscriptions = responseBody.as[List[Subscription]]
-        subscriptions.size mustBe 1
-        val subscription = subscriptions.head
-        subscription.subscriptionId match {
-          case Some(value) => subscriptionId = value
-          case None => fail("SubscriptionId must be present")
-        }
-        validateSubscription(subscription)
-      }
-      "subscription identifier is passed to the corresponding function" in {
-        val result: Future[Result] = callGetSubscriptionById(subscriptionId)
-        val responseBody = Json.parse(contentAsString(result))
-        validateSubscription(responseBody.as[Subscription])
+      "subscriptions are activated" in {
+        fakeSmtp.getReceivedEmails.forEach(email => {
+          val activationToken = extractActivationToken(email)
+          val url = controllers.subscription.routes.SubscriptionController
+            .enableSubscription(activationToken).url
+          val result:Future[Result] = prepareGetRequestAndCallApi(activationToken,
+              url,
+              getGuiceContext().injector.instanceOf[SubscriptionController].enableSubscription(activationToken))
+          status(result) mustBe 200
+        })
       }
       "flat entity is passed to the corresponding function" in {
         val body = Json.parse(
@@ -269,26 +267,49 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
         status(result) mustBe 200
         val subscriptions = Json.parse(contentAsString(result)).as[List[Subscription]]
         subscriptions.size mustBe 2
-        val subscribers = subscriptions.map(subscription => subscription.subscriber)
-        subscribers must contain ("viktors.test4@gmail.lv")
-        subscribers must contain ("viktors.test1@gmail.lv")
+        val subscribers = subscriptions.map(subscription => {
+            (subscription.subscriptionId match {
+              case Some(value) => value
+              case None => fail("SubscriptionId must be present on subscription")
+            },
+              subscription.subscriber
+            )
+          }
+        )
+        val emails =  subscribers.map(tuple => tuple._2)
+        emails must contain ("viktors.test4@gmail.lv")
+        emails must contain ("viktors.test1@gmail.lv")
+        val subscriptionIds = subscribers.map(tuple => tuple._1)
+        subscriptionId = subscriptionIds.head
       }
     }
     "not be found" when {
       "email of subscriber is passed to the function in wrong format, BAD_REQUEST(400) must be returned" in {
-        val result: Future[Result] = callGetAllSubscriptionsForEmail("viktors.test1gmail.lv")
+        val url =  controllers.subscription.routes.SubscriptionController
+          .getAllSubscriptionsForEmail("viktors.test1gmail.lv").url
+        val call = getGuiceContext().injector.instanceOf[SubscriptionController].getAllSubscriptionsForEmail("viktors.test1gmail.lv")
+        val result: Future[Result] = prepareGetRequestAndCallApi("viktors.test1gmail.lv",url,call)
         status(result) mustBe 400
       }
       "there is no subscriber with given valid email, NOT_FOUND(404) must be returned" in {
-        val result: Future[Result] = callGetAllSubscriptionsForEmail("nosuchsubscriber@gmail.lv")
+        val url =  controllers.subscription.routes.SubscriptionController
+          .getAllSubscriptionsForEmail("nosuchsubscriber@gmail.lv").url
+        val call = getGuiceContext().injector.instanceOf[SubscriptionController].getAllSubscriptionsForEmail("nosuchsubscriber@gmail.lv")
+        val result: Future[Result] = prepareGetRequestAndCallApi("nosuchsubscriber@gmail.lv",url,call)
         status(result) mustBe 404
       }
       "subscription identifier which is passed to the function was in wrong format, BAD_REQUEST(400) must be returned" in {
-        val result: Future[Result] = callGetSubscriptionById("aaa")
+        val url =  controllers.subscription.routes.SubscriptionController
+          .getAllSubscriptionsForEmail("aaa").url
+        val call = getGuiceContext().injector.instanceOf[SubscriptionController].getSubscriptionById("aaa")
+        val result: Future[Result] = prepareGetRequestAndCallApi("aaa",url,call)
         status(result) mustBe 400
       }
       "there is no subscriber with given valid identifier, NOT_FOUND(404) must be returned" in {
-        val result: Future[Result] = callGetSubscriptionById("abcdef123456abcdef123456")
+        val url =  controllers.subscription.routes.SubscriptionController
+          .getAllSubscriptionsForEmail("abcdef123456abcdef123456").url
+        val call = getGuiceContext().injector.instanceOf[SubscriptionController].getSubscriptionById("abcdef123456abcdef123456")
+        val result: Future[Result] = prepareGetRequestAndCallApi("abcdef123456abcdef123456",url,call)
         status(result) mustBe 404
       }
     }
@@ -311,34 +332,27 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
     }
     "not be found by identifier anymore" when {
       "it was deleted, NOT_FOUND(404) must be returned" in {
-        val result: Future[Result] = callGetSubscriptionById(subscriptionId)
+        val url =  controllers.subscription.routes.SubscriptionController
+          .getAllSubscriptionsForEmail(subscriptionId).url
+        val call = getGuiceContext().injector.instanceOf[SubscriptionController].getSubscriptionById(subscriptionId)
+        val result: Future[Result] = prepareGetRequestAndCallApi("abcdef123456abcdef123456",url,call)
         status(result) mustBe 404
       }
     }
   }
 
-  private def callGetAllSubscriptionsForEmail(email: String) = {
-    val request = FakeRequest(
-      HttpVerbs.GET,
-      controllers.subscription.routes.SubscriptionController
-        .getAllSubscriptionsForEmail(email).url,
-    )
-    val controller = getGuiceContext().injector.instanceOf[SubscriptionController]
-    val result: Future[Result] = controller
-      .getAllSubscriptionsForEmail(email).apply(request)
-    result
+  private def extractActivationToken(email: SmtpMessage) = {
+    val index = new StringOps(email.getBody).lastIndexOfSlice("/subscription/enable/")
+    val activationToken = email.getBody.substring(index + 21, 32 + index + 21)
+    activationToken
   }
 
-  private def callGetSubscriptionById(id: String) = {
+  private def prepareGetRequestAndCallApi(parameter: String, endpointUrl:String, action: Action[AnyContent]) = {
     val request = FakeRequest(
       HttpVerbs.GET,
-      controllers.subscription.routes.SubscriptionController
-        .getSubscriptionById(id).url,
+      endpointUrl
     )
-    val controller = getGuiceContext().injector.instanceOf[SubscriptionController]
-    val result: Future[Result] = controller
-      .getSubscriptionById(id).apply(request)
-    result
+    action.apply(request)
   }
 
   private def callDeleteSubscriptionById(id: String) = {
@@ -351,54 +365,6 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
     val result: Future[Result] = controller
       .deleteSubscriptionById(id).apply(request)
     result
-  }
-
-  private def validateSubscription(subscription: Subscription) = {
-    subscription.subscriptionId mustNot be (None)
-    subscription.subscriber mustBe "viktors.test1@gmail.lv"
-    subscription.priceRange match {
-      case Some(range) => {
-        range.from mustBe Some(50000)
-        range.to mustBe Some(70000)
-      }
-      case None => fail("priceRange must be present")
-    }
-    subscription.sizeRange match {
-      case Some(range) => {
-        range.from mustBe Some(40)
-        range.to mustBe Some(70)
-      }
-      case None => fail("sizeRange must be present")
-    }
-    subscription.floorRange match {
-      case Some(range) => {
-        range.from mustBe Some(3)
-        range.to mustBe Some(5)
-      }
-      case None => fail("floorRange must be present")
-    }
-    subscription.cities match {
-      case Some(list) => {
-        list must contain ("riga")
-        list must contain ("jurmala")
-      }
-      case None => fail("Cities list must not be empty")
-    }
-    subscription.districts match {
-      case Some(list) => {
-        list must contain("centre")
-        list must contain("teika")
-      }
-      case None => fail("Districts list must not be empty")
-    }
-    subscription.actions match {
-      case Some(list) => {
-        list must contain("sell")
-      }
-      case None => fail("Actions list must not be empty")
-    }
-    subscription.enabled mustBe Option(false)
-    subscription.lastUpdatedDateTime mustNot be (None)
   }
 
   private def prepareRequestAndCallApi(body: JsValue, endpointUrl: String,

@@ -3,19 +3,21 @@ package scala.repo.helpers
 import java.time.Instant
 import java.util
 
-import model.b2c.Subscription
+import model.b2c.{Subscription, SubscriptionActivationRequest}
 import org.bson.Document
 import org.scalatestplus.play.PlaySpec
 import repo.helpers.SubscriptionRepoHelper._
 
+import scala.util.{Failure, Success, Try}
+
 class SubscriptionRepoHelperTest extends PlaySpec {
 
-  var currentDateTimeEpoch:Long = Instant.now.getEpochSecond
+  var currentDateTimeEpoch:Int = Instant.now.getEpochSecond.toInt
 
   "Subscription document object" should {
-    "be created out of subscription domain object" when {
+    "be created out of SubscriptionActivationRequest domain object" when {
       "all fields are present" in {
-        val subscription = new Subscription(
+        val subscription = Subscription(
           subscriber = "viktors@gmail.com",
           priceRange = Option(new model.b2c.Range(Option(1), Option(3))),
           sizeRange = Option(new model.b2c.Range(Option(2), Option(5))),
@@ -25,8 +27,12 @@ class SubscriptionRepoHelperTest extends PlaySpec {
           actions = Option(Array[String]("sell")),
           lastUpdatedDateTime = Option(currentDateTimeEpoch)
         )
-        val doc: Document = createSubscriptionDocument(subscription)
+        val subscriptionActivationRequest = SubscriptionActivationRequest(
+          "123456abcdef123456ABCDEFabcdef12",subscription
+        )
+        val doc: Document = createSubscriptionDocument(subscriptionActivationRequest)
         doc.get("subscriber").toString mustBe "viktors@gmail.com"
+        doc.get("activationToken").toString mustBe "123456abcdef123456ABCDEFabcdef12"
         val priceRange = doc.get("priceRange").asInstanceOf[Document]
         priceRange.get("from") mustBe 1
         priceRange.get("to") mustBe 3
@@ -47,6 +53,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
       }
       "all fields except subscriber and enabled, and language fields are empty" in {
         val subscription = new Subscription(
+          subscriptionId = Option("def123456ABCDEFabcdef12"),
           subscriber = "viktors@gmail.com",
           priceRange = None,
           sizeRange = None,
@@ -58,7 +65,11 @@ class SubscriptionRepoHelperTest extends PlaySpec {
           lastUpdatedDateTime = Option(currentDateTimeEpoch),
           language = "lv"
         )
-        val doc = createSubscriptionDocument(subscription)
+        val subscriptionActivationRequest = SubscriptionActivationRequest(
+          "123456abcdef123456ABCDEFabcdef12",subscription
+        )
+        val doc = createSubscriptionDocument(subscriptionActivationRequest)
+        doc.get("activationToken").toString mustBe "123456abcdef123456ABCDEFabcdef12"
         doc.get("subscriber").toString mustBe "viktors@gmail.com"
         doc.get("priceRange") mustBe null
         doc.get("sizeRange") mustBe null
@@ -82,8 +93,12 @@ class SubscriptionRepoHelperTest extends PlaySpec {
           lastUpdatedDateTime = Option(currentDateTimeEpoch),
           language = "en"
         )
-        val doc: Document = createSubscriptionDocument(subscription)
+        val subscriptionActivationRequest = SubscriptionActivationRequest(
+          "123456abcdef123456ABCDEFabcdef12",subscription
+        )
+        val doc: Document = createSubscriptionDocument(subscriptionActivationRequest)
         doc.get("subscriber").toString mustBe "viktors@gmail.com"
+        doc.get("activationToken").toString mustBe "123456abcdef123456ABCDEFabcdef12"
         val priceRange = doc.get("priceRange").asInstanceOf[Document]
         priceRange.get("from") mustBe 1
         priceRange.get("to") mustBe null
@@ -122,7 +137,10 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         parameters.put("actions",new util.ArrayList[String](util.Arrays.asList("sell")))
         params.put("parameters",new Document(parameters))
         val subscription = createSubscriptionObject(new Document(params))
-        subscription.subscriptionId.get mustBe "abcdef123456abcdef123456"
+        subscription.subscriptionId match {
+          case Some(id) => id mustBe "abcdef123456abcdef123456"
+          case None => fail("subscriptionId must be present")
+        }
         subscription.subscriber mustBe "viktors@gmail.com"
         subscription.language mustBe "en"
         subscription.priceRange match {
@@ -243,6 +261,51 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         }
         subscription.lastUpdatedDateTime mustBe Some(currentDateTimeEpoch)
         subscription.enabled mustBe Some(true)
+      }
+    }
+  }
+  "Subscription activation request query" should {
+    "be created" when {
+      "corresponding parameters are passed to the function" in {
+        val doc = createSubscriptionActivationRequestQueryDoc("123456abcdef123456ABCDEFabcdef12")
+        doc.get("activationToken").toString mustBe "123456abcdef123456ABCDEFabcdef12"
+      }
+    }
+  }
+  "Create subscription by _ request document query" should {
+    "be created" when {
+      "corresponding parameter (id) is passed to the function" in {
+        val subscription = Subscription(
+          subscriptionId = Option("adef123456abcdefabcdef12"),
+          subscriber = "viktors@gmail.com",
+          enabled = Option(false),
+          language = "en"
+        )
+        val doc = createFindSubscriptionByIdDocumentQueryDoc(subscription)
+        doc.get("_id").toString mustBe "adef123456abcdefabcdef12"
+        doc.get("itemType").toString mustBe "subscription"
+        doc.get("enabled") mustBe true
+      }
+      "corresponding parameter (activationToken) is passed to the function" in {
+        val doc = createFindSubscriptionByIdActivationTokenQueryDoc("123456abcdef123456ABCDEFabcdef13")
+        doc.get("activationToken") mustBe "123456abcdef123456ABCDEFabcdef13"
+        doc.get("enabled") mustBe false
+        doc.get("itemType") mustBe "subscription"
+      }
+    }
+    "not be created" when {
+      "subscriptionId not set" in {
+        val subscription = Subscription(
+          subscriptionId = None,
+          subscriber = "viktors@gmail.com",
+          enabled = Option(false),
+          language = "en"
+        )
+        Try(createFindSubscriptionByIdDocumentQueryDoc(subscription)) match {
+          case Success(_) => fail("exception must be thrown")
+          case Failure(ex) => ex.isInstanceOf[IllegalArgumentException] mustBe true
+        }
+
       }
     }
   }

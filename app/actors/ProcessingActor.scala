@@ -7,20 +7,24 @@ import com.mongodb.MongoCommandException
 import model.b2b.FlatRequestQuery
 import play.api.libs.ws.WSClient
 import play.api.{Configuration, Logger}
-import repo.FlatRepo
+import repo.{FlatRepo, SubscriptionRepo}
 
 import scala.collection.JavaConverters._
+import scala.services.EmailSendingService
 
 /**
   * Created by oginskis on 25/05/2017.
   */
 class ProcessingActor (flatRepo:FlatRepo,
+                       subscriptionRepo: SubscriptionRepo,
+                       emailSendingService: EmailSendingService,
                                 wsClient:WSClient,
                                 configuration: Configuration) extends Actor with ActorLogging {
 
   val extractingActor = {
     context.actorOf(RoundRobinPool(configuration.get[Int](ProcessingActor.extractingParallelActors))
-      .props(Props(classOf[ExtractingActor],flatRepo,wsClient,configuration)), name = "extractingActor")
+      .props(Props(classOf[ExtractingActor],flatRepo,subscriptionRepo,emailSendingService,
+        wsClient,configuration)), name = "extractingActor")
   }
 
   override def receive: Receive = {

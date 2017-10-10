@@ -4,7 +4,7 @@ import sbtassembly.Plugin.AssemblyKeys._
 name := """flats"""
 
 lazy val commonSettings = Seq(
-  version := "12.42",
+  version := "12.51",
   scalaVersion := "2.12.3"
 )
 
@@ -53,8 +53,8 @@ lazy val flats = (project in file("."))
     commonAssemblySettings
   )
   .enablePlugins(PlayScala)
-  .dependsOn(find,search,subscription,api)
-  .aggregate(find,search,subscription,api)
+  .dependsOn(find,search,subscription,api,notification)
+  .aggregate(find,search,subscription,api,notification)
 
 lazy val api = (project in file("modules/api"))
   .settings(commonSettings)

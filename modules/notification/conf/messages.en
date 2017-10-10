@@ -33,3 +33,18 @@ email.subscriber=Email address
 email.serviceName=www.adscraper.lv
 email.unsubscribe=Unsubscribe
 email.unsubscribeAll=Unsubscribe from ALL filters for email
+
+email.ss.lv.ahref=https://www.ss.com
+email.ss.lv.text=ss.com
+
+email.activation.title=Subscription activation
+email.activation.header=Activate your subscription
+email.activation.infoText1=Somebody just subscribed 
+email.activation.infoText2=to receive email notifications regarding new apartment advertisements and price changes of existing advertisements posted on 
+email.activation.infoText3=Notifications will be sent for new apartment advertisements that meet the following filter: 
+email.activation.warning=WARNING! No filter criteria has been set. You will receive notifications about ALL new apartment advertisements and price changes of existing advertisements! 
+email.activation.button.explanation=In order to activate the filter click the button below
+email.activation.button.text=Activate
+email.activation.button.url1=http://localhost:9000/subscription/enable/
+email.activation.infoText4=If you can''t click the button above, then copy and submit the following link to your browser:
+email.activation.infoText5=If you don''t want to subscribe to the filter anymore, then please ignore this email

@@ -8,20 +8,24 @@ import model.b2c.Flat
 import play.api.libs.ws.WSClient
 import play.api.{Configuration, Logger}
 import actors.functions.ContentExtractingFunctions._
-import repo.FlatRepo
+import repo.{FlatRepo, SubscriptionRepo}
+
+import scala.services.EmailSendingService
 
 
 /**
   * Created by oginskis on 12/03/2017.
   */
 class ExtractingActor (flatRepo:FlatRepo,
+                       subscriptionRepo: SubscriptionRepo,
+                       emailSendingService: EmailSendingService,
                        wsClient:WSClient,
                        configuration: Configuration)
   extends Actor with ActorLogging {
 
   val persistActor = {
     context.actorOf(RoundRobinPool(configuration.get[Int](ExtractingActor.persistingParallelActors))
-      .props(Props(classOf[PersistActor], flatRepo, configuration)), name = "persistActor")
+      .props(Props(classOf[PersistActor],flatRepo,subscriptionRepo,emailSendingService,configuration)), name = "persistActor")
   }
 
   override def receive: Receive = {
