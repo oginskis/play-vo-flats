@@ -36,7 +36,7 @@ class EmailSendingService @Inject()(config: Configuration,
       val localizedMessages: Messages = MessagesImpl(Lang(subscription.language), messagesApi)
       val message = new MimeMessage(session)
       message.setText(views.html.Application.newflat
-        .render(flat, subscription, localizedMessages)
+        .render(flat, subscription, localizedMessages,config,flatNotification.token.getOrElse(EmptyProp))
         .body, "utf-8", "html")
       message.setFrom(new InternetAddress(config.get[String](EmailSender.SentFrom)))
       message.setSubject(flat.address.getOrElse(EmptyProp) +
@@ -49,12 +49,12 @@ class EmailSendingService @Inject()(config: Configuration,
   }
 
   def sendSubscriptionActivationEmail(subscriptionActivationRequest: SubscriptionActivationRequest) = {
-    val activationToken = subscriptionActivationRequest.activationToken
+    val activationToken = subscriptionActivationRequest.token
     val subscription = subscriptionActivationRequest.subscription
     val localizedMessages: Messages = MessagesImpl(Lang(subscription.language), messagesApi)
     val message = new MimeMessage(session)
     message.setText(views.html.Application.activateSubscription
-      .render(activationToken, subscription, localizedMessages)
+      .render(activationToken.getOrElse(EmptyProp), subscription, localizedMessages,config)
       .body, "utf-8", "html")
     message.setFrom(new InternetAddress(config.get[String](EmailSender.SentFrom)))
     message.setSubject(localizedMessages("email.activation.header"))

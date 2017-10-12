@@ -6,24 +6,24 @@ import play.api.libs.functional.syntax._
 import java.lang.String._
 
 case class SubscriptionActivationRequest(
-                                        activationToken: String,
-                                        subscription: Subscription
+                                          token: Option[String],
+                                          subscription: Subscription
                                         ) {
 
   override def toString = {
-    format(s"activationToken: $activationToken, subscription: $subscription")
+    format(s"activationToken: $token, subscription: $subscription")
   }
 }
 
 object SubscriptionActivationRequest {
 
   implicit val activationRequestWrites: Writes[SubscriptionActivationRequest] = (
-    (JsPath \ "activationToken").write[String] and
+    (JsPath \ "activationToken").writeNullable[String] and
     (JsPath \ "subscription").write[Subscription]
     )(unlift(SubscriptionActivationRequest.unapply))
 
   implicit val activationRequestReads: Reads[SubscriptionActivationRequest] = (
-    (JsPath \ "activationToken").read[String] and
+    (JsPath \ "activationToken").readNullable[String] and
     (JsPath \ "subscriber").read[Subscription]
     )(SubscriptionActivationRequest.apply _)
 }

@@ -7,7 +7,8 @@ import play.api.libs.functional.syntax._
 
 case class FlatNotification(
                            val flat: Option[Flat],
-                           val subscription: Option[Subscription]
+                           val subscription: Option[Subscription],
+                           val token: Option[String]
                            ) {
 
     override def toString: String = {
@@ -20,11 +21,13 @@ object FlatNotification {
 
   implicit val flatNotificationWrites: Writes[FlatNotification] = (
     (JsPath \ "flat").writeNullable[Flat] and
-    (JsPath \ "subscription").writeNullable[Subscription]
+    (JsPath \ "subscription").writeNullable[Subscription] and
+    (JsPath \ "token").writeNullable[String]
     )(unlift(FlatNotification.unapply))
 
   implicit val flatNotificationReads: Reads[FlatNotification] = (
     (JsPath \ "flat").readNullable[Flat] and
-    (JsPath \ "subscription").readNullable[Subscription]
+    (JsPath \ "subscription").readNullable[Subscription] and
+    (JsPath \ "token").readNullable[String]
     )(FlatNotification.apply _)
 }

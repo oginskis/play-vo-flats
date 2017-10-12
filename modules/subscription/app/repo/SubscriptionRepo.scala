@@ -36,10 +36,10 @@ class SubscriptionRepo @Inject()(connection: MongoConnection, emailSendingServic
           lastUpdatedDateTime = Option(Instant.now.getEpochSecond),
           enabled = Option(false)
         )
-        Try(subscriptionCollection.insertOne(createSubscriptionDocument(SubscriptionActivationRequest(activationToken,
+        Try(subscriptionCollection.insertOne(createSubscriptionDocument(SubscriptionActivationRequest(Option(activationToken),
           savedSubscription)))) match {
           case Success(_) => {
-              emailSendingService.sendSubscriptionActivationEmail(SubscriptionActivationRequest(activationToken,
+              emailSendingService.sendSubscriptionActivationEmail(SubscriptionActivationRequest(Option(activationToken),
                 savedSubscription))
               true
           }

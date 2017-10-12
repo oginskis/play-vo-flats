@@ -1,4 +1,5 @@
-@(flat: model.b2c.Flat, subscription: model.b2c.Subscription, messages: play.api.i18n.Messages)
+@(flat: model.b2c.Flat, subscription: model.b2c.Subscription, messages: play.api.i18n.Messages,
+        config: play.api.Configuration, token: String)
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -613,7 +614,8 @@
                         <tr>
                             <td align="left" valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;color: darkgray;
                                 padding: 3px 0 10px 3px;">
-                                <a style="color: #555;" href="#" target="_blank">
+                                <a style="color: #555;" href="@config.get[String]("web.app.basePath"))/subscription/disable/@token"
+                                target="_blank">
                                         @messages("email.unsubscribe")
                                 </a>
                             </td>
@@ -625,22 +627,6 @@
         <tr>
             <td>
                 <hr style="border: 1px solid black">
-            </td>
-        </tr>
-        <tr>
-            <td align="left" valign="top">
-                <div style="display:inline-block; max-width:500px; vertical-align:top; width:100%;">
-                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:500px;" class="deviceWidth">
-                        <tr>
-                            <td align="left" valign="top" style="font-size:12px;font-family: Roboto,Tahoma, sans-serif;color: darkgray;
-                                padding: 0 0 0 5px;">
-                                <a style="color: #555;" href="#" target="_blank">
-                                        @messages("email.unsubscribeAll") @subscription.subscriber
-                                </a>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
             </td>
         </tr>
         <tr>

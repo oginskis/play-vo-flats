@@ -28,7 +28,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
           lastUpdatedDateTime = Option(currentDateTimeEpoch)
         )
         val subscriptionActivationRequest = SubscriptionActivationRequest(
-          "123456abcdef123456ABCDEFabcdef12",subscription
+          Option("123456abcdef123456ABCDEFabcdef12"),subscription
         )
         val doc: Document = createSubscriptionDocument(subscriptionActivationRequest)
         doc.get("subscriber").toString mustBe "viktors@gmail.com"
@@ -66,7 +66,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
           language = "lv"
         )
         val subscriptionActivationRequest = SubscriptionActivationRequest(
-          "123456abcdef123456ABCDEFabcdef12",subscription
+          Option("123456abcdef123456ABCDEFabcdef12"),subscription
         )
         val doc = createSubscriptionDocument(subscriptionActivationRequest)
         doc.get("activationToken").toString mustBe "123456abcdef123456ABCDEFabcdef12"
@@ -94,7 +94,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
           language = "en"
         )
         val subscriptionActivationRequest = SubscriptionActivationRequest(
-          "123456abcdef123456ABCDEFabcdef12",subscription
+          Option("123456abcdef123456ABCDEFabcdef12"),subscription
         )
         val doc: Document = createSubscriptionDocument(subscriptionActivationRequest)
         doc.get("subscriber").toString mustBe "viktors@gmail.com"

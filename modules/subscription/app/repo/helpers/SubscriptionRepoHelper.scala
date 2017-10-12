@@ -9,12 +9,13 @@ import org.bson.types.ObjectId
 
 import scala.collection.JavaConverters._
 import scala.util.Try
+import model.CommonProps._
 
 object SubscriptionRepoHelper {
 
   def createSubscriptionDocument(subscriptionActivationRequest:SubscriptionActivationRequest): Document = {
     val document = createSubscriptionDocument(subscriptionActivationRequest.subscription)
-    document.append("activationToken", subscriptionActivationRequest.activationToken)
+    document.append("activationToken", subscriptionActivationRequest.token.getOrElse(EmptyResponse))
   }
 
   def createSubscriptionDocument(subscription: Subscription): Document = {

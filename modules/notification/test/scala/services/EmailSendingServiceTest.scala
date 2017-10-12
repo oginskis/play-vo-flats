@@ -22,7 +22,7 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
     "be sent (EN)" in {
       val emailSendingService = getGuiceContext.injector.instanceOf[EmailSendingService]
       emailSendingService.sendFlatNotificationEmail(FlatNotification(
-        Option(createFlat),Option(createSubscription("en"))))
+        Option(createFlat),Option(createSubscription("en")),Option("aabbcc")))
       val messages = fakeSmtp.getReceivedEmails.asScala
       messages.headOption match {
         case Some(message) => {
@@ -59,7 +59,6 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
           message.getBody.contains("Size range") mustBe true
           message.getBody.contains("Floor range") mustBe true
           message.getBody.contains("Unsubscribe") mustBe true
-          message.getBody.contains("Unsubscribe from ALL filters for email viktors.oginskis@gmail.com") mustBe true
           message.getBody.contains("www.adscraper.lv") mustBe true
           message.getBody.contains("viktors.oginskis@gmail.com") mustBe true
           message.getBody.contains("riga") mustBe true
@@ -74,6 +73,7 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
           message.getBody.contains("...") mustBe true
           message.getBody.contains("You received this email because you had " +
             "been subscribed to the following filter:") mustBe true
+          message.getBody.contains("subscription/disable/aabbcc") mustBe true
 
         }
         case None => fail("list does not contain message")
@@ -83,7 +83,7 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
     "be sent (LV)" in {
       val emailSendingService = getGuiceContext.injector.instanceOf[EmailSendingService]
       emailSendingService.sendFlatNotificationEmail(FlatNotification(
-        Option(createFlat),Option(createSubscription("lv"))))
+        Option(createFlat),Option(createSubscription("lv")),Option("aabbcc")))
       val messages = fakeSmtp.getReceivedEmails.asScala
       messages.headOption match {
         case Some(message) => {
@@ -120,7 +120,6 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
           message.getBody.contains("Plat=C4=ABbas diapazons") mustBe true
           message.getBody.contains("St=C4=81vu diapazons") mustBe true
           message.getBody.contains("Atrakst=C4=ABties") mustBe true
-          message.getBody.contains("Atrakst=C4=ABties no visiem filtrie=m e-pastam") mustBe true
           message.getBody.contains("www.adscraper.lv") mustBe true
           message.getBody.contains("viktors.oginskis@gmail.com") mustBe true
           message.getBody.contains("riga") mustBe true
@@ -135,6 +134,7 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
           message.getBody.contains("...") mustBe true
           message.getBody.contains("Tu esi sa=C5=86=C4=93mis =C5=A1o e-pastu, " +
             "jo es=i pierakst=C4=ABjies sekojo=C5=A1am filtram:") mustBe true
+          message.getBody.contains("subscription/disable/aabbcc") mustBe true
         }
         case None => fail("list does not contain message")
       }
@@ -146,7 +146,7 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
       val emailSendingService = getGuiceContext.injector.instanceOf[EmailSendingService]
       val uuid = java.util.UUID.randomUUID.toString.replace("-","")
       emailSendingService
-        .sendSubscriptionActivationEmail(SubscriptionActivationRequest(uuid,createSubscription("en")))
+        .sendSubscriptionActivationEmail(SubscriptionActivationRequest(Option(uuid),createSubscription("en")))
       val messages = fakeSmtp.getReceivedEmails.asScala
       messages.headOption match {
         case Some(message) => {
@@ -172,7 +172,7 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
       val emailSendingService = getGuiceContext.injector.instanceOf[EmailSendingService]
       val uuid = java.util.UUID.randomUUID.toString.replace("-","")
       emailSendingService
-        .sendSubscriptionActivationEmail(SubscriptionActivationRequest(uuid,createEmptySubscription("en")))
+        .sendSubscriptionActivationEmail(SubscriptionActivationRequest(Option(uuid),createEmptySubscription("en")))
       val messages = fakeSmtp.getReceivedEmails.asScala
       messages.headOption match {
         case Some(message) => {
@@ -190,7 +190,7 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
       val emailSendingService = getGuiceContext.injector.instanceOf[EmailSendingService]
       val uuid = java.util.UUID.randomUUID.toString.replace("-","")
       emailSendingService
-        .sendSubscriptionActivationEmail(SubscriptionActivationRequest(uuid,createSubscription("lv")))
+        .sendSubscriptionActivationEmail(SubscriptionActivationRequest(Option(uuid),createSubscription("lv")))
       val messages = fakeSmtp.getReceivedEmails.asScala
       messages.headOption match {
         case Some(message) => {
@@ -216,7 +216,7 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
       val emailSendingService = getGuiceContext.injector.instanceOf[EmailSendingService]
       val uuid = java.util.UUID.randomUUID.toString.replace("-","")
       emailSendingService
-        .sendSubscriptionActivationEmail(SubscriptionActivationRequest(uuid,createEmptySubscription("lv")))
+        .sendSubscriptionActivationEmail(SubscriptionActivationRequest(Option(uuid),createEmptySubscription("lv")))
       val messages = fakeSmtp.getReceivedEmails.asScala
       messages.headOption match {
         case Some(message) => {
