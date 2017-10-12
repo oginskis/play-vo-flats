@@ -282,6 +282,35 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
         val subscriptionIds = subscribers.map(tuple => tuple._1)
         subscriptionId = subscriptionIds.head
       }
+      "subscriptionId is passed to the corresponding function" in {
+        val result: Future[Result] = prepareGetRequestAndCallApi(
+          subscriptionId,
+          controllers.subscription.routes.SubscriptionController.getSubscriptionById(subscriptionId).url,
+          getGuiceContext().injector.instanceOf[SubscriptionController].getSubscriptionById(subscriptionId)
+        )
+        status(result) mustBe 200
+        val subscription = Json.parse(contentAsString(result)).as[Subscription]
+        subscription.subscriber mustBe "viktors.test4@gmail.lv"
+        subscription.enabled match {
+          case Some(value) => value mustBe true
+          case None => fail("enabled must be set to value")
+        }
+      }
+      "email address of a subscriber is passed to the corresponding function" in {
+        val result: Future[Result] = prepareGetRequestAndCallApi(
+          "viktors.test4@gmail.lv",
+          controllers.subscription.routes.SubscriptionController.getAllSubscriptionsForEmail("viktors.test4@gmail.lv").url,
+          getGuiceContext().injector.instanceOf[SubscriptionController].getAllSubscriptionsForEmail("viktors.test4@gmail.lv")
+        )
+        val subscriptions = Json.parse(contentAsString(result)).as[List[Subscription]]
+        (subscriptions.size > 1) mustBe false
+        subscriptions.headOption match {
+          case Some(value) => {
+            value.subscriber mustBe "viktors.test4@gmail.lv"
+          }
+          case None => fail("at least one subscribtion must be found")
+        }
+      }
     }
     "not be found" when {
       "email of subscriber is passed to the function in wrong format, BAD_REQUEST(400) must be returned" in {
