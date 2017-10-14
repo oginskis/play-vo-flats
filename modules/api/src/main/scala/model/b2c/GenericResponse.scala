@@ -1,8 +1,7 @@
 package model.b2c
 
 import play.api.libs.functional.syntax.unlift
-import play.api.libs.json.{JsPath, Writes}
-
+import play.api.libs.json.{JsPath, Reads, Writes}
 import play.api.libs.functional.syntax._
 
 case class GenericResponse(properties: List[Item]) {
@@ -36,6 +35,15 @@ object GenericResponse {
 
   implicit val writesGenericResponse: Writes[GenericResponse] =
     (JsPath \ "properties").write[List[Item]].contramap(_.properties)
+
+  implicit val readsItems: Reads[Item] = (
+    (JsPath \ "key").read[String] and
+      (JsPath \ "value").read[String]
+    )(Item.apply _)
+
+  implicit val readsGenericResponse: Reads[GenericResponse] =
+    (JsPath \ "properties").read[List[Item]].map(GenericResponse(_))
+
 }
 
 

@@ -3,7 +3,8 @@ package scala.controllers.subscription
 import com.dumbster.smtp.{SimpleSmtpServer, SmtpMessage}
 import configuration.testsupport.MongoINMemoryDBSupport
 import controllers.subscription.SubscriptionController
-import model.b2c.Subscription
+import model.CommonProps
+import model.b2c.{GenericResponse, Subscription}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatestplus.play.PlaySpec
 import play.api.http.HttpVerbs
@@ -26,6 +27,7 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
   }
 
   var subscriptionId: String = _
+  var token: String = _
 
   "Subscription(s)" should {
     "be created with valid input" when {
@@ -342,8 +344,40 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
         status(result) mustBe 404
       }
     }
+    "be disabled" when {
+      "subscription token is retrieved by id" in {
+        val url =  controllers.subscription.routes.SubscriptionController
+          .getSubscriptionToken(subscriptionId).url
+        val call = getGuiceContext().injector.instanceOf[SubscriptionController].getSubscriptionToken(subscriptionId)
+        val result: Future[Result] = prepareGetRequestAndCallApi(subscriptionId,url,call)
+        status(result) mustBe 200
+        val body = Json.parse(contentAsString(result)).as[GenericResponse]
+        body.properties.headOption match {
+          case Some(value) => {
+            value.key mustBe "token"
+            value.value.matches(CommonProps.HexadecimalRegexp32) mustBe true
+            token = value.value
+          }
+          case None => {
+            fail("Body of response must contain value")
+          }
+        }
+      }
+      "subscription activation token is passed to the corresponding function" in {
+        val url =  controllers.subscription.routes.SubscriptionController
+          .disableSubscription(token).url
+        val call = getGuiceContext().injector.instanceOf[SubscriptionController].disableSubscription(token)
+        val result: Future[Result] = prepareGetRequestAndCallApi(token,url,call)
+        status(result) mustBe 200
+      }
+    }
     "be deleted" when {
-      "valid identifier was passed to the function" in {
+      "valid identifier was passed to the function and subscription is enabled" in {
+        val url =  controllers.subscription.routes.SubscriptionController
+          .enableSubscription(token).url
+        val call = getGuiceContext().injector.instanceOf[SubscriptionController].enableSubscription(token)
+        val resultEnableBack: Future[Result] = prepareGetRequestAndCallApi(token,url,call)
+        status(resultEnableBack) mustBe 200
         val result: Future[Result] = callDeleteSubscriptionById(subscriptionId)
         status(result) mustBe 200
       }

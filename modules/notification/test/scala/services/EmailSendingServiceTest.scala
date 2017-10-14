@@ -80,66 +80,6 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
       }
       fakeSmtp.reset
     }
-    "be sent (LV)" in {
-      val emailSendingService = getGuiceContext.injector.instanceOf[EmailSendingService]
-      emailSendingService.sendFlatNotificationEmail(FlatNotification(
-        Option(createFlat),Option(createSubscription("lv")),Option("aabbcc")))
-      val messages = fakeSmtp.getReceivedEmails.asScala
-      messages.headOption match {
-        case Some(message) => {
-          message.getHeaderValue("From") mustBe "no-reply@adscraper.lv"
-          message.getHeaderValue("To") mustBe "viktors.oginskis@gmail.com"
-          message.getHeaderValue("Subject") mustBe "Caka 95, teika, riga, 80000 EUR"
-          message.getBody.contains("Jauns dz=C4=ABvoklis tika pievienots") mustBe true
-          message.getBody.contains("Adrese") mustBe true
-          message.getBody.contains("Pils=C4=93ta, rajons") mustBe true
-          message.getBody.contains("Plat=C4=ABba") mustBe true
-          message.getBody.contains("St=C4=81vs") mustBe true
-          message.getBody.contains("Istabu skaits") mustBe true
-          message.getBody.contains("Cena") mustBe true
-          message.getBody.contains("Links") mustBe true
-          message.getBody.contains("Kas public=C4=93ja?") mustBe true
-          message.getBody.contains("T=C4=81lru=C5=86i") mustBe true
-          message.getBody.contains("Uz=C5=86=C4=93mums") mustBe true
-          message.getBody.contains("WWW") mustBe true
-          message.getBody.contains("www.adscraper.lv") mustBe true
-          message.getBody.contains("WWW") mustBe true
-          message.getBody.contains("Caka 95") mustBe true
-          message.getBody.contains("riga, teika") mustBe true
-          message.getBody.contains("75  m2") mustBe true
-          message.getBody.contains("2/5") mustBe true
-          message.getBody.contains("80000 EUR") mustBe true
-          message.getBody.contains("https://www.ss.comss.lv") mustBe true
-          message.getBody.contains("29556271, 29556272") mustBe true
-          message.getBody.contains("Company") mustBe true
-          message.getBody.contains("E-pasta adrese") mustBe true
-          message.getBody.contains("Pils=C4=93tas") mustBe true
-          message.getBody.contains("Rajoni") mustBe true
-          message.getBody.contains("Darb=C4=ABbas") mustBe true
-          message.getBody.contains("Cenas diapazons") mustBe true
-          message.getBody.contains("Plat=C4=ABbas diapazons") mustBe true
-          message.getBody.contains("St=C4=81vu diapazons") mustBe true
-          message.getBody.contains("Atrakst=C4=ABties") mustBe true
-          message.getBody.contains("www.adscraper.lv") mustBe true
-          message.getBody.contains("viktors.oginskis@gmail.com") mustBe true
-          message.getBody.contains("riga") mustBe true
-          message.getBody.contains("teika, centrs") mustBe true
-          message.getBody.contains("sell") mustBe true
-          message.getBody.contains("70000") mustBe true
-          message.getBody.contains("EUR") mustBe true
-          message.getBody.contains("40") mustBe true
-          message.getBody.contains("90") mustBe true
-          message.getBody.contains("m2") mustBe true
-          message.getBody.contains("5") mustBe true
-          message.getBody.contains("...") mustBe true
-          message.getBody.contains("Tu esi sa=C5=86=C4=93mis =C5=A1o e-pastu, " +
-            "jo es=i pierakst=C4=ABjies sekojo=C5=A1am filtram:") mustBe true
-          message.getBody.contains("subscription/disable/aabbcc") mustBe true
-        }
-        case None => fail("list does not contain message")
-      }
-      fakeSmtp.reset
-    }
   }
   "Activation email" should {
     "be sent (EN)" in {
@@ -186,49 +126,6 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
 
       fakeSmtp.reset
     }
-    "be sent (LV)" in {
-      val emailSendingService = getGuiceContext.injector.instanceOf[EmailSendingService]
-      val uuid = java.util.UUID.randomUUID.toString.replace("-","")
-      emailSendingService
-        .sendSubscriptionActivationEmail(SubscriptionActivationRequest(Option(uuid),createSubscription("lv")))
-      val messages = fakeSmtp.getReceivedEmails.asScala
-      messages.headOption match {
-        case Some(message) => {
-          checkCommonFieldsLv(message,uuid)
-          message.getBody.contains("Pils=C4=93tas") mustBe true
-          message.getBody.contains("Rajoni") mustBe true
-          message.getBody.contains("Darb=C4=ABbas") mustBe true
-          message.getBody.contains("Cenas diapazons") mustBe true
-          message.getBody.contains("Plat=C4=ABbas diapazons") mustBe true
-          message.getBody.contains("St=C4=81vu diapazons") mustBe true
-          message.getBody.contains("riga") mustBe true
-          message.getBody.contains("teika, centrs") mustBe true
-          message.getBody.contains("sell") mustBe true
-          message.getBody.contains("70000 EUR") mustBe true
-          message.getBody.contains("40 m2") mustBe true
-          message.getBody.contains("90 m2") mustBe true
-        }
-        case None => fail("list does not contain message")
-      }
-      fakeSmtp.reset
-    }
-    "be sent, empty subscription (LV)" in {
-      val emailSendingService = getGuiceContext.injector.instanceOf[EmailSendingService]
-      val uuid = java.util.UUID.randomUUID.toString.replace("-","")
-      emailSendingService
-        .sendSubscriptionActivationEmail(SubscriptionActivationRequest(Option(uuid),createEmptySubscription("lv")))
-      val messages = fakeSmtp.getReceivedEmails.asScala
-      messages.headOption match {
-        case Some(message) => {
-          checkCommonFieldsLv(message,uuid)
-          message.getBody.contains("UZMAN=C4=AABU! J=C5=ABs neizv=C4=93l=C4=93j=C4==81ties filtr=C4=93=C5=A1anas " +
-            "krit=C4=93rijus. J=C5=ABs sa=C5=86emsiet pazi==C5=86ojumus par VISIEM jauniem " +
-            "sludin=C4=81jumiem un eso=C5=A1o sludin=C4==81jumu cenu izmai=C5=86=C4=81m! ") mustBe true
-        }
-        case None => fail("list does not contain message")
-      }
-      fakeSmtp.reset
-    }
   }
 
   private def checkCommonFieldsEn(message: SmtpMessage,uuid: String) = {
@@ -247,22 +144,6 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
     message.getBody.contains("If you can&#x27;t click the button above, then copy and submit the following link to your browser:") mustBe true
     message.getBody.contains(s"subscription/enable/$uuid") mustBe true
     message.getBody.contains("If you don&#x27;t want to subscribe to the filter anymore, then please ignore this email") mustBe true
-  }
-
-  private def checkCommonFieldsLv(message: SmtpMessage,uuid: String) = {
-    message.getHeaderValue("From") mustBe "no-reply@adscraper.lv"
-    message.getHeaderValue("To") mustBe "viktors.oginskis@gmail.com"
-    message.getBody.contains("Filtra abon=C4=93=C5=A1anas apstiprin=C4=81=C5==A1ana") mustBe true
-    message.getBody.contains("K=C4=81ds tikko ir re=C4=A3istr=C4=93jis") mustBe true
-    message.getBody.contains("viktors.oginskis@gmail.com") mustBe true
-    message.getBody.contains("=C4=93pastu pazi=C5=86o=jumu sa=C5=86em=C5=A1anai par") mustBe true
-    message.getBody.contains("jauniem dz=C4=ABvok=C4=BCu sludin=C4=81jumiem= un eso=C5=A1o sludin=C4=81jumu cenu izmai=C5=86=C4=81m port=C4=81l=C4=81") mustBe true
-    message.getBody.contains("ss.com") mustBe true
-    message.getBody.contains("Pazi=C5=86ojumi tiks s=C5=ABt=C4=ABti par sludin=C4==81jumiem, kas atbilst sekojo=C5=A1am filtram:") mustBe true
-    message.getBody.contains("Lai aktiviz=C4=93tu filtru, nospiediet zem=C4=81k e=so=C5=A1o pogu") mustBe true
-    message.getBody.contains("Ja j=C5=ABst nevarat nospiest pogu, l=C5=ABdzu ieko=p=C4=93jiet sekojo=C5=A1u saiti j=C5=ABsu p=C4=81rlukprogramm=C4=81:") mustBe true
-    message.getBody.contains(s"subscription/enable/$uuid") mustBe true
-    message.getBody.contains("Ja j=C5=ABs vairs nev=C4=93laties abon=C4=93t filtr=u, l=C5=ABdzu ignor=C4=93jiet =C5=A1o =C4=93pastu") mustBe true
   }
 
   private def createSubscription(lang: String) = {

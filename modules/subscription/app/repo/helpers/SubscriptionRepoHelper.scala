@@ -72,9 +72,9 @@ object SubscriptionRepoHelper {
     document.append("enabled",java.lang.Boolean.valueOf(true))
   }
 
-  def createFindSubscriptionByIdActivationTokenQueryDoc(token: String): Document = {
+  def createFindSubscriptionByIdActivationTokenQueryDoc(token: String, subscriptionEnabled: Boolean): Document = {
     val document = createFindSubscriptionBy(Option(token),"activationToken")
-    document.append("enabled",java.lang.Boolean.valueOf(false))
+    document.append("enabled",java.lang.Boolean.valueOf(subscriptionEnabled))
   }
 
   def createFindSubscriptionBy(id: Option[String], fieldName: String): Document = {

@@ -286,10 +286,16 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         doc.get("itemType").toString mustBe "subscription"
         doc.get("enabled") mustBe true
       }
-      "corresponding parameter (activationToken) is passed to the function" in {
-        val doc = createFindSubscriptionByIdActivationTokenQueryDoc("123456abcdef123456ABCDEFabcdef13")
+      "corresponding parameter (activationToken) is passed to the function (for enabling)" in {
+        val doc = createFindSubscriptionByIdActivationTokenQueryDoc("123456abcdef123456ABCDEFabcdef13",false)
         doc.get("activationToken") mustBe "123456abcdef123456ABCDEFabcdef13"
         doc.get("enabled") mustBe false
+        doc.get("itemType") mustBe "subscription"
+      }
+      "corresponding parameter (activationToken) is passed to the function (for disabling)" in {
+        val doc = createFindSubscriptionByIdActivationTokenQueryDoc("123456abcdef123456ABCDEFabcdef13",true)
+        doc.get("activationToken") mustBe "123456abcdef123456ABCDEFabcdef13"
+        doc.get("enabled") mustBe true
         doc.get("itemType") mustBe "subscription"
       }
     }

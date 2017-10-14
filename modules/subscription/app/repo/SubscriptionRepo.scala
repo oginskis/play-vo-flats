@@ -74,7 +74,7 @@ class SubscriptionRepo @Inject()(connection: MongoConnection, emailSendingServic
   private def subscriptionAction(activationToken: String, enable: Boolean) = {
     activationToken match {
       case activationToken if activationToken.matches(HexadecimalRegexp32) => {
-        val params = createFindSubscriptionByIdActivationTokenQueryDoc(activationToken)
+        val params = createFindSubscriptionByIdActivationTokenQueryDoc(activationToken,!enable)
         val updParams = new java.util.HashMap[String, Object]()
         updParams.put("enabled", java.lang.Boolean.valueOf(enable))
         val result = subscriptionCollection.findOneAndUpdate(params, new Document("$set", new Document(updParams)))
@@ -117,6 +117,7 @@ class SubscriptionRepo @Inject()(connection: MongoConnection, emailSendingServic
       case email if email.matches(EmailRegexp) => {
         val params = new util.HashMap[String, Object]()
         params.put("subscriber", email)
+        params.put("enabled",java.lang.Boolean.valueOf(true))
         val documents = subscriptionCollection.find(new Document(params)).asScala.toList
         documents.map(document => createSubscriptionObject(document))
       }
