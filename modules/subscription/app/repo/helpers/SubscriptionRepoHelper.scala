@@ -133,7 +133,7 @@ object SubscriptionRepoHelper {
       districts = getListObject(document.get("parameters"),"districts"),
       actions = getListObject(document.get("parameters"),"actions"),
       enabled = Option(document.getBoolean("enabled")),
-      lastUpdatedDateTime = Option(document.getLong("lastUpdatedDateTime")),
+      lastUpdatedDateTime = Option(document.get("lastUpdatedDateTime").toString.toLong),
       language = Try(document.get("language").toString).getOrElse("en")
     )
   }
