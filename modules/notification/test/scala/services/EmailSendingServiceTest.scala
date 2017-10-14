@@ -260,7 +260,6 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
     message.getBody.contains("ss.com") mustBe true
     message.getBody.contains("Pazi=C5=86ojumi tiks s=C5=ABt=C4=ABti par sludin=C4==81jumiem, kas atbilst sekojo=C5=A1am filtram:") mustBe true
     message.getBody.contains("Lai aktiviz=C4=93tu filtru, nospiediet zem=C4=81k e=so=C5=A1o pogu") mustBe true
-    message.getBody.contains("Aktiviz=C4=93t") mustBe true
     message.getBody.contains("Ja j=C5=ABst nevarat nospiest pogu, l=C5=ABdzu ieko=p=C4=93jiet sekojo=C5=A1u saiti j=C5=ABsu p=C4=81rlukprogramm=C4=81:") mustBe true
     message.getBody.contains(s"subscription/enable/$uuid") mustBe true
     message.getBody.contains("Ja j=C5=ABs vairs nev=C4=93laties abon=C4=93t filtr=u, l=C5=ABdzu ignor=C4=93jiet =C5=A1o =C4=93pastu") mustBe true
