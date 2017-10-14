@@ -1,19 +1,8 @@
-## Routes
-#GET     /subscriptions/email/:email             controllers.subscription.SubscriptionController.getAllSubscriptionsForEmail(email: String)
-#
-#POST    /subscriptions/subscription
-#GET     /subscriptions/subscription/:id
-#DELETE  /subscriptions/subscription/:id
-#
-#POST    /subscriptions/subscription/:id/enable
-#
-#POST    /subscriptions/subscribers              controllers.subscription.SubscriptionController.getAllWhoSubscribedFor()
-
-
 # Manipulating subscriptions
 POST    /subscriptions                        controllers.subscription.SubscriptionController.createSubscription()
 GET     /subscriptions/:id                    controllers.subscription.SubscriptionController.getSubscriptionById(id: String)
 DELETE  /subscriptions/:id                    controllers.subscription.SubscriptionController.deleteSubscriptionById(id: String)
+GET     /subscriptions/:id/token              controllers.subscription.SubscriptionController.getSubscriptionToken(id: String)
 
 # Searching subscriptions
 GET     /subscriptions/search/:email          controllers.subscription.SubscriptionController.getAllSubscriptionsForEmail(email: String)
@@ -21,4 +10,4 @@ POST    /subscriptions/search                 controllers.subscription.Subscript
 
 # Manipulating subscription through email
 GET     /subscription/enable/:token           controllers.subscription.SubscriptionController.enableSubscription(token: String)
-#GET     /subscription/disable/:token
+GET     /subscription/disable/:token          controllers.subscription.SubscriptionController.disableSubscription(token: String)

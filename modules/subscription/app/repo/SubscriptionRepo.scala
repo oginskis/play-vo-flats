@@ -53,11 +53,30 @@ class SubscriptionRepo @Inject()(connection: MongoConnection, emailSendingServic
   }
 
   def enableSubscription(activationToken: String): Boolean = {
+    subscriptionAction(activationToken,true)
+  }
+
+  def disableSubscription(activationToken: String): Boolean = {
+    subscriptionAction(activationToken,false)
+  }
+
+  def getSubscriptionToken(subscriptionId: String): Option[String] = {
+    val params = createFindSubscriptionByIdDocumentQueryDoc(Option(subscriptionId))
+    val documents = subscriptionCollection.find(params)
+    if (documents.iterator.hasNext) {
+      val document = documents.iterator.next
+      Option(document.getString("activationToken"))
+    } else {
+      None
+    }
+  }
+
+  private def subscriptionAction(activationToken: String, enable: Boolean) = {
     activationToken match {
       case activationToken if activationToken.matches(HexadecimalRegexp32) => {
         val params = createFindSubscriptionByIdActivationTokenQueryDoc(activationToken)
         val updParams = new java.util.HashMap[String, Object]()
-        updParams.put("enabled", java.lang.Boolean.valueOf(true))
+        updParams.put("enabled", java.lang.Boolean.valueOf(enable))
         val result = subscriptionCollection.findOneAndUpdate(params, new Document("$set", new Document(updParams)))
         if (result == null){
           false
@@ -119,22 +138,37 @@ class SubscriptionRepo @Inject()(connection: MongoConnection, emailSendingServic
       Filters.eq("itemType", "subscription"),
       Filters.eq("enabled",java.lang.Boolean.valueOf(true))
     )
-    val documents = subscriptionCollection.aggregate(util.Arrays.asList(
-      Aggregates.`match`(query),
-      new Document("$sort",new Document("subscriber",1)),
-      new Document("$group",new Document("_id","$subscriber")
-        .append("id",new Document("$first","$_id"))
-        .append("subscriber",new Document("$first","$subscriber"))
-        .append("itemType",new Document("$first","$itemType"))
-        .append("priceRange",new Document("$first","$priceRange"))
-        .append("sizeRange",new Document("$first","$sizeRange"))
-        .append("floorRange",new Document("$first","$floorRange"))
-        .append("parameters",new Document("$first","$parameters"))
-        .append("language",new Document("$first","$language"))
-      )
-      )
+    val documents:List[Document] = subscriptionCollection.aggregate(util.Arrays.asList(
+      Aggregates.`match`(query)
+//      new Document("$sort",new Document("subscriber",1)),
+//      new Document("$group",new Document("_id","$subscriber")
+//        .append("id",new Document("$first","$_id"))
+//        .append("subscriber",new Document("$first","$subscriber"))
+//        .append("itemType",new Document("$first","$itemType"))
+//        .append("priceRange",new Document("$first","$priceRange"))
+//        .append("sizeRange",new Document("$first","$sizeRange"))
+//        .append("floorRange",new Document("$first","$floorRange"))
+//        .append("parameters",new Document("$first","$parameters"))
+//        .append("language",new Document("$first","$language"))
+//      )
+     )
     ).asScala.toList
-    documents.map(document => createSubscriptionObject(document))
+    def deduplicate(incomingDocs: List[Document],filteredDocs: List[Document],
+                    seen: Seq[String]): List[Document] ={
+      if (incomingDocs.size > 0) {
+        val document = incomingDocs.head
+        val subscriber = document.getString("subscriber")
+        if (seen.contains(subscriber)) {
+          deduplicate(incomingDocs.tail, filteredDocs, seen)
+        } else {
+          deduplicate(incomingDocs.tail, document :: filteredDocs, seen :+ subscriber)
+        }
+      } else {
+        filteredDocs
+      }
+    }
+    deduplicate(documents,List[Document](),Seq[String]())
+      .map(document => createSubscriptionObject(document))
   }
 }
 

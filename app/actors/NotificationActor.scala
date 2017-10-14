@@ -22,7 +22,8 @@ class NotificationActor (subscriptionRepo: SubscriptionRepo, emailSendingService
         val subscriptions = subscriptionRepo.findAllSubscribersForFlat(flat)
         subscriptions.foreach(
           subscription => {
-            self ! FlatNotification(Option(flat),Option(subscription),Option(""))
+            self ! FlatNotification(Option(flat),Option(subscription),subscriptionRepo
+              .getSubscriptionToken(subscription.subscriptionId.getOrElse("")))
           }
         )
       }

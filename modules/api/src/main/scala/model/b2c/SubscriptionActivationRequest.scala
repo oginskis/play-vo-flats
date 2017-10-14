@@ -11,7 +11,7 @@ case class SubscriptionActivationRequest(
                                         ) {
 
   override def toString = {
-    format(s"activationToken: $token, subscription: $subscription")
+  format(s"activationToken: $token, subscription: $subscription")
   }
 }
 
