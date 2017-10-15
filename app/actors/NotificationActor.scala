@@ -1,6 +1,5 @@
 package actors
 
-import actors.helpers.EmailSender
 import akka.actor.{Actor, ActorLogging}
 import model.b2c.{Flat, FlatNotification}
 import play.api.{Configuration, Logger}
@@ -14,8 +13,6 @@ import scala.util.Try
   */
 class NotificationActor (subscriptionRepo: SubscriptionRepo, emailSendingService: EmailSendingService,
                          configuration: Configuration) extends Actor with ActorLogging {
-
-  val emailSender = new EmailSender(configuration)
 
   override def receive: Receive = {
       case flat: Flat => {

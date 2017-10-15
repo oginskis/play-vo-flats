@@ -4,7 +4,7 @@ import java.time.Instant
 import java.util
 import javax.inject.{Inject, Singleton}
 
-import com.mongodb.client.model.{Aggregates, Filters}
+import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Filters.{or, _}
 import configuration.MongoConnection
 import model.b2c.{Flat, Subscription, SubscriptionActivationRequest}
@@ -133,27 +133,9 @@ class SubscriptionRepo @Inject()(connection: MongoConnection, emailSendingServic
       or(gte("sizeRange.to", flat.size.get), Filters.eq("sizeRange.to", null)),
       or(lte("floorRange.from", flat.floor.get), Filters.eq("floorRange.from", null)),
       or(gte("floorRange.to", flat.floor.get), Filters.eq("floorRange.to", null)),
-      or(Filters.eq("parameters.cities", flat.city.get), Filters.eq("parameters.cities", null)),
-      or(Filters.eq("parameters.districts", flat.district.get), Filters.eq("parameters.districts", null)),
-      or(Filters.eq("parameters.actions", flat.action.get), Filters.eq("parameters.actions", null)),
       Filters.eq("itemType", "subscription"),
       Filters.eq("enabled",java.lang.Boolean.valueOf(true))
     )
-    val documents:List[Document] = subscriptionCollection.aggregate(util.Arrays.asList(
-      Aggregates.`match`(query)
-//      new Document("$sort",new Document("subscriber",1)),
-//      new Document("$group",new Document("_id","$subscriber")
-//        .append("id",new Document("$first","$_id"))
-//        .append("subscriber",new Document("$first","$subscriber"))
-//        .append("itemType",new Document("$first","$itemType"))
-//        .append("priceRange",new Document("$first","$priceRange"))
-//        .append("sizeRange",new Document("$first","$sizeRange"))
-//        .append("floorRange",new Document("$first","$floorRange"))
-//        .append("parameters",new Document("$first","$parameters"))
-//        .append("language",new Document("$first","$language"))
-//      )
-     )
-    ).asScala.toList
     def deduplicate(incomingDocs: List[Document],filteredDocs: List[Document],
                     seen: Seq[String]): List[Document] ={
       if (incomingDocs.size > 0) {
@@ -168,8 +150,31 @@ class SubscriptionRepo @Inject()(connection: MongoConnection, emailSendingServic
         filteredDocs
       }
     }
-    deduplicate(documents,List[Document](),Seq[String]())
-      .map(document => createSubscriptionObject(document))
+    def contains(properties:Document,field: String, value: Option[String]):Boolean = {
+      val property = properties.get(field)
+      if (property == null) {
+        true
+      } else {
+        if (property.asInstanceOf[java.util.List[String]].contains(value.getOrElse(""))){
+          true
+        } else {
+          false
+        }
+      }
+    }
+    val documents:List[Document] = subscriptionCollection.find(query).asScala.toList
+    val filtered = documents.filter(document => {
+      val params = document.get("parameters")
+      if (params == null){
+        true
+      } else {
+        val props = params.asInstanceOf[Document]
+        contains(props,"cities",flat.city) &&
+        contains(props,"districts",flat.district) &&
+        contains(props,"actions",flat.action)
+      }
+    })
+    deduplicate(filtered,List[Document](),Seq[String]()).map(document => createSubscriptionObject(document))
   }
 }
 
