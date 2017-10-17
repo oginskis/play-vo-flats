@@ -30,6 +30,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           priceRange = Option(Range(Option(1), Option(3))),
           floorRange = Option(Range(Option(2), Option(5))),
           sizeRange = Option(Range(Option(40), Option(70))),
+          buildingTypes = Option(Array[String]("Specpr.")),
           cities = Option(Array[String]("riga", "jurmala")),
           districts = Option(Array[String]("centre", "teika")),
           actions = Option(Array[String]("sell"))
@@ -130,6 +131,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           priceRange = Option(Range(Option(50000), Option(70000))),
           floorRange = Option(Range(None, Option(5))),
           sizeRange = Option(Range(Option(40), None)),
+          buildingTypes = Option(Array[String]("Specpr.")),
           cities = Option(Array[String]("riga", "jurmala")),
           districts = Option(Array[String]("centre", "teika")),
           actions = Option(Array[String]("sell"))
@@ -140,6 +142,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           priceRange = Option(Range(Option(60000), Option(80000))),
           floorRange = Option(Range(Option(2),None)),
           sizeRange = Option(Range(Option(70), Option(90))),
+          buildingTypes = Option(Array[String]("Specpr.")),
           cities = Option(Array[String]("riga")),
           districts = Option(Array[String]("centre", "teika")),
           actions = Option(Array[String]("sell"))
@@ -150,6 +153,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           priceRange = Option(Range(None,Option(79000))),
           floorRange = Option(Range(Option(2),None)),
           sizeRange = Option(Range(Option(70),None)),
+          buildingTypes = Option(Array[String]("Hrusc.")),
           cities = Option(Array[String]("riga")),
           districts = None,
           actions = Option(Array[String]("sell"))
@@ -160,6 +164,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           priceRange = Option(Range(None,Option(150000))),
           floorRange = Option(Range(Option(3),None)),
           sizeRange = Option(Range(Option(70),None)),
+          buildingTypes = Option(Array[String]("Hrusc.")),
           cities = Option(Array[String]("jurmala","riga")),
           districts = None,
           actions = Option(Array[String]("sell"))
@@ -170,6 +175,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           priceRange = Option(Range(Option(77000),Option(80000))),
           floorRange = Option(Range(Option(1),Option(3))),
           sizeRange = Option(Range(Option(73),Option(75))),
+          buildingTypes = Option(Array[String]("Hrusc.")),
           cities = None,
           districts = Option(Array[String]("centre","teika")),
           actions = Option(Array[String]("sell"))
@@ -180,6 +186,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           priceRange = Option(Range(Option(79000),Option(80000))),
           floorRange = Option(Range(None,Option(3))),
           sizeRange = Option(Range(Option(73),Option(75))),
+          buildingTypes = Option(Array[String]("103","Hrusc")),
           cities = None,
           districts = Option(Array[String]("centre","teika")),
           actions = Option(Array[String]("sell"))
@@ -190,6 +197,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           priceRange = None,
           floorRange = None,
           sizeRange = None,
+          buildingTypes = None,
           cities = None,
           districts = None,
           actions = None
@@ -200,6 +208,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           priceRange = None,
           floorRange = None,
           sizeRange = None,
+          buildingTypes = Option(Array[String]("103","Hrusc")),
           cities = Option(Array[String]("jurmala")),
           districts = Option(Array[String]("vaivari")),
           actions = None
@@ -210,6 +219,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           priceRange = None,
           floorRange = None,
           sizeRange = None,
+          buildingTypes = Option(Array[String]("103","Hrusc")),
           cities = None,
           districts = None,
           actions = Option(Array[String]("rent"))
@@ -224,6 +234,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
         floor = Option(3),
         maxFloors = Option(5),
         price = Option(80000),
+        Option("Specpr."),
         None,
         None,
         None,
@@ -259,6 +270,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           floor = Option(3),
           maxFloors = Option(5),
           price = Option(80000),
+          Option("Specpr."),
           None,
           None,
           None,
@@ -287,6 +299,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           floor = Option(2),
           maxFloors = Option(5),
           price = Option(80000),
+          Option("Specpr."),
           None,
           None,
           None,
@@ -314,6 +327,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           floor = Option(4),
           maxFloors = Option(5),
           price = Option(140000),
+          Option("Specpr."),
           None,
           None,
           None,
@@ -340,6 +354,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           floor = Option(4),
           maxFloors = Option(5),
           price = Option(70000),
+          Option("Specpr."),
           None,
           None,
           None,
@@ -367,6 +382,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           floor = Option(4),
           maxFloors = Option(5),
           price = Option(300000),
+          Option("Specpr."),
           None,
           None,
           None,
@@ -392,6 +408,7 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           floor = Option(4),
           maxFloors = Option(5),
           price = Option(300000),
+          Option("Specpr."),
           None,
           None,
           None,

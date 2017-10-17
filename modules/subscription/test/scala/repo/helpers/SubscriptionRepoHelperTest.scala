@@ -22,6 +22,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
           priceRange = Option(new model.b2c.Range(Option(1), Option(3))),
           sizeRange = Option(new model.b2c.Range(Option(2), Option(5))),
           floorRange = Option(new model.b2c.Range(Option(2), Option(6))),
+          buildingTypes = Option(Array[String]("103","Hrusc.")),
           cities = Option(Array[String]("riga", "jurmala")),
           districts = Option(Array[String]("centrs")),
           actions = Option(Array[String]("sell")),
@@ -43,6 +44,8 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         floorRange.get("from") mustBe 2
         floorRange.get("to") mustBe 6
         val params = doc.get("parameters").asInstanceOf[Document]
+        params.get("buildingTypes").asInstanceOf[util.ArrayList[String]].contains("103") mustBe true
+        params.get("buildingTypes").asInstanceOf[util.ArrayList[String]].contains("Hrusc.") mustBe true
         params.get("cities").asInstanceOf[util.ArrayList[String]].contains("riga") mustBe true
         params.get("cities").asInstanceOf[util.ArrayList[String]].contains("jurmala") mustBe true
         params.get("districts").asInstanceOf[util.ArrayList[String]].contains("centrs") mustBe true
@@ -58,6 +61,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
           priceRange = None,
           sizeRange = None,
           floorRange = None,
+          buildingTypes = None,
           cities = None,
           districts = None,
           actions = None,
@@ -86,6 +90,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
           priceRange = Option(new model.b2c.Range(Option(1), None)),
           sizeRange = Option(new model.b2c.Range(None, Option(5))),
           floorRange = Option(new model.b2c.Range(Option(2), None)),
+          buildingTypes = Option(Array[String]("103")),
           cities = None,
           districts = Option(Array[String]("centrs")),
           actions = None,
@@ -111,6 +116,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         val params = doc.get("parameters").asInstanceOf[Document]
         params.get("cities") mustBe null
         params.get("districts").asInstanceOf[util.ArrayList[String]].contains("centrs") mustBe true
+        params.get("buildingTypes").asInstanceOf[util.ArrayList[String]].contains("103") mustBe true
         params.get("actions") mustBe null
         doc.getLong("lastUpdatedDateTime") mustBe currentDateTimeEpoch
         doc.get("enabled") mustBe false
@@ -133,6 +139,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         params.put("language","en")
         val parameters = new util.HashMap[String,Object]()
         parameters.put("cities",new util.ArrayList[String](util.Arrays.asList("riga","jurmala")))
+        parameters.put("buildingTypes",new util.ArrayList[String](util.Arrays.asList("103","Renov.")))
         parameters.put("districts",new util.ArrayList[String](util.Arrays.asList("centre","teika")))
         parameters.put("actions",new util.ArrayList[String](util.Arrays.asList("sell")))
         params.put("parameters",new Document(parameters))
@@ -163,6 +170,13 @@ class SubscriptionRepoHelperTest extends PlaySpec {
             range.to mustBe Some(10)
           }
           case None => fail("floorRange must be present")
+        }
+        subscription.buildingTypes match {
+          case Some(list) => {
+            list must contain ("103")
+            list must contain ("Renov.")
+          }
+          case None => fail("Building types list must not be empty")
         }
         subscription.cities match {
           case Some(list) => {
@@ -200,6 +214,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         subscription.sizeRange mustBe None
         subscription.floorRange mustBe None
         subscription.floorRange mustBe None
+        subscription.buildingTypes mustBe None
         subscription.cities mustBe None
         subscription.districts mustBe None
         subscription.actions mustBe None
@@ -219,6 +234,7 @@ class SubscriptionRepoHelperTest extends PlaySpec {
         val parameters = new util.HashMap[String,Object]()
         parameters.put("cities",new util.ArrayList[String](util.Arrays.asList("riga","jurmala")))
         parameters.put("actions",new util.ArrayList[String](util.Arrays.asList("sell")))
+        parameters.put("buildingTypes",new util.ArrayList[String](util.Arrays.asList("104")))
         params.put("parameters",new Document(parameters))
         val subscription = createSubscriptionObject(new Document(params))
         subscription.subscriptionId mustBe None
@@ -244,6 +260,12 @@ class SubscriptionRepoHelperTest extends PlaySpec {
             range.to mustBe Some(10)
           }
           case None => fail("floorRange must be present")
+        }
+        subscription.buildingTypes match {
+          case Some(list) => {
+            list must contain ("104")
+          }
+          case None => fail("Cities list must not be empty")
         }
         subscription.cities match {
           case Some(list) => {

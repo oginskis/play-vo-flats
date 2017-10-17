@@ -7,6 +7,7 @@ import javax.inject.{Inject, Singleton}
 import com.mongodb.QueryBuilder
 import com.mongodb.client.model.UpdateManyModel
 import configuration.MongoConnection
+import model.CommonProps
 import model.b2c.{Flat, FlatPriceHistoryItem, SellerContactDetails}
 import org.bson.Document
 import org.bson.types.ObjectId
@@ -135,23 +136,26 @@ class FlatRepo @Inject()(connection: MongoConnection) {
     }
     def createDocument(flat: Flat): org.bson.Document = {
       val params = new java.util.HashMap[String, Object]()
-      params.put("address", flat.address.get)
-      params.put("flatFloor", java.lang.Integer.valueOf(flat.floor.get))
-      params.put("maxFloors", java.lang.Integer.valueOf(flat.maxFloors.get))
-      params.put("link", flat.link.get)
-      params.put("price", java.lang.Integer.valueOf(flat.price.get))
+      params.put("address", flat.address.getOrElse(CommonProps.EmptyProp))
+      params.put("flatFloor", java.lang.Integer.valueOf(flat.floor.getOrElse(0)))
+      params.put("maxFloors", java.lang.Integer.valueOf(flat.maxFloors.getOrElse(0)))
+      params.put("link", flat.link.getOrElse(CommonProps.EmptyProp))
+      params.put("price", java.lang.Integer.valueOf(flat.price.getOrElse(0)))
       params.put("numberOfRooms", java.lang.Integer.valueOf(flat.rooms.get))
-      params.put("size", java.lang.Integer.valueOf(flat.size.get))
-      params.put("city", flat.city.get)
-      params.put("district", flat.district.get)
-      params.put("action", flat.action.get)
+      params.put("size", java.lang.Integer.valueOf(flat.size.getOrElse(0)))
+      params.put("city", flat.city.getOrElse(CommonProps.EmptyProp))
+      params.put("district", flat.district.getOrElse(CommonProps.EmptyProp))
+      params.put("action", flat.action.getOrElse(CommonProps.EmptyProp))
+      params.put("buildingType", flat.buildingType.getOrElse(CommonProps.EmptyProp))
       params.put("expired", "false")
       params.put("firstSeenAtEpoch",currentTimestamp)
       params.put("itemType", "flat")
       params.put("expired", "false")
       params.put("lastSeenAtEpoch",currentTimestamp)
-      params.put("flatSearchString",flat.address.get +" "+ flat.floor.get +" "+ flat.rooms.get +" "+ flat.price.get +
-        " "+flat.size.get)
+      params.put("flatSearchString",flat.address.getOrElse(CommonProps.EmptyProp)
+        +" "+ flat.floor.getOrElse(CommonProps.EmptyProp) +" "+ flat.rooms.getOrElse(CommonProps.EmptyProp)
+        +" "+ flat.price.getOrElse(CommonProps.EmptyProp) +
+        " "+flat.size.getOrElse(CommonProps.EmptyProp))
       params.put("sellerSearchString",flat.contactDetails.get.company.getOrElse(""))
       params.put("sellerContactDetails",createSellerContactDetailsDocument(flat.contactDetails.get))
       new Document(params)
@@ -239,17 +243,39 @@ class FlatRepo @Inject()(connection: MongoConnection) {
 
   private def exactFindFilter(flat: Flat): org.bson.Document = {
     val params = new java.util.HashMap[String, Object]()
-    if (flat.floor != None) params.put("flatFloor", java.lang.Integer.valueOf(flat.floor.get))
-    if (flat.maxFloors != None) params.put("maxFloors", java.lang.Integer.valueOf(flat.maxFloors.get))
-    if (flat.size != None) params.put("size", java.lang.Integer.valueOf(flat.size.get))
-    if (flat.rooms != None) params.put("numberOfRooms", java.lang.Integer.valueOf(flat.rooms.get))
-    if (flat.address != None) params.put("address", flat.address.get)
-    if (flat.city != None) params.put("city", flat.city.get)
-    if (flat.district != None) params.put("district", flat.district.get)
-    if (flat.action != None) params.put("action", flat.action.get)
-    if (flat.price != None) params.put("price", java.lang.Integer.valueOf(flat.price.get))
-    if (flat.link != None) params.put("link", flat.link.get)
-    if (flat.expired != None) params.put("expired", flat.expired.get)
+    for (floor <- flat.floor){
+      params.put("flatFloor", java.lang.Integer.valueOf(floor))
+    }
+    for (maxFloors <- flat.maxFloors){
+      params.put("maxFloors", java.lang.Integer.valueOf(maxFloors))
+    }
+    for (size <- flat.size) {
+      params.put("size", java.lang.Integer.valueOf(size))
+    }
+    for (rooms <- flat.rooms) {
+      params.put("numberOfRooms", java.lang.Integer.valueOf(rooms))
+    }
+    for (address <- flat.address) {
+      params.put("address", address)
+    }
+    for (city <- flat.city) {
+      params.put("city", city)
+    }
+    for (district <- flat.district) {
+      params.put("district", district)
+    }
+    for (action <- flat.action) {
+      params.put("action", action)
+    }
+    for (price <- flat.price) {
+      params.put("price", java.lang.Integer.valueOf(price))
+    }
+    for (link <- flat.link) {
+      params.put("link", link)
+    }
+    for (expired <- flat.expired) {
+      params.put("expired", expired)
+    }
     new org.bson.Document(params)
   }
 }

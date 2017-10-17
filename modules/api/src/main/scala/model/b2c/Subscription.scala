@@ -15,6 +15,7 @@ case class Subscription(
                   val priceRange: Option[Range] = None,
                   val sizeRange: Option[Range] = None,
                   val floorRange: Option[Range] = None,
+                  val buildingTypes: Option[Array[String]] = None,
                   val cities: Option[Array[String]] = None,
                   val districts: Option[Array[String]] = None,
                   val actions: Option[Array[String]] = None,
@@ -28,6 +29,7 @@ case class Subscription(
     "priceRange: [ " + priceRange.getOrElse(EmptyProp) +" ], "+
     "sizeRange: [ "+ sizeRange.getOrElse(EmptyProp) +" ], " +
     "floorRange [ "+ floorRange.getOrElse(EmptyProp) +" ], "+
+    "buildingTypes: "+ buildingTypes.getOrElse(EmptyProp) +", "+
     "cities: " + cities.getOrElse(EmptyProp) + ", "+
     "districts: " + districts.getOrElse(EmptyProp) + ", "+
     "actions: " + actions.getOrElse(EmptyProp) + ", "+
@@ -46,6 +48,7 @@ object Subscription {
       (JsPath \ "priceRange").writeNullable[Range] and
       (JsPath \ "sizeRange").writeNullable[Range] and
       (JsPath \ "floorRange").writeNullable[Range] and
+      (JsPath \ "buildingTypes").writeNullable[Array[String]] and
       (JsPath \ "cities").writeNullable[Array[String]] and
       (JsPath \ "districts").writeNullable[Array[String]] and
       (JsPath \ "actions").writeNullable[Array[String]] and
@@ -60,6 +63,7 @@ object Subscription {
       (JsPath \ "priceRange").readNullable[Range] and
       (JsPath \ "sizeRange").readNullable[Range] and
       (JsPath \ "floorRange").readNullable[Range] and
+      (JsPath \ "buildingTypes").readNullable[Array[String]] and
       (JsPath \ "cities").readNullable[Array[String]] and
       (JsPath \ "districts").readNullable[Array[String]] and
       (JsPath \ "actions").readNullable[Array[String]] and

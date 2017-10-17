@@ -49,6 +49,9 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
                           "from": 3,
                           "to": 5
                        },
+                       "buildingTypes": [
+                          "Specpr."
+                       ],
                        "cities": [
                           "riga",
                           "jurmala"
@@ -75,6 +78,9 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
                    {
                        "subscriber":"viktors.test2@gmail.lv",
                        "language": "lv",
+                       "buildingTypes": [
+                           "Specpr."
+                        ],
                        "cities": [
                           "jurmala"
                        ],

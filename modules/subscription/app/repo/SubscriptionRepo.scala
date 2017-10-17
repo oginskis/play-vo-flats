@@ -30,6 +30,7 @@ class SubscriptionRepo @Inject()(connection: MongoConnection, emailSendingServic
           priceRange = subscription.priceRange,
           sizeRange = subscription.sizeRange,
           floorRange = subscription.floorRange,
+          buildingTypes = subscription.buildingTypes,
           cities = subscription.cities,
           districts = subscription.districts,
           actions = subscription.actions,

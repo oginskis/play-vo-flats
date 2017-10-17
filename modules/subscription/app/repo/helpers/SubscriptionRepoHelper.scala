@@ -38,6 +38,9 @@ object SubscriptionRepoHelper {
       params.put("sizeRange",getRangeDocument(sizeRange))
     }
     val listParameters = new util.HashMap[String,Object]()
+    for (buildingTypes <- subscription.buildingTypes) {
+      listParameters.put("buildingTypes",getListDocument(buildingTypes))
+    }
     for (cities <- subscription.cities) {
       listParameters.put("cities",getListDocument(cities))
     }
@@ -129,6 +132,7 @@ object SubscriptionRepoHelper {
       priceRange = getRangeObject(document.get("priceRange")),
       sizeRange = getRangeObject(document.get("sizeRange")),
       floorRange = getRangeObject(document.get("floorRange")),
+      buildingTypes = getListObject(document.get("parameters"),"buildingTypes"),
       cities = getListObject(document.get("parameters"),"cities"),
       districts = getListObject(document.get("parameters"),"districts"),
       actions = getListObject(document.get("parameters"),"actions"),

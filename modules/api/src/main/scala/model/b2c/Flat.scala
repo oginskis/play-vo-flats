@@ -20,6 +20,7 @@ case class Flat(
                  val floor: Option[Int] = None,
                  val maxFloors: Option[Int] = None,
                  val price: Option[Int] = None,
+                 val buildingType: Option[String] = None,
                  val link: Option[String] = None,
                  val firstSeenAt: Option[Long] = None,
                  val lastSeenAt: Option[Long] = None,
@@ -38,6 +39,7 @@ case class Flat(
       "floor: " + floor.getOrElse(EmptyProp) + ", " +
       "maxFloors: " + maxFloors.getOrElse(EmptyProp) + ", "+
       "price: " + price.getOrElse(EmptyProp) + ", " +
+      "buildingType: " + buildingType.getOrElse(EmptyProp) + ", " +
       "link: https://www.ss.lv" + link.getOrElse(EmptyProp) + ", " +
       "city: " + city.getOrElse(EmptyProp) + ", "+
       "district: "+ district.getOrElse(EmptyProp) + ", "+
@@ -61,6 +63,7 @@ object Flat extends Enumeration {
       (JsPath \ "floor").writeNullable[Int] and
       (JsPath \ "maxFloors").writeNullable[Int] and
       (JsPath \ "price").writeNullable[Int] and
+      (JsPath \ "buildingType").writeNullable[String] and
       (JsPath \ "link").writeNullable[String] and
       (JsPath \ "firstSeenAt").writeNullable[Long] and
       (JsPath \ "lastSeenAt").writeNullable[Long] and
@@ -80,6 +83,7 @@ object Flat extends Enumeration {
       (JsPath \ "floor").readNullable[Int](min(-1)) and
       (JsPath \ "maxFloors").readNullable[Int](min(0)) and
       (JsPath \ "price").readNullable[Int](min(0)) and
+      (JsPath \ "buildingType").readNullable[String] and
       (JsPath \ "link").readNullable[String] and
       (JsPath \ "firstSeenAt").readNullable[Long] and
       (JsPath \ "lastSeenAt").readNullable[Long] and
