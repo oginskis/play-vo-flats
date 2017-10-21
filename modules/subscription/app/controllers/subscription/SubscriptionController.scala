@@ -9,133 +9,151 @@ import play.api.mvc.{AbstractController, ControllerComponents}
 import repo.SubscriptionRepo
 import CommonProps._
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.services.EmailSendingService
 
 class SubscriptionController @Inject()(cc: ControllerComponents, subscriptionRepo: SubscriptionRepo,
-                                       emailSendingService: EmailSendingService)
+                                       emailSendingService: EmailSendingService)(implicit ec: ExecutionContext)
   extends AbstractController(cc) {
 
-  def getSubscriptionById(subscriptionId: String) = Action {
+  def getSubscriptionById(subscriptionId: String) = Action.async {
     subscriptionId match {
       case id if id.matches(HexadecimalRegexp) => {
-        val subscription = subscriptionRepo.getSubscriptionById(id)
-        if (subscription == None) {
-          NotFound(EmptyResponse)
-        } else {
-          Ok(Json.toJson(subscriptionRepo.getSubscriptionById(id)))
-        }
+        val future = subscriptionRepo.getSubscriptionById(id)
+        future.map(result => {
+          result match {
+            case Some(value) => Ok(Json.toJson(value))
+            case None => NotFound(EmptyResponse)
+          }
+        })
       }
-      case _ => BadRequest(Json.toJson(Error.mustBeHexadecimal("SubscriptionId")))
+      case _ => Future {BadRequest(Json.toJson(Error.mustBeHexadecimal("SubscriptionId")))}
     }
   }
 
-  def enableSubscription(token: String) = Action {
+  def enableSubscription(token: String) = Action.async {
     token match {
       case activationToken if activationToken.matches(HexadecimalRegexp32) => {
-        val result = subscriptionRepo.enableSubscription(activationToken)
-        if (result) {
+        val future = subscriptionRepo.enableSubscription(activationToken)
+        future.map(result => {
+          if (result) {
             Ok(Json.toJson(Success("OK","Subscription has been activated")))
-        } else {
+          } else {
             NotFound(EmptyResponse)
-        }
+          }
+          Ok("")
+        })
       }
-      case _ => BadRequest(Json.toJson(Error.mustBeHexadecimal("activationToken")))
+      case _ => Future {BadRequest(Json.toJson(Error.mustBeHexadecimal("activationToken")))}
     }
   }
 
-  def disableSubscription(token: String) = Action {
+  def disableSubscription(token: String) = Action.async {
     token match {
       case activationToken if activationToken.matches(HexadecimalRegexp32) => {
-        val result = subscriptionRepo.disableSubscription(activationToken)
-        if (result) {
-          Ok(Json.toJson(Success("OK","Subscription has been disabled")))
-        } else {
-          NotFound(EmptyResponse)
-        }
+        val future = subscriptionRepo.disableSubscription(activationToken)
+        future.map(result => {
+          if (result) {
+            Ok(Json.toJson(Success("OK","Subscription has been disabled")))
+          } else {
+            NotFound(EmptyResponse)
+          }
+        })
       }
-      case _ => BadRequest(Json.toJson(Error.mustBeHexadecimal("activationToken")))
+      case _ => Future{BadRequest(Json.toJson(Error.mustBeHexadecimal("activationToken")))}
     }
   }
 
-  def getSubscriptionToken(subscriptionId: String) = Action {
+  def getSubscriptionToken(subscriptionId: String) = Action.async {
     subscriptionId match {
       case id if id.matches(HexadecimalRegexp) => {
-        val token = subscriptionRepo.getSubscriptionToken(subscriptionId)
-        token match {
-          case Some(value) => Ok(Json.toJson(GenericResponse(List(Item("token",value)))))
-          case None => NotFound(EmptyResponse)
+        val future = subscriptionRepo.getSubscriptionToken(subscriptionId)
+        future.map({result => {
+          result match {
+            case Some(value) => Ok(Json.toJson(GenericResponse(List(Item("token",value)))))
+            case None => NotFound(EmptyResponse)
+          }
         }
+        })
       }
-      case _ => BadRequest(Json.toJson(Error.mustBeHexadecimal("SubscriptionId")))
+      case _ => Future{BadRequest(Json.toJson(Error.mustBeHexadecimal("SubscriptionId")))}
     }
   }
 
-  def deleteSubscriptionById(subscriptionId: String) = Action {
+  def deleteSubscriptionById(subscriptionId: String) = Action.async {
     subscriptionId match {
       case id if id.matches(HexadecimalRegexp) => {
-        if (subscriptionRepo.deleteSubscriptionById(subscriptionId) > 0) {
-          Ok(CommonProps.EmptyResponse)
+        val future = subscriptionRepo.deleteSubscriptionById(subscriptionId)
+        future.map({result => {
+          if (result>0){
+            Ok(CommonProps.EmptyResponse)
+          } else NotFound(EmptyResponse)
         }
-        else NotFound(EmptyResponse)
+        })
       }
-      case _ => BadRequest(Json.toJson(Error.mustBeHexadecimal("SubscriptionId")))
+      case _ => Future{BadRequest(Json.toJson(Error.mustBeHexadecimal("SubscriptionId")))}
     }
   }
 
-  def getAllSubscriptionsForEmail(email: String) = Action {
+  def getAllSubscriptionsForEmail(email: String) = Action.async {
     email match {
       case email if email.matches(EmailRegexp) => {
-        val subscriptions = subscriptionRepo.findAllSubscriptionsForEmail(email)
-        if (subscriptions.size > 0) {
-          Ok(Json.toJson(subscriptions))
-        } else {
-          NotFound(EmptyResponse)
+        val future = subscriptionRepo.findAllSubscriptionsForEmail(email)
+        future.map({result => {
+          if (result.size > 0) {
+            Ok(Json.toJson(result))
+          } else {
+            NotFound(EmptyResponse)
+          }
         }
+        })
       }
-      case _ => BadRequest(Json.toJson(Error("Invalid email", "Invalid email format")))
+      case _ => Future{BadRequest(Json.toJson(Error("Invalid email", "Invalid email format")))}
     }
   }
 
-  def getAllWhoSubscribedFor() = Action(parse.json) { request => {
-    val result = request.body.validate[Flat]
-    result.fold(
+  def getAllWhoSubscribedFor() = Action(parse.json).async { request => {
+    val validationResult = request.body.validate[Flat]
+    validationResult.fold(
       errors => {
-        BadRequest(Json.toJson(Error("Invalid request",
+        Future{BadRequest(Json.toJson(Error("Invalid request",
           errors.map(error => {
             ("Invalid value in [" + error._1.toString.tail + "] field")
           }).mkString(", ")
-        )))
+        )))}
       },
       flat => {
-        if (flat.price==None || flat.size==None || flat.floor==None || flat.city==None ||
-          flat.district==None || flat.action==None){
-          BadRequest(Json.toJson(Error("Invalid request","city,district,action,floor,size and price properties" +
-            " must be present on Flat entity")))
-        } else {
-          val subscribers = subscriptionRepo.findAllSubscribersForFlat(flat)
-          Ok(Json.toJson(subscribers))
-        }
+        val future = subscriptionRepo.findAllSubscribersForFlat(flat)
+        future.map(result => {
+          Ok(Json.toJson(result))
+        })
       }
     )
-    }
+  }
   }
 
-  def createSubscription() = Action(parse.json) { request => {
-    val result = request.body.validate[Subscription]
-    result.fold(
+  def createSubscription() = Action(parse.json).async { request => {
+    val validationResult = request.body.validate[Subscription]
+    validationResult.fold(
       errors => {
-        BadRequest(Json.toJson(Error("Invalid request",
-          errors.map(error => {
-            ("Invalid value in [" + error._1.toString.tail + "] field")
-          }).mkString(", ")
-        )))
+        Future {
+          BadRequest(Json.toJson(Error("Invalid request",
+            errors.map(error => {
+              ("Invalid value in [" + error._1.toString.tail + "] field")
+            }).mkString(", "))))
+        }
       },
       subscription => {
-        subscriptionRepo.createSubscription(subscription)
-        Created(Json.toJson(Success("OK","Subscription has been created")))
+        val future = subscriptionRepo.createSubscription(subscription)
+        future.map(result => {
+          if (result) {
+            Created(Json.toJson(Success("OK", "Subscription has been created")))
+          } else InternalServerError(EmptyResponse)
+        }
+        )
       }
     )
-    }
+  }
   }
 
 }

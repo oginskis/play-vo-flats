@@ -4,6 +4,7 @@ import java.time.Instant
 import java.util
 import javax.inject.{Inject, Singleton}
 
+import akka.actor.ActorSystem
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.Filters.{or, _}
 import configuration.MongoConnection
@@ -13,62 +14,59 @@ import repo.helpers.SubscriptionRepoHelper._
 import model.CommonProps._
 
 import scala.collection.JavaConverters._
+import scala.concurrent.{ExecutionContext, Future}
 import scala.services.EmailSendingService
 import scala.util.{Failure, Success, Try}
 
 @Singleton
-class SubscriptionRepo @Inject()(connection: MongoConnection, emailSendingService: EmailSendingService) {
+class SubscriptionRepo @Inject()(actorSystem: ActorSystem, connection: MongoConnection,
+                                 emailSendingService: EmailSendingService)(implicit ec: ExecutionContext) {
 
   private val subscriptionCollection = connection.getCollection(SubscriptionRepo.CollName)
 
-  def createSubscription(subscription: Subscription): Boolean = {
-    subscription.subscriber match {
-      case subscriber if subscriber.matches(EmailRegexp) => {
-        val activationToken = java.util.UUID.randomUUID.toString.replace("-","")
-        val savedSubscription = Subscription(
-          subscriber = subscription.subscriber,
-          priceRange = subscription.priceRange,
-          sizeRange = subscription.sizeRange,
-          floorRange = subscription.floorRange,
-          buildingTypes = subscription.buildingTypes,
-          cities = subscription.cities,
-          districts = subscription.districts,
-          actions = subscription.actions,
-          lastUpdatedDateTime = Option(Instant.now.getEpochSecond),
-          enabled = Option(false)
-        )
-        Try(subscriptionCollection.insertOne(createSubscriptionDocument(SubscriptionActivationRequest(Option(activationToken),
-          savedSubscription)))) match {
-          case Success(_) => {
+  def createSubscription(subscription: Subscription): Future[Boolean] = {
+    Future[Boolean] {
+      subscription.subscriber match {
+        case subscriber if subscriber.matches(EmailRegexp) => {
+          val activationToken = java.util.UUID.randomUUID.toString.replace("-", "")
+          val savedSubscription = Subscription(
+            subscriber = subscription.subscriber,
+            priceRange = subscription.priceRange,
+            sizeRange = subscription.sizeRange,
+            floorRange = subscription.floorRange,
+            buildingTypes = subscription.buildingTypes,
+            cities = subscription.cities,
+            districts = subscription.districts,
+            actions = subscription.actions,
+            lastUpdatedDateTime = Option(Instant.now.getEpochSecond),
+            enabled = Option(false)
+          )
+          Try(subscriptionCollection.insertOne(createSubscriptionDocument(SubscriptionActivationRequest(Option(activationToken),
+            savedSubscription)))) match {
+            case Success(_) => {
               emailSendingService.sendSubscriptionActivationEmail(SubscriptionActivationRequest(Option(activationToken),
                 savedSubscription))
               true
+            }
+            case Failure(ex) => throw new RuntimeException(s"Failed to create a subscription. Error: ${ex.getMessage}")
           }
-          case Failure(ex) => throw new RuntimeException(s"Failed to create a subscription. Error: ${ex.getMessage}")
         }
-      }
-      case _ => {
-        false
+        case _ => {
+          false
+        }
       }
     }
   }
 
-  def enableSubscription(activationToken: String): Boolean = {
-    subscriptionAction(activationToken,true)
+  def enableSubscription(activationToken: String): Future[Boolean] = {
+    Future[Boolean] {
+      subscriptionAction(activationToken, true)
+    }
   }
 
-  def disableSubscription(activationToken: String): Boolean = {
-    subscriptionAction(activationToken,false)
-  }
-
-  def getSubscriptionToken(subscriptionId: String): Option[String] = {
-    val params = createFindSubscriptionByIdDocumentQueryDoc(Option(subscriptionId))
-    val documents = subscriptionCollection.find(params)
-    if (documents.iterator.hasNext) {
-      val document = documents.iterator.next
-      Option(document.getString("activationToken"))
-    } else {
-      None
+  def disableSubscription(activationToken: String): Future[Boolean] = {
+    Future[Boolean] {
+      subscriptionAction(activationToken, false)
     }
   }
 
@@ -87,95 +85,118 @@ class SubscriptionRepo @Inject()(connection: MongoConnection, emailSendingServic
     }
   }
 
-  def getSubscriptionById(subscriptionId: String): Option[Subscription] = {
-    subscriptionId match {
-      case id if id.matches(HexadecimalRegexp) => {
-        val documents = subscriptionCollection.find(createFindSubscriptionByIdDocumentQueryDoc(Option(id)))
-        if (documents.iterator.hasNext) {
-          Some(createSubscriptionObject(documents.iterator.next))
-        } else {
-          None
+  def getSubscriptionToken(subscriptionId: String): Future[Option[String]] = {
+    Future[Option[String]] {
+      val params = createFindSubscriptionByIdDocumentQueryDoc(Option(subscriptionId))
+      val documents = subscriptionCollection.find(params)
+      if (documents.iterator.hasNext) {
+        val document = documents.iterator.next
+        Option(document.getString("activationToken"))
+      } else {
+        None
+      }
+    }
+  }
+
+  def getSubscriptionById(subscriptionId: String): Future[Option[Subscription]] = {
+    Future[Option[Subscription]] {
+      subscriptionId match {
+        case id if id.matches(HexadecimalRegexp) => {
+          val documents = subscriptionCollection.find(createFindSubscriptionByIdDocumentQueryDoc(Option(id)))
+          if (documents.iterator.hasNext) {
+            Some(createSubscriptionObject(documents.iterator.next))
+          } else {
+            None
+          }
+        }
+        case _ => None
+      }
+    }
+  }
+
+  def deleteSubscriptionById(subscriptionId: String): Future[Long] = {
+    Future[Long] {
+      subscriptionId match {
+        case id if id.matches(HexadecimalRegexp) => {
+          val result = subscriptionCollection.deleteOne(createFindSubscriptionByIdDocumentQueryDoc(Option(id)))
+          result.getDeletedCount
+        }
+        case _ => {
+          throw new IllegalArgumentException("Cannot delete subscription. Subscription id is empty or not valid")
         }
       }
-      case _ => None
     }
   }
 
-  def deleteSubscriptionById(subscriptionId: String): Long = {
-    subscriptionId match {
-      case id if id.matches(HexadecimalRegexp) => {
-        val result = subscriptionCollection.deleteOne(createFindSubscriptionByIdDocumentQueryDoc(Option(id)))
-        result.getDeletedCount
-      }
-      case _ => {
-        throw new IllegalArgumentException("Cannot delete subscription. Subscription id is empty or not valid")
-      }
-    }
-  }
-
-  def findAllSubscriptionsForEmail(email: String): List[Subscription] = {
-    email match {
-      case email if email.matches(EmailRegexp) => {
-        val params = new util.HashMap[String, Object]()
-        params.put("subscriber", email)
-        params.put("enabled",java.lang.Boolean.valueOf(true))
-        val documents = subscriptionCollection.find(new Document(params)).asScala.toList
-        documents.map(document => createSubscriptionObject(document))
-      }
-      case _ => List[Subscription]()
-    }
-  }
-
-  def findAllSubscribersForFlat(flat: Flat): List[Subscription] = {
-    val query = and(
-      or(lte("priceRange.from", flat.price.get), Filters.eq("priceRange.from", null)),
-      or(gte("priceRange.to", flat.price.get), Filters.eq("priceRange.to", null)),
-      or(lte("sizeRange.from", flat.size.get), Filters.eq("sizeRange.from", null)),
-      or(gte("sizeRange.to", flat.size.get), Filters.eq("sizeRange.to", null)),
-      or(lte("floorRange.from", flat.floor.get), Filters.eq("floorRange.from", null)),
-      or(gte("floorRange.to", flat.floor.get), Filters.eq("floorRange.to", null)),
-      Filters.eq("itemType", "subscription"),
-      Filters.eq("enabled",java.lang.Boolean.valueOf(true))
-    )
-    def deduplicate(incomingDocs: List[Document],filteredDocs: List[Document],
-                    seen: Seq[String]): List[Document] ={
-      if (incomingDocs.size > 0) {
-        val document = incomingDocs.head
-        val subscriber = document.getString("subscriber")
-        if (seen.contains(subscriber)) {
-          deduplicate(incomingDocs.tail, filteredDocs, seen)
-        } else {
-          deduplicate(incomingDocs.tail, document :: filteredDocs, seen :+ subscriber)
+  def findAllSubscriptionsForEmail(email: String): Future[List[Subscription]] = {
+    Future[List[Subscription]] {
+      email match {
+        case email if email.matches(EmailRegexp) => {
+          val params = new util.HashMap[String, Object]()
+          params.put("subscriber", email)
+          params.put("enabled", java.lang.Boolean.valueOf(true))
+          val documents = subscriptionCollection.find(new Document(params)).asScala.toList
+          documents.map(document => createSubscriptionObject(document))
         }
-      } else {
-        filteredDocs
+        case _ => List[Subscription]()
       }
     }
-    def contains(properties:Document,field: String, value: Option[String]):Boolean = {
-      val property = properties.get(field)
-      if (property == null) {
-        true
-      } else {
-        if (property.asInstanceOf[java.util.List[String]].contains(value.getOrElse(""))){
+  }
+
+  def findAllSubscribersForFlat(flat: Flat): Future[List[Subscription]] = {
+    Future[List[Subscription]] {
+      val query = and(
+        or(lte("priceRange.from", flat.price.get), Filters.eq("priceRange.from", null)),
+        or(gte("priceRange.to", flat.price.get), Filters.eq("priceRange.to", null)),
+        or(lte("sizeRange.from", flat.size.get), Filters.eq("sizeRange.from", null)),
+        or(gte("sizeRange.to", flat.size.get), Filters.eq("sizeRange.to", null)),
+        or(lte("floorRange.from", flat.floor.get), Filters.eq("floorRange.from", null)),
+        or(gte("floorRange.to", flat.floor.get), Filters.eq("floorRange.to", null)),
+        Filters.eq("itemType", "subscription"),
+        Filters.eq("enabled", java.lang.Boolean.valueOf(true))
+      )
+
+      def deduplicate(incomingDocs: List[Document], filteredDocs: List[Document],
+                      seen: Seq[String]): List[Document] = {
+        if (incomingDocs.size > 0) {
+          val document = incomingDocs.head
+          val subscriber = document.getString("subscriber")
+          if (seen.contains(subscriber)) {
+            deduplicate(incomingDocs.tail, filteredDocs, seen)
+          } else {
+            deduplicate(incomingDocs.tail, document :: filteredDocs, seen :+ subscriber)
+          }
+        } else {
+          filteredDocs
+        }
+      }
+      def contains(properties: Document, field: String, value: Option[String]): Boolean = {
+        val property = properties.get(field)
+        if (property == null) {
           true
         } else {
-          false
+          if (property.asInstanceOf[java.util.List[String]].contains(value.getOrElse(""))) {
+            true
+          } else {
+            false
+          }
         }
       }
+
+      val documents: List[Document] = subscriptionCollection.find(query).asScala.toList
+      val filtered = documents.filter(document => {
+        val params = document.get("parameters")
+        if (params == null) {
+          true
+        } else {
+          val props = params.asInstanceOf[Document]
+          contains(props, "cities", flat.city) &&
+            contains(props, "districts", flat.district) &&
+            contains(props, "actions", flat.action)
+        }
+      })
+      deduplicate(filtered, List[Document](), Seq[String]()).map(document => createSubscriptionObject(document))
     }
-    val documents:List[Document] = subscriptionCollection.find(query).asScala.toList
-    val filtered = documents.filter(document => {
-      val params = document.get("parameters")
-      if (params == null){
-        true
-      } else {
-        val props = params.asInstanceOf[Document]
-        contains(props,"cities",flat.city) &&
-        contains(props,"districts",flat.district) &&
-        contains(props,"actions",flat.action)
-      }
-    })
-    deduplicate(filtered,List[Document](),Seq[String]()).map(document => createSubscriptionObject(document))
   }
 }
 

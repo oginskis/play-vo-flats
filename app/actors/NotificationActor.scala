@@ -8,6 +8,8 @@ import repo.SubscriptionRepo
 import scala.services.EmailSendingService
 import scala.util.Try
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 /**
   * Created by oginskis on 12/03/2017.
   */
@@ -16,13 +18,17 @@ class NotificationActor (subscriptionRepo: SubscriptionRepo, emailSendingService
 
   override def receive: Receive = {
       case flat: Flat => {
-        val subscriptions = subscriptionRepo.findAllSubscribersForFlat(flat)
-        subscriptions.foreach(
-          subscription => {
-            self ! FlatNotification(Option(flat),Option(subscription),subscriptionRepo
-              .getSubscriptionToken(subscription.subscriptionId.getOrElse("")))
-          }
-        )
+        val future = subscriptionRepo.findAllSubscribersForFlat(flat)
+        future.map(subscriptions => {
+          subscriptions.foreach(
+            subscription => {
+              val tokenFuture = subscriptionRepo.getSubscriptionToken(subscription.subscriptionId.getOrElse(""))
+              tokenFuture.map(result => {
+                self ! FlatNotification(Option(flat),Option(subscription),result)
+              })
+            }
+          )
+        })
       }
       case flatNotification: FlatNotification => {
         Try(emailSendingService.sendFlatNotificationEmail(flatNotification))

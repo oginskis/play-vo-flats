@@ -1,5 +1,6 @@
 package scala.repo
 
+import scala.util.Failure
 import com.dumbster.smtp.SimpleSmtpServer
 import configuration.testsupport.MongoINMemoryDBSupport
 import model.b2c.{Flat, Range, Subscription}
@@ -10,6 +11,8 @@ import repo.SubscriptionRepo
 import scala.collection.JavaConverters._
 import scala.collection.immutable.StringOps
 import scala.testhelpers.TestApplicationContextHelper._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Success
 
 class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
 
@@ -35,9 +38,13 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           districts = Option(Array[String]("centre", "teika")),
           actions = Option(Array[String]("sell"))
         )
-        getGuiceContext.injector.instanceOf[SubscriptionRepo].createSubscription(subscription)
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo].createSubscription(subscription)
+        future.map(result => {
+          result mustBe true
+        })
       }
       "an activation email is received" in {
+        Thread.sleep(500)
         val emails = fakeSmtp.getReceivedEmails.asScala
         emails.size mustBe 1
         for (email <- emails.headOption){
@@ -46,80 +53,104 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
         }
       }
       "subscription is activated" in {
-        val enabled = getGuiceContext.injector.instanceOf[SubscriptionRepo].enableSubscription(activationToken)
-        enabled mustBe true
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo].enableSubscription(activationToken)
+        future.map(enabled => {
+          enabled mustBe true
+        })
         fakeSmtp.reset
       }
     }
     "be found" when {
       "a valid email is passed to the function" in {
-        val subscriptionList = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo]
           .findAllSubscriptionsForEmail("viktors@gmail.com")
-        subscriptionList mustNot be (None)
-        subscriptionList.size mustBe 1
-        val subscription = subscriptionList.head
-        checkSubscriptionObject(subscription)
-        subscription.subscriptionId match {
-          case Some(value) => subscriptionId = value
-          case None => fail("subscriptionId must not be empty")
-        }
+        future.map(subscriptionList => {
+          subscriptionList mustNot be (None)
+          subscriptionList.size mustBe 1
+          val subscription = subscriptionList.head
+          checkSubscriptionObject(subscription)
+          subscription.subscriptionId match {
+            case Some(value) => subscriptionId = value
+            case None => fail("subscriptionId must not be empty")
+          }
+        })
       }
     }
     "not be found" when {
       "an invalid email is passed to the function" in {
-        val subscriptionList = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo]
           .findAllSubscriptionsForEmail("viktorsgmail.com")
-        subscriptionList mustBe List[Subscription]()
+        future.map(subscriptionList => {
+          subscriptionList mustBe List[Subscription]()
+        })
       }
       "a valid email is passed to the function, but subscription does not exist for this email" in {
-        val subscriptionList = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo]
           .findAllSubscriptionsForEmail("doesnotexist@gmail.com")
-        subscriptionList.size mustBe 0
+        future.map(subscriptionList => {subscriptionList.size mustBe 0})
       }
     }
     "be found" when {
       "a valid identifier is passed to the function" in {
-        val subscription = getGuiceContext.injector.instanceOf[SubscriptionRepo].getSubscriptionById(subscriptionId)
-        subscription mustNot be (None)
-        subscription.map(checkSubscriptionObject)
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo].getSubscriptionById(subscriptionId)
+        future.map(subscription => {
+          subscription mustNot be(None)
+          subscription.map(checkSubscriptionObject)
+        }
+        )
       }
     }
     "not be found" when {
       "an invalid identifier is passed to the function" in {
-        val subscription = getGuiceContext.injector.instanceOf[SubscriptionRepo].getSubscriptionById("aoao")
-        subscription mustBe (None)
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo].getSubscriptionById("aoao")
+        future.map(subscription => {
+          subscription mustBe (None)
+        }
+        )
       }
     }
     "not be found" when {
       "an valid identifier is passed to the function, but subscription does not exist for this identifier" in {
-        val subscription = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo]
           .getSubscriptionById("123456abcdef123456abcdef")
-        subscription mustBe (None)
+        future.map(subscription => {
+          subscription mustBe (None)
+        })
       }
     }
     "be deleted" when {
       "an identifier of previously created subscription is passed to the function" in {
-        val deletedCount = getGuiceContext.injector.instanceOf[SubscriptionRepo].deleteSubscriptionById(subscriptionId)
-        deletedCount mustBe 1
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo].deleteSubscriptionById(subscriptionId)
+        future.map(deletedCount => {
+          deletedCount mustBe 1
+        })
       }
     }
     "be not found" when {
       "an identifier of deleted subscription is passed to the function" in {
-        val subscription = getGuiceContext.injector.instanceOf[SubscriptionRepo].getSubscriptionById(subscriptionId)
-        subscription mustBe None
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo].getSubscriptionById(subscriptionId)
+        future.map(subscription => {
+          subscription mustBe None
+        })
       }
     }
     "not be deleted" when {
       "a valid identifier is passed to the function, but subscription does not exist for this identifier" in {
-        val deletedCount = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo]
           .deleteSubscriptionById("123456abcdef123456abcdef")
-        deletedCount mustBe 0
+        future.map(deletedCount=>{
+          deletedCount mustBe 0
+        })
+
       }
     }
     "not be deleted" when {
       "an invalid identifier is passed to the function [IllegalArgumentException must be thrown]" in {
-        an [IllegalArgumentException] mustBe thrownBy(getGuiceContext.injector.instanceOf[SubscriptionRepo]
-            .deleteSubscriptionById("a7d9"))
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo].deleteSubscriptionById("a7d9")
+        future onComplete {
+          case Success(_) => { fail("Exception must be thrown")}
+          case Failure(t) => { t mustBe an [IllegalArgumentException]}
+        }
       }
     }
   }
@@ -245,19 +276,23 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
         None,
         None
       )
-      val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+      val future = getGuiceContext.injector.instanceOf[SubscriptionRepo]
         .findAllSubscribersForFlat(flat)
-      subscriptions.size mustBe 0
+      future.map(subscriptions => {
+        subscriptions.size mustBe 0
+      })
     }
     "be found" when {
       "enabled" in {
-        val subscriptionRepo = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        Thread.sleep(500)
         fakeSmtp.getReceivedEmails.size mustBe 9
         fakeSmtp.getReceivedEmails.forEach( email => {
             val index = new StringOps(email.getBody).lastIndexOfSlice("/subscription/enable/")
             activationToken = email.getBody.substring(index + 21, 32 + index + 21)
-            val enabled = getGuiceContext.injector.instanceOf[SubscriptionRepo].enableSubscription(activationToken)
-            enabled mustBe true
+            val future = getGuiceContext.injector.instanceOf[SubscriptionRepo].enableSubscription(activationToken)
+            future.map(enabled => {
+              enabled mustBe true
+            })
           }
         )
       }
@@ -281,14 +316,17 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           None,
           None
         )
-        val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo]
               .findAllSubscribersForFlat(flat)
-        subscriptions.size mustBe 4
-        val subscribers = subscriptions.map(subscription => subscription.subscriber)
-        subscribers must contain ("p2@gmail.com")
-        subscribers must contain ("p4@gmail.com")
-        subscribers must contain ("p5@gmail.com")
-        subscribers must contain ("p6@gmail.com")
+        future.map(subscriptions => {
+          subscriptions.size mustBe 4
+          val subscribers = subscriptions.map(subscription => subscription.subscriber)
+          subscribers must contain ("p2@gmail.com")
+          subscribers must contain ("p4@gmail.com")
+          subscribers must contain ("p5@gmail.com")
+          subscribers must contain ("p6@gmail.com")
+        })
+
       }
       "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=2,price=80000,riga,teika,sell (3)" in {
         val flat = Flat(
@@ -310,13 +348,15 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           None,
           None
         )
-        val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo]
           .findAllSubscribersForFlat(flat)
-        subscriptions.size mustBe 3
-        val subscribers = subscriptions.map(subscription => subscription.subscriber)
-        subscribers must contain ("p2@gmail.com")
-        subscribers must contain ("p5@gmail.com")
-        subscribers must contain ("p6@gmail.com")
+        future.map(subscriptions => {
+          subscriptions.size mustBe 3
+          val subscribers = subscriptions.map(subscription => subscription.subscriber)
+          subscribers must contain ("p2@gmail.com")
+          subscribers must contain ("p5@gmail.com")
+          subscribers must contain ("p6@gmail.com")
+        })
       }
       "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=140000,riga,teika,sell (2)" in {
         val flat = Flat(
@@ -338,12 +378,14 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           None,
           None
         )
-        val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo]
           .findAllSubscribersForFlat(flat)
-        subscriptions.size mustBe 2
-        val subscribers = subscriptions.map(subscription => subscription.subscriber)
-        subscribers must contain ("p4@gmail.com")
-        subscribers must contain ("p6@gmail.com")
+        future.map(subscriptions => {
+          subscriptions.size mustBe 2
+          val subscribers = subscriptions.map(subscription => subscription.subscriber)
+          subscribers must contain ("p4@gmail.com")
+          subscribers must contain ("p6@gmail.com")
+        })
       }
       "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=140000,jurmala,vaivari,sell (3)" in {
         val flat = Flat(
@@ -365,13 +407,15 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           None,
           None
         )
-        val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo]
           .findAllSubscribersForFlat(flat)
-        subscriptions.size mustBe 3
-        val subscribers = subscriptions.map(subscription => subscription.subscriber)
-        subscribers must contain ("p7@gmail.com")
-        subscribers must contain ("p6@gmail.com")
-        subscribers must contain ("p4@gmail.com")
+        future.map(subscriptions => {
+          subscriptions.size mustBe 3
+          val subscribers = subscriptions.map(subscription => subscription.subscriber)
+          subscribers must contain ("p7@gmail.com")
+          subscribers must contain ("p6@gmail.com")
+          subscribers must contain ("p4@gmail.com")
+        })
       }
       "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=300000,jurmala,teika,sell (1)" in {
         val flat = Flat(
@@ -393,11 +437,13 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           None,
           None
         )
-        val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo]
           .findAllSubscribersForFlat(flat)
-        subscriptions.size mustBe 1
-        val subscribers = subscriptions.map(subscription => subscription.subscriber)
-        subscribers must contain ("p6@gmail.com")
+        future.map(subscriptions => {
+          subscriptions.size mustBe 1
+          val subscribers = subscriptions.map(subscription => subscription.subscriber)
+          subscribers must contain ("p6@gmail.com")
+        })
       }
       "findAllSubscribersForFlat is kicked of for flat: rooms=2,size=75,floor=4,price=300000,jurmala,teika,rent (2)" in {
         val flat = Flat(
@@ -419,12 +465,14 @@ class SubscriptionRepoTest extends PlaySpec with BeforeAndAfterAll {
           None,
           None
         )
-        val subscriptions = getGuiceContext.injector.instanceOf[SubscriptionRepo]
+        val future = getGuiceContext.injector.instanceOf[SubscriptionRepo]
           .findAllSubscribersForFlat(flat)
-        subscriptions.size mustBe 2
-        val subscribers = subscriptions.map(subscription => subscription.subscriber)
-        subscribers must contain ("p6@gmail.com")
-        subscribers must contain ("p8@gmail.com")
+        future.map(subscriptions => {
+          subscriptions.size mustBe 2
+          val subscribers = subscriptions.map(subscription => subscription.subscriber)
+          subscribers must contain ("p6@gmail.com")
+          subscribers must contain ("p8@gmail.com")
+        })
       }
     }
   }
