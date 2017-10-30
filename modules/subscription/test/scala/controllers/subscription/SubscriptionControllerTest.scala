@@ -264,7 +264,8 @@ class SubscriptionControllerTest extends PlaySpec with Results with BeforeAndAft
             	"floor": 3,
             	"city": "riga",
             	"district": "centre",
-            	"action": "sell"
+            	"action": "sell",
+              "buildingType":"Specpr."
             }
           """)
         val result: Future[Result] = prepareRequestAndCallApi(

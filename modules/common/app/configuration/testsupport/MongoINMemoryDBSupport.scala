@@ -36,7 +36,6 @@ object MongoINMemoryDBSupport {
     }
     executable.start
     isRunning = true
-
   }
 
   def stopInMemoryMongo = synchronized {

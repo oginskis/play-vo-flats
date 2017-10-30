@@ -155,7 +155,6 @@ class SubscriptionRepo @Inject()(actorSystem: ActorSystem, connection: MongoConn
         Filters.eq("itemType", "subscription"),
         Filters.eq("enabled", java.lang.Boolean.valueOf(true))
       )
-
       def deduplicate(incomingDocs: List[Document], filteredDocs: List[Document],
                       seen: Seq[String]): List[Document] = {
         if (incomingDocs.size > 0) {
@@ -182,7 +181,6 @@ class SubscriptionRepo @Inject()(actorSystem: ActorSystem, connection: MongoConn
           }
         }
       }
-
       val documents: List[Document] = subscriptionCollection.find(query).asScala.toList
       val filtered = documents.filter(document => {
         val params = document.get("parameters")
@@ -190,9 +188,10 @@ class SubscriptionRepo @Inject()(actorSystem: ActorSystem, connection: MongoConn
           true
         } else {
           val props = params.asInstanceOf[Document]
-          contains(props, "cities", flat.city) &&
+            contains(props, "cities", flat.city) &&
             contains(props, "districts", flat.district) &&
-            contains(props, "actions", flat.action)
+            contains(props, "actions", flat.action) &&
+            contains(props, "buildingTypes", flat.buildingType)
         }
       })
       deduplicate(filtered, List[Document](), Seq[String]()).map(document => createSubscriptionObject(document))
