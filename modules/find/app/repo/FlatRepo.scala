@@ -172,6 +172,7 @@ class FlatRepo @Inject()(connection: MongoConnection) {
         floor = flat.floor,
         maxFloors = flat.maxFloors,
         price = flat.price,
+        buildingType = flat.buildingType,
         link = flat.link,
         firstSeenAt = Option(currentTimestamp),
         lastSeenAt = Option(currentTimestamp),
@@ -202,6 +203,11 @@ class FlatRepo @Inject()(connection: MongoConnection) {
         floor = Option(updatedDocument.get("flatFloor").toString.toInt),
         maxFloors = Option(updatedDocument.get("maxFloors").toString.toInt),
         price = Option(updatedDocument.get("price").toString.toInt),
+        buildingType = Option(
+          if (updatedDocument.get("buildingType") == null) {
+            CommonProps.EmptyProp
+          } else updatedDocument.get("buildingType").toString
+        ),
         link = Option(updatedDocument.get("link").toString),
         firstSeenAt = Option(updatedDocument.get("firstSeenAtEpoch").toString.toLong),
         lastSeenAt = Option(currentTimestamp),

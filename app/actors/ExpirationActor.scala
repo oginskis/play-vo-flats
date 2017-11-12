@@ -10,21 +10,21 @@ import repo.FlatRepo
 /**
   * Created by oginskis on 25/05/2017.
   */
-class ProcessingActor (flatRepo:FlatRepo,
-                                wsClient:WSClient,
-                                configuration: Configuration) extends Actor with ActorLogging {
+class ExpirationActor(flatRepo:FlatRepo,
+                      wsClient:WSClient,
+                      configuration: Configuration) extends Actor with ActorLogging {
 
   override def receive: Receive = {
 
-    case ProcessingActor.Expire => {
+    case ExpirationActor.Expire => {
       try {
-        val expireOlderThan = configuration.get[Int](ProcessingActor.ExpireOlderThan)
+        val expireOlderThan = configuration.get[Int](ExpirationActor.ExpireOlderThan)
         flatRepo.expireFlats(expireOlderThan)
       }
       catch {
         case e: MongoCommandException => {
           Logger.info(s"Error during flat expiration on ss.lv: ${e.getErrorMessage}, will retry...")
-          self ! ProcessingActor.Expire
+          self ! ExpirationActor.Expire
         }
       }
     }
@@ -32,7 +32,7 @@ class ProcessingActor (flatRepo:FlatRepo,
 
 }
 
-object ProcessingActor {
+object ExpirationActor {
   val Expire = "expireFlats"
   val ExpireOlderThan = "flat.expire.olderThan"
 

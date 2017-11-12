@@ -41,7 +41,6 @@ class SubscriptionController @Inject()(cc: ControllerComponents, subscriptionRep
           } else {
             NotFound(EmptyResponse)
           }
-          Ok("")
         })
       }
       case _ => Future {BadRequest(Json.toJson(Error.mustBeHexadecimal("activationToken")))}

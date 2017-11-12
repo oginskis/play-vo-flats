@@ -4,7 +4,7 @@ import sbtassembly.Plugin.AssemblyKeys._
 name := """flats"""
 
 lazy val commonSettings = Seq(
-  version := "13.0.1",
+  version := "13.1.0",
   scalaVersion := "2.12.3"
 )
 

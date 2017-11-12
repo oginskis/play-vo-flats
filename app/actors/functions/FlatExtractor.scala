@@ -30,7 +30,7 @@ class FlatExtractor(wsClient: WSClient, configuration: Configuration)
         floor = Option(rawFloor.substring(0, rawFloor.lastIndexOf("/")).toDouble.toInt),
         maxFloors = Option(rawFloor.substring(rawFloor.lastIndexOf("/") + 1).toInt),
         price = Option(attr(6).text.replace(",", "").replace(" €", "").trim.toInt),
-        buildingType = Option(attr(5).text.replace(",", "").replace(" €", "").trim),
+        buildingType = Option(attr(4).text.trim),
         link = Option(link))
     }
     def filterOutRubbish(entry: JsoupElement): Boolean = {

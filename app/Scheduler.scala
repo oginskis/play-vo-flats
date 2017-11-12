@@ -1,6 +1,6 @@
 import javax.inject.{Inject, Singleton}
 
-import actors.{ExtractingActor, ProcessingActor}
+import actors.{ExpirationActor, ExtractingActor}
 import akka.actor.{ActorSystem, Props}
 import akka.routing.RoundRobinPool
 import play.api.Configuration
@@ -19,8 +19,7 @@ import Scheduler._
 class Scheduler @Inject()(actorSystem: ActorSystem,
                           configuration: Configuration, flatRepo: FlatRepo, subscriptionRepo: SubscriptionRepo,
                           emailSendingService: EmailSendingService, wsClient: WSClient) {
-  val processingActor = actorSystem.actorOf((Props(classOf[ProcessingActor],flatRepo,subscriptionRepo,
-    emailSendingService,wsClient,configuration)))
+  val processingActor = actorSystem.actorOf((Props(classOf[ExpirationActor],flatRepo,wsClient,configuration)))
   val extractingActor = {
     actorSystem.actorOf(RoundRobinPool(configuration.get[Int](extractingParallelActors))
       .props(Props(classOf[ExtractingActor],flatRepo,subscriptionRepo,emailSendingService,
@@ -31,7 +30,7 @@ class Scheduler @Inject()(actorSystem: ActorSystem,
     extractingActor, ExtractingActor.Process)
   actorSystem.scheduler.schedule(0 seconds, configuration.underlying.getInt(EXPIRATION_KICK_OFF_SCHEDULE)
     seconds,
-    processingActor, ProcessingActor.Expire)
+    processingActor, ExpirationActor.Expire)
 }
 
 object Scheduler {

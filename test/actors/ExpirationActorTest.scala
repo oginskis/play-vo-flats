@@ -7,7 +7,7 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 /**
   * Created by oginskis on 02/07/2017.
   */
-class ProcessingActorTest extends TestKit(ActorSystem("testActorSystem")) with ImplicitSender
+class ExpirationActorTest extends TestKit(ActorSystem("testActorSystem")) with ImplicitSender
   with WordSpecLike with Matchers with BeforeAndAfterAll {
 
   override def afterAll: Unit = {
