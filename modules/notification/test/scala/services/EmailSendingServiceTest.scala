@@ -43,6 +43,8 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
           message.getBody.contains("WWW") mustBe true
           message.getBody.contains("www.adscraper.lv") mustBe true
           message.getBody.contains("WWW") mustBe true
+          message.getBody.contains("Building type") mustBe true
+          message.getBody.contains("Specpr.") mustBe true
           message.getBody.contains("Caka 95") mustBe true
           message.getBody.contains("riga, teika") mustBe true
           message.getBody.contains("75  m2") mustBe true
@@ -91,6 +93,8 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
       messages.headOption match {
         case Some(message) => {
           checkCommonFieldsEn(message,uuid)
+          message.getBody.contains("Building types") mustBe true
+          message.getBody.contains("Specpr.") mustBe true
           message.getBody.contains("Cities") mustBe true
           message.getBody.contains("Districts") mustBe true
           message.getBody.contains("Actions") mustBe true

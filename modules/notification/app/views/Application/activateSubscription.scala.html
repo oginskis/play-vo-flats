@@ -160,6 +160,50 @@
                     </td>
                 </tr>
             }
+            @for(buildingTypes <- subscription.buildingTypes) {
+                <tr>
+                    <td style="margin: 0;
+                        padding: 0;
+                        border: 0;
+                        text-align: left;
+                        ">
+                        <div style="display: inline-block;
+                            max-width: 290px;
+                            vertical-align: top;
+                            width: 100%;
+                            padding: 2px">
+                            <table style="margin: 0;
+                                border: 0;
+                                padding: 0px;
+                                max-width: 290px">
+                                <tr>
+                                    <td style="font-size: 14px;
+                                        font-family: Roboto, Tahoma, sans-serif; ">
+                                        <strong>@messages("email.buildingTypes")</strong>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div style="display: inline-block;
+                            max-width: 290px;
+                            vertical-align: top;
+                            width: 100%;
+                            padding: 2px">
+                            <table style="margin: 0;
+                                border: 0;
+                                padding: 0px;
+                                max-width: 290px">
+                                <tr>
+                                    <td style="font-size: 14px;
+                                        font-family: Roboto, Tahoma, sans-serif;">
+                                    @buildingTypes.mkString(", ")
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            }
             @for(pr <- subscription.priceRange) {
                 <tr>
                     <td style="margin: 0;

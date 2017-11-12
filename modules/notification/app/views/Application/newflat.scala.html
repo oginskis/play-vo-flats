@@ -149,6 +149,28 @@
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
                                     <tr>
                                         <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                            <strong>@messages("email.buildingType")</strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="display:inline-block; max-width:300px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:300px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
+                                        @{flat.buildingType.get}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="left" valign="top" style="font-size:0;background-color: whitesmoke">
+                            <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
+                                <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
+                                    <tr>
+                                        <td align="left" valign="top" style="font-size:14px;font-family: Roboto,Tahoma, sans-serif;">
                                             <strong>@messages("email.price")</strong>
                                         </td>
                                     </tr>
@@ -167,7 +189,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td align="left" valign="top" style="font-size:0;background-color: whitesmoke">
+                        <td align="left" valign="top" style="font-size:0">
                             <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
                                 <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
                                     <tr>
@@ -190,7 +212,7 @@
                     </tr>
                     @if(flat.contactDetails != None) {
                         <tr>
-                            <td align="left" valign="top" style="font-size:0;">
+                            <td align="left" valign="top" style="font-size:0;background-color: whitesmoke">
                                 <div style="display:inline-block; max-width:200px; vertical-align:top; width:100%;">
                                     <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width:200px;" class="deviceWidth">
                                         <tr>
@@ -482,6 +504,40 @@
                                 <td align="left" valign="top" style="font-size: 12px;
                                     font-family: Roboto, Tahoma, sans-serif;">
                                 @actions.mkString(", ")
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        }
+        @for(buildingTypes <- subscription.buildingTypes) {
+            <tr>
+                <td align="left" valign="top" style="font-size: 0;">
+                    <div style="display: inline-block;
+                        max-width: 200px;
+                        vertical-align: top;
+                        width: 100%;">
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width: 200px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size: 12px;
+                                    font-family: Roboto, Tahoma, sans-serif;">
+                                    <strong>
+                                    @messages("email.buildingTypes")
+                                    </strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="display: inline-block;
+                        max-width: 300px;
+                        vertical-align: top;
+                        width: 100%;">
+                        <table align="left" border="0" cellpadding="3" cellspacing="0" width="100%" style="max-width: 300px;" class="deviceWidth">
+                            <tr>
+                                <td align="left" valign="top" style="font-size: 12px;
+                                    font-family: Roboto, Tahoma, sans-serif;">
+                                @buildingTypes.mkString(", ")
                                 </td>
                             </tr>
                         </table>
