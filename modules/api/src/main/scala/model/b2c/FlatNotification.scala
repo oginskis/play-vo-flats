@@ -1,33 +1,32 @@
 package model.b2c
 
-import model.CommonProps._
 import play.api.libs.functional.syntax.unlift
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
 case class FlatNotification(
-                           val flat: Option[Flat],
-                           val subscription: Option[Subscription],
-                           val token: Option[String]
+                           val flat: Flat,
+                           val subscription: Subscription,
+                           val token: String
                            ) {
 
     override def toString: String = {
-      "Flat: " + flat.getOrElse(EmptyProp) + ", "+
-      "Subscription: " + flat.getOrElse(EmptyProp)
+      "Flat: " + flat.toString + ", "+
+      "Subscription: " + flat.toString
     }
 }
 
 object FlatNotification {
 
   implicit val flatNotificationWrites: Writes[FlatNotification] = (
-    (JsPath \ "flat").writeNullable[Flat] and
-    (JsPath \ "subscription").writeNullable[Subscription] and
-    (JsPath \ "token").writeNullable[String]
+    (JsPath \ "flat").write[Flat] and
+    (JsPath \ "subscription").write[Subscription] and
+    (JsPath \ "token").write[String]
     )(unlift(FlatNotification.unapply))
 
   implicit val flatNotificationReads: Reads[FlatNotification] = (
-    (JsPath \ "flat").readNullable[Flat] and
-    (JsPath \ "subscription").readNullable[Subscription] and
-    (JsPath \ "token").readNullable[String]
+    (JsPath \ "flat").read[Flat] and
+    (JsPath \ "subscription").read[Subscription] and
+    (JsPath \ "token").read[String]
     )(FlatNotification.apply _)
 }

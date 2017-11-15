@@ -9,6 +9,8 @@ import org.scalatestplus.play.PlaySpec
 
 import scala.testhelpers.TestApplicationContextHelper._
 import scala.collection.JavaConverters._
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with BeforeAndAfter {
 
@@ -20,9 +22,9 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
 
   "Notification email" should {
     "be sent (EN)" in {
-      val emailSendingService = getGuiceContext.injector.instanceOf[EmailSendingService]
-      emailSendingService.sendFlatNotificationEmail(FlatNotification(
-        Option(createFlat),Option(createSubscription("en")),Option("aabbcc")))
+      val emailSendingService =  getGuiceContext.injector.instanceOf[EmailSendingService]
+      Await.result(emailSendingService.sendFlatNotificationEmail(FlatNotification(
+        createFlat,createSubscription("en"),"aabbcc")),1 second)
       val messages = fakeSmtp.getReceivedEmails.asScala
       messages.headOption match {
         case Some(message) => {
@@ -87,8 +89,8 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
     "be sent (EN)" in {
       val emailSendingService = getGuiceContext.injector.instanceOf[EmailSendingService]
       val uuid = java.util.UUID.randomUUID.toString.replace("-","")
-      emailSendingService
-        .sendSubscriptionActivationEmail(SubscriptionActivationRequest(Option(uuid),createSubscription("en")))
+      Await.result(emailSendingService
+        .sendSubscriptionActivationEmail(SubscriptionActivationRequest(Option(uuid),createSubscription("en"))),1 second)
       val messages = fakeSmtp.getReceivedEmails.asScala
       messages.headOption match {
         case Some(message) => {
@@ -115,8 +117,9 @@ class EmailSendingServiceTest extends PlaySpec with BeforeAndAfterAll with Befor
     "be sent, empty subscription (EN)" in {
       val emailSendingService = getGuiceContext.injector.instanceOf[EmailSendingService]
       val uuid = java.util.UUID.randomUUID.toString.replace("-","")
-      emailSendingService
-        .sendSubscriptionActivationEmail(SubscriptionActivationRequest(Option(uuid),createEmptySubscription("en")))
+      Await.result(emailSendingService
+        .sendSubscriptionActivationEmail(SubscriptionActivationRequest(Option(uuid),createEmptySubscription("en"))),
+        1 second)
       val messages = fakeSmtp.getReceivedEmails.asScala
       messages.headOption match {
         case Some(message) => {

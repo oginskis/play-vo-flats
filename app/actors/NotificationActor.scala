@@ -1,13 +1,13 @@
 package actors
 
 import akka.actor.{Actor, ActorLogging}
+import model.CommonProps
 import model.b2c.{Flat, FlatNotification}
 import play.api.{Configuration, Logger}
 import repo.SubscriptionRepo
 
 import scala.services.EmailSendingService
 import scala.util.Try
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
@@ -24,7 +24,7 @@ class NotificationActor (subscriptionRepo: SubscriptionRepo, emailSendingService
             subscription => {
               val tokenFuture = subscriptionRepo.getSubscriptionToken(subscription.subscriptionId.getOrElse(""))
               tokenFuture.map(result => {
-                self ! FlatNotification(Option(flat),Option(subscription),result)
+                self ! FlatNotification(flat,subscription,result.getOrElse(CommonProps.EmptyProp))
               })
             }
           )
