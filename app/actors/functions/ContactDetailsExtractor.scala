@@ -20,9 +20,21 @@ class ContactDetailsExtractor(wsClient: WSClient, configuration: Configuration)
     def extractPhoneNumbers(elements: List[JsoupElement]): Option[List[String]] = {
       Option(elements
         .filter(element => element.select(".ads_contacts_name").size > 0 &&
-          element.select(".ads_contacts_name").head.text.contains("Tālrunis"))
+          (element.select(".ads_contacts_name").headOption match {
+            case Some(value) => {
+              value.text.contains("Tālrunis")
+            }
+            case None => { false }
+        }))
         .map(element => {
-          (element.select("[id^=\"phone_td_\"]").head.text.replace("(","").replace(")","").replace("-",""))
+          element.select("[id^=\"phone_td_\"]").headOption match {
+            case Some(value) => {
+              value.text.replace("(","").replace(")","").replace("-","")
+            }
+            case None => {
+              throw new IllegalArgumentException("Scrapped value must not be empty")
+            }
+          }
         }))
     }
     def extractWebPage(elements: List[JsoupElement]): Option[String] = {
